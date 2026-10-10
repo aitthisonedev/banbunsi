@@ -79,13 +79,15 @@ export function DocumentList({
               <span className="doc-card-body">
                 <span className="doc-card-title">{doc.title}</span>
                 <span className="doc-card-meta">
-                  {doc.category_name ? <span>{doc.category_name}</span> : null}
+                  {doc.category_name ? <span className="doc-card-cat">{doc.category_name}</span> : null}
                   {doc.year ? <span>· {doc.year}</span> : null}
                   {doc.document_number ? <span>· {doc.document_number}</span> : null}
                 </span>
               </span>
               <span className="doc-card-badges">
-                <span className="doc-badge">{accessLabel(locale, doc.read_access)}</span>
+                <span className={`doc-badge doc-badge--${doc.read_access}`}>
+                  {accessLabel(locale, doc.read_access)}
+                </span>
               </span>
             </Link>
           </li>
@@ -98,25 +100,48 @@ export function DocumentList({
     <ul className="doc-card-grid">
       {items.map((doc, index) => (
         <li key={doc.id}>
-          <Link href={`/${locale}/documents/${doc.slug}`} className="doc-card doc-card--tile">
+          <Link
+            href={`/${locale}/documents/${doc.slug}`}
+            className="doc-card doc-card--tile"
+            title={doc.title}
+          >
             <span className="doc-card-media">
               <Image
                 src={coverFor(doc, index)}
-                alt=""
+                alt={doc.title}
                 fill
-                sizes="(max-width: 768px) 100vw, 33vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 className="doc-card-media-img"
               />
               <span className="doc-card-media-shade" aria-hidden />
-              <span className="doc-card-title-on-image">{doc.title}</span>
+              <span className="doc-card-media-badge">
+                <span className={`doc-badge doc-badge--${doc.read_access}`}>
+                  {accessLabel(locale, doc.read_access)}
+                </span>
+              </span>
             </span>
+
             <span className="doc-card-body">
               <span className="doc-card-meta">
-                {doc.category_name ? <span>{doc.category_name}</span> : null}
-                {doc.year ? <span>· {doc.year}</span> : null}
+                {doc.category_name ? (
+                  <span className="doc-card-cat">{doc.category_name}</span>
+                ) : null}
+                {doc.year ? (
+                  <span className="doc-card-year">· {doc.year}</span>
+                ) : null}
               </span>
-              <span className="doc-card-badges">
-                <span className="doc-badge">{accessLabel(locale, doc.read_access)}</span>
+
+              <h3 className="doc-card-title">{doc.title}</h3>
+
+              <span className="doc-card-footer">
+                {doc.document_number ? (
+                  <span className="doc-card-docnum">{doc.document_number}</span>
+                ) : (
+                  <span />
+                )}
+                <span className="doc-card-read-more" aria-hidden>
+                  {locale === "lo" ? "ອ່ານ" : "Read"} →
+                </span>
               </span>
             </span>
           </Link>
