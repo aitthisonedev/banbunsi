@@ -113,7 +113,14 @@ export function SiteHeader({ locale }: { locale: Locale }) {
     );
 
   return (
-    <header className="site-header">
+    <header
+      className="site-header"
+      style={{
+        backgroundColor: "var(--bb-header-bg)",
+        backdropFilter: "none",
+        WebkitBackdropFilter: "none",
+      }}
+    >
       <div className="site-header-inner">
         <div className="site-header-left">
           <BrandLogo locale={locale} priority />
