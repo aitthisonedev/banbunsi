@@ -66,7 +66,9 @@ export async function clientUploadAvatar(file: File) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error((data as { error?: string }).error || `Request failed (${res.status})`);
+    throw new Error(
+      (data as { error?: string }).error || `Request failed (${res.status})`,
+    );
   }
   return data as User;
 }
@@ -75,7 +77,10 @@ export function clientDeleteAvatar() {
   return clientFetch<User>("/account/avatar", { method: "DELETE" });
 }
 
-export function clientChangePassword(currentPassword: string, newPassword: string) {
+export function clientChangePassword(
+  currentPassword: string,
+  newPassword: string,
+) {
   return clientFetch<{ message: string }>("/account/password", {
     method: "POST",
     body: JSON.stringify({

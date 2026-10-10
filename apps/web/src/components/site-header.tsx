@@ -130,7 +130,9 @@ export function SiteHeader({ locale }: { locale: Locale }) {
           </span>
           <div className="drawer-user-info">
             <span className="drawer-user-name">
-              {user.name || [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email}
+              {user.name ||
+                [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+                user.email}
             </span>
             <span className="drawer-user-email">{user.email}</span>
           </div>
@@ -211,7 +213,14 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(true)}
           >
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
             </svg>
           </button>

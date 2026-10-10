@@ -55,18 +55,18 @@ func userPayload(u *models.User, tier models.MembershipTier, endsAt *time.Time) 
 		ends = endsAt.UTC().Format(time.RFC3339)
 	}
 	return fiber.Map{
-		"id":                  u.ID.String(),
-		"name":                u.Name,
-		"first_name":          first,
-		"last_name":           last,
-		"phone":               u.Phone,
-		"avatar_url":          avatarURL,
-		"email":               u.Email,
-		"email_verified":      u.EmailVerified(),
-		"staff_role":          u.StaffRole,
-		"account_status":      u.AccountStatus,
-		"membership_tier":     tier,
-		"membership_ends_at":  ends,
+		"id":                 u.ID.String(),
+		"name":               u.Name,
+		"first_name":         first,
+		"last_name":          last,
+		"phone":              u.Phone,
+		"avatar_url":         avatarURL,
+		"email":              u.Email,
+		"email_verified":     u.EmailVerified(),
+		"staff_role":         u.StaffRole,
+		"account_status":     u.AccountStatus,
+		"membership_tier":    tier,
+		"membership_ends_at": ends,
 	}
 }
 

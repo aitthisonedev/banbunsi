@@ -52,7 +52,10 @@ export function UserNavMenu({
 
   const photo = avatarSrc(user.avatar_url);
   const initials = getInitials(user);
-  const displayName = user.name || [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
+  const displayName =
+    user.name ||
+    [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+    user.email;
   const isVip = user.membership_tier === "vip";
 
   return (
@@ -69,7 +72,13 @@ export function UserNavMenu({
         <span className="user-nav-avatar">
           {photo ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={photo} alt="" width={32} height={32} className="user-nav-avatar-img" />
+            <img
+              src={photo}
+              alt=""
+              width={32}
+              height={32}
+              className="user-nav-avatar-img"
+            />
           ) : (
             <span className="user-nav-avatar-initials">{initials}</span>
           )}
@@ -97,7 +106,13 @@ export function UserNavMenu({
             <span className="user-nav-dropdown-avatar">
               {photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={photo} alt="" width={40} height={40} className="user-nav-avatar-img" />
+                <img
+                  src={photo}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="user-nav-avatar-img"
+                />
               ) : (
                 <span className="user-nav-avatar-initials">{initials}</span>
               )}
@@ -105,8 +120,12 @@ export function UserNavMenu({
             <div className="user-nav-dropdown-info">
               <span className="user-nav-dropdown-name">{displayName}</span>
               <span className="user-nav-dropdown-email">{user.email}</span>
-              <span className={`user-nav-tier-badge ${isVip ? "is-vip" : "is-member"}`}>
-                {isVip ? `👑 ${t(locale, "badgeVip")}` : t(locale, "badgeMember")}
+              <span
+                className={`user-nav-tier-badge ${isVip ? "is-vip" : "is-member"}`}
+              >
+                {isVip
+                  ? `👑 ${t(locale, "badgeVip")}`
+                  : t(locale, "badgeMember")}
               </span>
             </div>
           </div>
@@ -121,7 +140,17 @@ export function UserNavMenu({
               onClick={() => setOpen(false)}
               role="menuitem"
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
@@ -135,7 +164,17 @@ export function UserNavMenu({
                 onClick={() => setOpen(false)}
                 role="menuitem"
               >
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
                 <span>{t(locale, "admin")}</span>
@@ -155,7 +194,17 @@ export function UserNavMenu({
             }}
             role="menuitem"
           >
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />

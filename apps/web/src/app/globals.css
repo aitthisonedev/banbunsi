@@ -63,8 +63,9 @@ html.dark {
   --color-bb-border: var(--bb-border);
   --color-bb-text-muted: var(--bb-text-muted);
   --font-sans: var(--font-noto), ui-sans-serif, system-ui, sans-serif;
-  --font-lao: "Phetsarath", var(--font-phetsarath), var(--font-noto),
-    ui-sans-serif, system-ui, sans-serif;
+  --font-lao:
+    "Phetsarath", var(--font-phetsarath), var(--font-noto), ui-sans-serif,
+    system-ui, sans-serif;
 }
 
 body {
@@ -72,7 +73,9 @@ body {
   color: var(--foreground);
   font-size: 17px;
   line-height: 1.75;
-  transition: background-color 180ms ease, color 180ms ease;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 a,
@@ -212,7 +215,9 @@ select.input {
   line-height: 1.4;
   text-align: left;
   cursor: pointer;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 .bb-select-trigger:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--bb-blue) 45%, var(--bb-border));
@@ -335,7 +340,9 @@ html.dark .bb-select-menu {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--bb-text);
-  transition: border-color 150ms ease, color 150ms ease;
+  transition:
+    border-color 150ms ease,
+    color 150ms ease;
 }
 .chip:hover {
   border-color: var(--bb-blue);
@@ -453,7 +460,10 @@ html.dark .nav-link.is-active {
   color: var(--bb-text);
   font-size: 0.84rem;
   font-weight: 700;
-  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .lang-switch-trigger:hover,
@@ -561,7 +571,9 @@ html.dark .btn-header-secondary {
   border: 1px solid var(--bb-border);
   color: var(--bb-text-muted);
   background: transparent;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
 }
 .icon-btn:hover {
   color: var(--bb-blue);
@@ -698,7 +710,9 @@ html.dark .theme-icon-sun {
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   padding: 0.3rem 0.35rem 0.3rem 0.85rem;
-  transition: box-shadow 180ms ease, border-color 180ms ease;
+  transition:
+    box-shadow 180ms ease,
+    border-color 180ms ease;
 }
 .hero-search:focus-within {
   box-shadow: 0 18px 42px rgba(0, 16, 50, 0.35);
@@ -739,7 +753,9 @@ html.dark .theme-icon-sun {
   font-size: 0.95rem;
   border: 0;
   cursor: pointer;
-  transition: background 160ms ease, transform 160ms ease;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
   flex-shrink: 0;
 }
 .hero-search button:hover {
@@ -772,7 +788,9 @@ html.dark .theme-icon-sun {
   font-weight: 600;
   text-decoration: none;
   backdrop-filter: blur(4px);
-  transition: background 150ms ease, transform 150ms ease;
+  transition:
+    background 150ms ease,
+    transform 150ms ease;
 }
 .hero-tag:hover {
   background: rgba(255, 255, 255, 0.22);
@@ -824,7 +842,10 @@ html.dark .theme-icon-sun {
   padding: 0.95rem 1.15rem;
   box-shadow: 0 10px 28px rgba(8, 24, 64, 0.1);
   text-decoration: none;
-  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
 }
 html.dark .feature-card {
   background: var(--bb-surface);
@@ -943,7 +964,9 @@ html.dark .feature-icon {
   color: var(--bb-blue);
   text-decoration: none;
   white-space: nowrap;
-  transition: color 150ms ease, gap 150ms ease;
+  transition:
+    color 150ms ease,
+    gap 150ms ease;
 }
 .home-section .section-link:hover {
   color: var(--bb-blue-hover);
@@ -956,8 +979,16 @@ html.dark .feature-icon {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 30%, rgba(91, 140, 255, 0.22) 0%, transparent 50%),
-    radial-gradient(circle at 85% 70%, rgba(39, 174, 96, 0.16) 0%, transparent 45%),
+    radial-gradient(
+      circle at 15% 30%,
+      rgba(91, 140, 255, 0.22) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 85% 70%,
+      rgba(39, 174, 96, 0.16) 0%,
+      transparent 45%
+    ),
     linear-gradient(135deg, #06184a 0%, #09266e 60%, #051644 100%);
   color: #fff;
   padding: 1.15rem 0 1.25rem;
@@ -967,7 +998,11 @@ html.dark .feature-icon {
 }
 html.dark .home-promo {
   background:
-    radial-gradient(circle at 15% 30%, rgba(91, 140, 255, 0.18) 0%, transparent 50%),
+    radial-gradient(
+      circle at 15% 30%,
+      rgba(91, 140, 255, 0.18) 0%,
+      transparent 50%
+    ),
     linear-gradient(135deg, #081a4a 0%, #0e2970 60%, #07153f 100%);
   border-top-color: rgba(255, 255, 255, 0.08);
 }
@@ -1043,7 +1078,11 @@ html.dark .home-promo {
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
   cursor: pointer;
 }
 .home-promo-btn {
@@ -1392,7 +1431,9 @@ html.dark .doc-card--tile:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  transition: transform 160ms ease, color 160ms ease;
+  transition:
+    transform 160ms ease,
+    color 160ms ease;
 }
 .doc-card:hover .doc-card-read-more {
   transform: translateX(3px);
@@ -1658,7 +1699,9 @@ html.dark .doc-badge--vip {
   border-radius: 12px;
   border: 1px solid var(--bb-border);
   background: var(--bb-bg-muted);
-  transition: border-color 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease;
 }
 .doc-file-card:hover {
   border-color: color-mix(in srgb, var(--bb-blue) 45%, var(--bb-border));
@@ -1961,8 +2004,16 @@ html.dark .ui-banner--success {
   justify-content: center;
   padding: 1.75rem 1rem 2.5rem;
   background:
-    radial-gradient(circle at 10% 15%, rgba(0, 54, 173, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 85%, rgba(39, 174, 96, 0.04) 0%, transparent 40%),
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(0, 54, 173, 0.05) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(39, 174, 96, 0.04) 0%,
+      transparent 40%
+    ),
     var(--bb-bg-muted);
 }
 @media (min-width: 768px) {
@@ -1972,8 +2023,16 @@ html.dark .ui-banner--success {
 }
 html.dark .auth-shell {
   background:
-    radial-gradient(circle at 10% 15%, rgba(91, 140, 255, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 90% 85%, rgba(52, 199, 123, 0.05) 0%, transparent 40%),
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(91, 140, 255, 0.08) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(52, 199, 123, 0.05) 0%,
+      transparent 40%
+    ),
     var(--bb-bg-muted);
 }
 
@@ -1985,10 +2044,14 @@ html.dark .auth-shell {
   border-radius: 20px;
   overflow: hidden;
   background: var(--bb-surface);
-  box-shadow: 0 20px 45px -12px rgba(6, 22, 68, 0.1), 0 0 1px 1px rgba(6, 22, 68, 0.04);
+  box-shadow:
+    0 20px 45px -12px rgba(6, 22, 68, 0.1),
+    0 0 1px 1px rgba(6, 22, 68, 0.04);
 }
 html.dark .auth-layout {
-  box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 25px 50px -15px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 @media (min-width: 900px) {
   .auth-layout {
@@ -2103,7 +2166,9 @@ html.dark .auth-aside {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(6px);
-  transition: transform 160ms ease, background 160ms ease;
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
 }
 .auth-feature-item:hover {
   transform: translateX(4px);
@@ -2176,7 +2241,9 @@ html.dark .auth-aside {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   text-decoration: none;
-  transition: background 160ms ease, color 160ms ease;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
 }
 .auth-aside-home:hover {
   background: rgba(255, 255, 255, 0.18);
@@ -2330,7 +2397,9 @@ html.dark .auth-nav-tab.is-active {
   border: 1px solid var(--bb-border);
   background: var(--bb-surface);
   color: var(--bb-text);
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 .auth-input-wrap .input.has-icon-left {
   padding-left: 2.5rem;
@@ -2357,7 +2426,9 @@ html.dark .auth-nav-tab.is-active {
   background: transparent;
   color: var(--bb-text-muted);
   cursor: pointer;
-  transition: color 150ms ease, background 150ms ease;
+  transition:
+    color 150ms ease,
+    background 150ms ease;
 }
 .auth-eye-btn:hover {
   color: var(--bb-text);
@@ -2494,7 +2565,10 @@ html.dark .auth-alert--error {
   border: 0;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 54, 173, 0.28);
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
   margin-top: 0.25rem;
 }
 .auth-submit-btn:hover:not(:disabled) {
@@ -3240,7 +3314,10 @@ html.dark .quiz-result-badge.is-fail {
   border: 1px solid var(--bb-border);
   background: var(--bb-bg-muted);
   cursor: pointer;
-  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 .user-nav-trigger:hover,
 .user-nav-menu:has(.user-nav-dropdown) .user-nav-trigger {
@@ -3392,7 +3469,9 @@ html.dark .user-nav-tier-badge.is-vip {
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 .user-nav-dropdown-item:hover {
   background: var(--bb-bg-tint);
@@ -3614,7 +3693,11 @@ html.dark .account-verified-pill.is-verified {
   border-radius: 9999px;
   font-size: 0.88rem;
   font-weight: 700;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.15) 0%,
+    rgba(245, 158, 11, 0.05) 100%
+  );
   border: 1px solid rgba(245, 158, 11, 0.4);
   color: #d97706;
   text-decoration: none;
@@ -3960,13 +4043,25 @@ html.dark .account-method-badge.is-connected {
   padding: 1.5rem;
   border-radius: 14px;
   background:
-    radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
-    linear-gradient(135deg, rgba(6, 22, 68, 0.04) 0%, rgba(6, 22, 68, 0.08) 100%);
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(245, 158, 11, 0.15) 0%,
+      transparent 50%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(6, 22, 68, 0.04) 0%,
+      rgba(6, 22, 68, 0.08) 100%
+    );
   border: 1px solid rgba(245, 158, 11, 0.35);
 }
 html.dark .account-membership-promo {
   background:
-    radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(245, 158, 11, 0.15) 0%,
+      transparent 50%
+    ),
     linear-gradient(135deg, rgba(6, 22, 68, 0.6) 0%, rgba(8, 28, 80, 0.6) 100%);
 }
 .account-membership-promo-text h3 {

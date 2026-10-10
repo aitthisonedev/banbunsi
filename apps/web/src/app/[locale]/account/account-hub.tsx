@@ -13,7 +13,12 @@ import {
   clientUploadAvatar,
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
-import { EmptyState, FormField, LoadingState, SuccessBanner } from "@/components/ui";
+import {
+  EmptyState,
+  FormField,
+  LoadingState,
+  SuccessBanner,
+} from "@/components/ui";
 
 type TabId =
   | "profile"
@@ -72,7 +77,17 @@ export function AccountHub() {
           id: "profile" as const,
           label: t(locale, "profileTab"),
           icon: (
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
@@ -82,7 +97,17 @@ export function AccountHub() {
           id: "security" as const,
           label: t(locale, "securityTab"),
           icon: (
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
@@ -92,7 +117,17 @@ export function AccountHub() {
           id: "login" as const,
           label: t(locale, "loginMethodsTab"),
           icon: (
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="m21 2-2 2m-2-2 2 2m-4.5 9a6.5 6.5 0 1 1-9-9 6.5 6.5 0 0 1 9 9Zm0 0L20 18l2 2" />
             </svg>
           ),
@@ -101,7 +136,17 @@ export function AccountHub() {
           id: "membership" as const,
           label: t(locale, "membershipTab"),
           icon: (
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
             </svg>
           ),
@@ -110,7 +155,17 @@ export function AccountHub() {
           id: "favorites" as const,
           label: t(locale, "favoritesTab"),
           icon: (
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
             </svg>
           ),
@@ -119,7 +174,17 @@ export function AccountHub() {
           id: "downloads" as const,
           label: t(locale, "downloadsTab"),
           icon: (
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
@@ -130,7 +195,17 @@ export function AccountHub() {
           id: "quizzes" as const,
           label: t(locale, "quizHistoryTab"),
           icon: (
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
               <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
               <path d="m9 14 2 2 4-4" />
@@ -155,7 +230,9 @@ export function AccountHub() {
   const initials = getInitials(user);
   const isVip = user.membership_tier === "vip";
   const displayName =
-    user.name || [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
+    user.name ||
+    [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+    user.email;
 
   async function onSaveProfile(e: FormEvent) {
     e.preventDefault();
@@ -250,7 +327,9 @@ export function AccountHub() {
                     className="account-avatar-main-img"
                   />
                 ) : (
-                  <span className="account-avatar-main-initials">{initials}</span>
+                  <span className="account-avatar-main-initials">
+                    {initials}
+                  </span>
                 )}
               </div>
             </div>
@@ -258,14 +337,26 @@ export function AccountHub() {
             <div className="account-hero-details">
               <div className="account-hero-title-row">
                 <h1 className="account-hero-name">{displayName}</h1>
-                <span className={`account-badge ${isVip ? "account-badge--vip" : "account-badge--member"}`}>
-                  {isVip ? `👑 ${t(locale, "badgeVip")}` : t(locale, "badgeMember")}
+                <span
+                  className={`account-badge ${isVip ? "account-badge--vip" : "account-badge--member"}`}
+                >
+                  {isVip
+                    ? `👑 ${t(locale, "badgeVip")}`
+                    : t(locale, "badgeMember")}
                 </span>
               </div>
               <p className="account-hero-desc">{t(locale, "accountLead")}</p>
               <div className="account-hero-meta-row">
                 <span className="account-hero-email">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                     <polyline points="22,6 12,13 2,6" />
                   </svg>
@@ -273,8 +364,18 @@ export function AccountHub() {
                 </span>
                 {user.email_verified ? (
                   <span className="account-verified-pill is-verified">
-                    <svg viewBox="0 0 20 20" width="12" height="12" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <svg
+                      viewBox="0 0 20 20"
+                      width="12"
+                      height="12"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     {t(locale, "verified")}
                   </span>
@@ -331,8 +432,12 @@ export function AccountHub() {
             {tab === "profile" ? (
               <div className="account-tab-pane">
                 <div className="account-pane-head">
-                  <h2 className="account-pane-title">{t(locale, "profileTab")}</h2>
-                  <p className="account-pane-desc">{t(locale, "accountLead")}</p>
+                  <h2 className="account-pane-title">
+                    {t(locale, "profileTab")}
+                  </h2>
+                  <p className="account-pane-desc">
+                    {t(locale, "accountLead")}
+                  </p>
                 </div>
 
                 <form className="account-form" onSubmit={onSaveProfile}>
@@ -349,7 +454,9 @@ export function AccountHub() {
                           className="account-photo-preview-img"
                         />
                       ) : (
-                        <span className="account-avatar-main-initials">{initials}</span>
+                        <span className="account-avatar-main-initials">
+                          {initials}
+                        </span>
                       )}
                     </div>
                     <div className="account-photo-controls">
@@ -379,13 +486,18 @@ export function AccountHub() {
                           </button>
                         ) : null}
                       </div>
-                      <p className="account-field-hint">{t(locale, "avatarHint")}</p>
+                      <p className="account-field-hint">
+                        {t(locale, "avatarHint")}
+                      </p>
                     </div>
                   </div>
 
                   {/* Form fields */}
                   <div className="account-fields-grid">
-                    <FormField label={t(locale, "firstName")} htmlFor="first-name">
+                    <FormField
+                      label={t(locale, "firstName")}
+                      htmlFor="first-name"
+                    >
                       <input
                         id="first-name"
                         className="input"
@@ -395,7 +507,10 @@ export function AccountHub() {
                         autoComplete="given-name"
                       />
                     </FormField>
-                    <FormField label={t(locale, "lastName")} htmlFor="last-name">
+                    <FormField
+                      label={t(locale, "lastName")}
+                      htmlFor="last-name"
+                    >
                       <input
                         id="last-name"
                         className="input"
@@ -428,7 +543,11 @@ export function AccountHub() {
                   </FormField>
 
                   <div className="account-form-actions">
-                    <button className="btn-primary account-submit-btn" type="submit" disabled={busy}>
+                    <button
+                      className="btn-primary account-submit-btn"
+                      type="submit"
+                      disabled={busy}
+                    >
                       {busy ? t(locale, "loading") : t(locale, "save")}
                     </button>
                   </div>
@@ -440,7 +559,9 @@ export function AccountHub() {
             {tab === "security" ? (
               <div className="account-tab-pane">
                 <div className="account-pane-head">
-                  <h2 className="account-pane-title">{t(locale, "securityTab")}</h2>
+                  <h2 className="account-pane-title">
+                    {t(locale, "securityTab")}
+                  </h2>
                   <p className="account-pane-desc">
                     {locale === "lo"
                       ? "ປ່ຽນລະຫັດຜ່ານເພື່ອຮັກສາຄວາມປອດໄພຂອງບັນຊີທ່ານ."
@@ -449,7 +570,10 @@ export function AccountHub() {
                 </div>
 
                 <form className="account-form" onSubmit={onChangePassword}>
-                  <FormField label={t(locale, "currentPassword")} htmlFor="pw-current">
+                  <FormField
+                    label={t(locale, "currentPassword")}
+                    htmlFor="pw-current"
+                  >
                     <input
                       id="pw-current"
                       className="input"
@@ -468,10 +592,17 @@ export function AccountHub() {
                       required
                       minLength={8}
                       autoComplete="new-password"
-                      placeholder={locale === "lo" ? "ຢ່າງໜ້ອຍ 8 ຕົວອັກສອນ" : "At least 8 characters"}
+                      placeholder={
+                        locale === "lo"
+                          ? "ຢ່າງໜ້ອຍ 8 ຕົວອັກສອນ"
+                          : "At least 8 characters"
+                      }
                     />
                   </FormField>
-                  <FormField label={t(locale, "confirmPassword")} htmlFor="pw-confirm">
+                  <FormField
+                    label={t(locale, "confirmPassword")}
+                    htmlFor="pw-confirm"
+                  >
                     <input
                       id="pw-confirm"
                       className="input"
@@ -483,8 +614,14 @@ export function AccountHub() {
                     />
                   </FormField>
                   <div className="account-form-actions">
-                    <button className="btn-primary account-submit-btn" type="submit" disabled={busy}>
-                      {busy ? t(locale, "loading") : t(locale, "changePassword")}
+                    <button
+                      className="btn-primary account-submit-btn"
+                      type="submit"
+                      disabled={busy}
+                    >
+                      {busy
+                        ? t(locale, "loading")
+                        : t(locale, "changePassword")}
                     </button>
                   </div>
                 </form>
@@ -495,7 +632,9 @@ export function AccountHub() {
             {tab === "login" ? (
               <div className="account-tab-pane">
                 <div className="account-pane-head">
-                  <h2 className="account-pane-title">{t(locale, "loginMethodsTab")}</h2>
+                  <h2 className="account-pane-title">
+                    {t(locale, "loginMethodsTab")}
+                  </h2>
                   <p className="account-pane-desc">
                     {locale === "lo"
                       ? "ວິທີການຢືນຢັນຕົວຕົນທີ່ເຊື່ອມຕໍ່ກັບບັນຊີຂອງທ່ານ."
@@ -506,13 +645,23 @@ export function AccountHub() {
                 <div className="account-methods-list">
                   <div className="account-method-card">
                     <div className="account-method-icon">
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden="true"
+                      >
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                         <polyline points="22,6 12,13 2,6" />
                       </svg>
                     </div>
                     <div className="account-method-info">
-                      <span className="account-method-name">{t(locale, "email")}</span>
+                      <span className="account-method-name">
+                        {t(locale, "email")}
+                      </span>
                       <span className="account-method-value">{user.email}</span>
                     </div>
                     <span className="account-method-badge is-connected">
@@ -522,13 +671,25 @@ export function AccountHub() {
 
                   <div className="account-method-card">
                     <div className="account-method-icon">
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden="true"
+                      >
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                       </svg>
                     </div>
                     <div className="account-method-info">
-                      <span className="account-method-name">{t(locale, "phone")}</span>
-                      <span className="account-method-value">{user.phone || "—"}</span>
+                      <span className="account-method-name">
+                        {t(locale, "phone")}
+                      </span>
+                      <span className="account-method-value">
+                        {user.phone || "—"}
+                      </span>
                     </div>
                     <span className="account-method-badge is-coming">
                       {t(locale, "comingSoon")}
@@ -537,13 +698,23 @@ export function AccountHub() {
 
                   <div className="account-method-card">
                     <div className="account-method-icon">
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
                         <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
                       </svg>
                     </div>
                     <div className="account-method-info">
                       <span className="account-method-name">Google</span>
-                      <span className="account-method-value">{locale === "lo" ? "ເຂົ້າສູ່ລະບົບດ້ວຍ Google" : "Sign in with Google"}</span>
+                      <span className="account-method-value">
+                        {locale === "lo"
+                          ? "ເຂົ້າສູ່ລະບົບດ້ວຍ Google"
+                          : "Sign in with Google"}
+                      </span>
                     </div>
                     <span className="account-method-badge is-coming">
                       {t(locale, "comingSoon")}
@@ -557,7 +728,9 @@ export function AccountHub() {
             {tab === "membership" ? (
               <div className="account-tab-pane">
                 <div className="account-pane-head">
-                  <h2 className="account-pane-title">{t(locale, "membershipTab")}</h2>
+                  <h2 className="account-pane-title">
+                    {t(locale, "membershipTab")}
+                  </h2>
                   <p className="account-pane-desc">
                     {locale === "lo"
                       ? "ຂໍ້ມູນສິດທິປະໂຫຍດ ແລະ ສະຖານະສະມາຊິກຂອງທ່ານ."
@@ -568,26 +741,38 @@ export function AccountHub() {
                 <div className="account-membership-card">
                   <div className="account-membership-status-row">
                     <div>
-                      <span className="account-membership-label">{t(locale, "membershipLevel")}</span>
+                      <span className="account-membership-label">
+                        {t(locale, "membershipLevel")}
+                      </span>
                       <div className="account-membership-level">
                         {isVip ? "👑 VIP Member" : "Standard Member"}
                       </div>
                     </div>
-                    <span className={`account-badge ${isVip ? "account-badge--vip" : "account-badge--member"}`}>
+                    <span
+                      className={`account-badge ${isVip ? "account-badge--vip" : "account-badge--member"}`}
+                    >
                       {tierLabel(locale, user.membership_tier)}
                     </span>
                   </div>
 
                   <div className="account-membership-grid">
                     <div className="account-membership-item">
-                      <span className="account-membership-item-label">{t(locale, "status")}</span>
-                      <span className="account-membership-item-val">{user.account_status}</span>
+                      <span className="account-membership-item-label">
+                        {t(locale, "status")}
+                      </span>
+                      <span className="account-membership-item-val">
+                        {user.account_status}
+                      </span>
                     </div>
                     <div className="account-membership-item">
-                      <span className="account-membership-item-label">{t(locale, "membershipExpires")}</span>
+                      <span className="account-membership-item-label">
+                        {t(locale, "membershipExpires")}
+                      </span>
                       <span className="account-membership-item-val">
                         {user.membership_ends_at
-                          ? new Date(user.membership_ends_at).toLocaleDateString(
+                          ? new Date(
+                              user.membership_ends_at,
+                            ).toLocaleDateString(
                               locale === "lo" ? "lo-LA" : "en-GB",
                             )
                           : t(locale, "noExpiry")}
@@ -618,7 +803,9 @@ export function AccountHub() {
             {tab === "favorites" ? (
               <div className="account-tab-pane">
                 <div className="account-pane-head">
-                  <h2 className="account-pane-title">{t(locale, "favoritesTab")}</h2>
+                  <h2 className="account-pane-title">
+                    {t(locale, "favoritesTab")}
+                  </h2>
                 </div>
                 <EmptyState
                   title={t(locale, "emptyFavorites")}
@@ -631,7 +818,9 @@ export function AccountHub() {
             {tab === "downloads" ? (
               <div className="account-tab-pane">
                 <div className="account-pane-head">
-                  <h2 className="account-pane-title">{t(locale, "downloadsTab")}</h2>
+                  <h2 className="account-pane-title">
+                    {t(locale, "downloadsTab")}
+                  </h2>
                 </div>
                 <EmptyState
                   title={t(locale, "emptyDownloads")}
@@ -644,7 +833,9 @@ export function AccountHub() {
             {tab === "quizzes" ? (
               <div className="account-tab-pane">
                 <div className="account-pane-head">
-                  <h2 className="account-pane-title">{t(locale, "quizHistoryTab")}</h2>
+                  <h2 className="account-pane-title">
+                    {t(locale, "quizHistoryTab")}
+                  </h2>
                 </div>
                 <EmptyState
                   title={t(locale, "emptyQuizHistory")}

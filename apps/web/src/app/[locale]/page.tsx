@@ -7,7 +7,6 @@ import { getCategories, getDocuments } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
 
-
 function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -151,42 +150,78 @@ export default async function HomePage({
             <div className="feature-grid">
               <Link href={`/${raw}/documents`} className="feature-card">
                 <span className="feature-icon" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
                     <path d="M12 4v10" />
-                    <path d="M8 10l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M8 10l4 4 4-4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                     <path d="M5 18h14" strokeLinecap="round" />
                   </svg>
                 </span>
                 <span className="feature-card-text">
-                  <span className="feature-card-title">{t(raw, "featureForms")}</span>
-                  <span className="feature-card-desc">{t(raw, "featureFormsDesc")}</span>
+                  <span className="feature-card-title">
+                    {t(raw, "featureForms")}
+                  </span>
+                  <span className="feature-card-desc">
+                    {t(raw, "featureFormsDesc")}
+                  </span>
                 </span>
               </Link>
               <Link
-                href={tax ? `/${raw}/categories/${tax.slug}` : `/${raw}/categories`}
+                href={
+                  tax ? `/${raw}/categories/${tax.slug}` : `/${raw}/categories`
+                }
                 className="feature-card"
               >
                 <span className="feature-icon" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
                     <rect x="4" y="5" width="16" height="15" rx="2" />
-                    <path d="M8 3v4M16 3v4M8 12h.01M12 12h.01M16 12h.01" strokeLinecap="round" />
+                    <path
+                      d="M8 3v4M16 3v4M8 12h.01M12 12h.01M16 12h.01"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </span>
                 <span className="feature-card-text">
-                  <span className="feature-card-title">{t(raw, "featureCalendar")}</span>
-                  <span className="feature-card-desc">{t(raw, "featureCalendarDesc")}</span>
+                  <span className="feature-card-title">
+                    {t(raw, "featureCalendar")}
+                  </span>
+                  <span className="feature-card-desc">
+                    {t(raw, "featureCalendarDesc")}
+                  </span>
                 </span>
               </Link>
               <Link href={`/${raw}/categories`} className="feature-card">
                 <span className="feature-icon" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
                     <path d="M6 4h9l3 3v13H6z" />
                     <path d="M9 12h6M9 16h6" strokeLinecap="round" />
                   </svg>
                 </span>
                 <span className="feature-card-text">
-                  <span className="feature-card-title">{t(raw, "featureGuides")}</span>
-                  <span className="feature-card-desc">{t(raw, "featureGuidesDesc")}</span>
+                  <span className="feature-card-title">
+                    {t(raw, "featureGuides")}
+                  </span>
+                  <span className="feature-card-desc">
+                    {t(raw, "featureGuidesDesc")}
+                  </span>
                 </span>
               </Link>
             </div>
