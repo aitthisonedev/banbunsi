@@ -41,6 +41,10 @@ export type User = {
   account_status: "active" | "suspended";
   membership_tier: "member" | "vip" | "none";
   membership_ends_at: string | null;
+  google_id?: string;
+  google_email?: string;
+  has_google?: boolean;
+  has_password?: boolean;
 };
 
 export function whatsappLink(e164: string) {

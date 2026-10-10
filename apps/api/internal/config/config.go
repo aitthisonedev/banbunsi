@@ -28,6 +28,9 @@ type Config struct {
 	SMTPHost            string
 	SMTPPort            int
 	SMTPFrom            string
+	GoogleClientID      string
+	GoogleClientSecret  string
+	GoogleRedirectURI   string
 }
 
 func Load() (*Config, error) {
@@ -52,6 +55,12 @@ func Load() (*Config, error) {
 		SMTPHost:           env("SMTP_HOST", ""),
 		SMTPPort:           envInt("SMTP_PORT", 1025),
 		SMTPFrom:           env("SMTP_FROM", "noreply@banbunsi.local"),
+		GoogleClientID:     strings.TrimSpace(env("GOOGLE_CLIENT_ID", "")),
+		GoogleClientSecret: strings.TrimSpace(env("GOOGLE_CLIENT_SECRET", "")),
+		GoogleRedirectURI:  strings.TrimSpace(env("GOOGLE_REDIRECT_URI", "")),
+	}
+	if cfg.GoogleRedirectURI == "" {
+		cfg.GoogleRedirectURI = cfg.APIPublicURL + "/api/v1/auth/google/callback"
 	}
 	cfg.SessionCookieSecure = !cfg.IsDev()
 	if value := os.Getenv("SESSION_COOKIE_SECURE"); value != "" {

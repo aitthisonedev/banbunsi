@@ -146,8 +146,10 @@ func (h *AccountHandler) ChangePassword(c *fiber.Ctx) error {
 	if len(body.NewPassword) < 8 {
 		return errJSON(c, fiber.StatusBadRequest, "New password must be at least 8 characters")
 	}
-	if !auth.CheckPassword(user.PasswordHash, body.CurrentPassword) {
-		return errJSON(c, fiber.StatusUnauthorized, "Current password is incorrect")
+	if len(user.PasswordHash) > 0 {
+		if !auth.CheckPassword(user.PasswordHash, body.CurrentPassword) {
+			return errJSON(c, fiber.StatusUnauthorized, "Current password is incorrect")
+		}
 	}
 	hash, err := auth.HashPassword(body.NewPassword)
 	if err != nil {
@@ -157,6 +159,27 @@ func (h *AccountHandler) ChangePassword(c *fiber.Ctx) error {
 		return errJSON(c, fiber.StatusInternalServerError, "Could not update password")
 	}
 	return msg(c, "Password updated")
+}
+
+func (h *AccountHandler) UnlinkGoogle(c *fiber.Ctx) error {
+	user := c.Locals("user").(*models.User)
+	if user.GoogleID == "" {
+		return errJSON(c, fiber.StatusBadRequest, "Google is not linked to this account")
+	}
+	if len(user.PasswordHash) == 0 {
+		return errJSON(c, fiber.StatusBadRequest, "Cannot unlink Google because no password has been set. Please set a password first.")
+	}
+	updates := map[string]interface{}{
+		"google_id":    "",
+		"google_email": "",
+	}
+	if err := h.DB.Model(user).Updates(updates).Error; err != nil {
+		return errJSON(c, fiber.StatusInternalServerError, "Could not unlink Google account")
+	}
+	user.GoogleID = ""
+	user.GoogleEmail = ""
+	tier, endsAt := h.membershipInfo(user.ID)
+	return c.JSON(userPayload(user, tier, endsAt))
 }
 
 func (h *AccountHandler) membershipInfo(userID uuid.UUID) (models.MembershipTier, *time.Time) {

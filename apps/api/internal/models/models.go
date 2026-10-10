@@ -39,7 +39,9 @@ type User struct {
 	Phone           string        `gorm:"size:32;not null;default:''" json:"phone"`
 	AvatarPath      string        `gorm:"size:500;not null;default:''" json:"avatar_path"`
 	Email           string        `gorm:"size:320;uniqueIndex;not null" json:"email"`
-	PasswordHash    string        `gorm:"size:255;not null" json:"-"`
+	PasswordHash    string        `gorm:"size:255;not null;default:''" json:"-"`
+	GoogleID        string        `gorm:"size:128;index;default:''" json:"google_id,omitempty"`
+	GoogleEmail     string        `gorm:"size:320;default:''" json:"google_email,omitempty"`
 	EmailVerifiedAt *time.Time    `json:"email_verified_at,omitempty"`
 	StaffRole       StaffRole     `gorm:"size:32;not null;default:member" json:"staff_role"`
 	AccountStatus   AccountStatus `gorm:"size:32;not null;default:active" json:"account_status"`

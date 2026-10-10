@@ -51,6 +51,9 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	v1.Post("/auth/register", authH.Register)
 	v1.Post("/auth/login", authH.Login)
 	v1.Post("/auth/logout", authH.Logout)
+	v1.Get("/auth/google", authH.GoogleAuth)
+	v1.Get("/auth/google/callback", authH.GoogleCallback)
+	v1.Post("/auth/google/dev-callback", authH.GoogleDevCallback)
 	v1.Post("/auth/verify-email", authH.VerifyEmail)
 	v1.Post("/auth/resend-verification", authH.ResendVerification)
 	v1.Post("/auth/forgot-password", authH.ForgotPassword)
@@ -62,6 +65,7 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	account.Post("/avatar", accountH.UploadAvatar)
 	account.Delete("/avatar", accountH.DeleteAvatar)
 	account.Post("/password", accountH.ChangePassword)
+	account.Post("/unlink-google", accountH.UnlinkGoogle)
 
 	v1.Get("/categories", catH.PublicList)
 	v1.Get("/settings/public", setH.PublicGet)

@@ -78,13 +78,13 @@ export function clientDeleteAvatar() {
 }
 
 export function clientChangePassword(
-  currentPassword: string,
+  currentPassword: string | undefined,
   newPassword: string,
 ) {
   return clientFetch<{ message: string }>("/account/password", {
     method: "POST",
     body: JSON.stringify({
-      current_password: currentPassword,
+      current_password: currentPassword || "",
       new_password: newPassword,
     }),
   });
@@ -204,5 +204,36 @@ export function clientUpdateAdminDocument(
 export function clientDeleteAdminDocument(id: string) {
   return clientFetch<{ message: string }>(`/admin/documents/${id}`, {
     method: "DELETE",
+  });
+}
+
+export function clientUnlinkGoogle() {
+  return clientFetch<User>("/account/unlink-google", {
+    method: "POST",
+  });
+}
+
+export function getGoogleAuthUrl(
+  mode: "login" | "register" | "link" = "login",
+  next?: string,
+  locale?: string,
+) {
+  const params = new URLSearchParams();
+  params.set("mode", mode);
+  if (next) params.set("next", next);
+  if (locale) params.set("locale", locale);
+  return `${API_URL}/api/v1/auth/google?${params.toString()}`;
+}
+
+export function clientGoogleDevCallback(body: {
+  state?: string;
+  email: string;
+  name: string;
+  sub?: string;
+  picture?: string;
+}) {
+  return clientFetch<void>("/auth/google/dev-callback", {
+    method: "POST",
+    body: JSON.stringify(body),
   });
 }

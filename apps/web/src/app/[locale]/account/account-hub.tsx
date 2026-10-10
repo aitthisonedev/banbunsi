@@ -402,7 +402,8 @@ export function AccountHub() {
               <button
                 key={item.id}
                 type="button"
-                className={`account-tab-btn ${tab === item.id ? "is-active" : ""}`}
+                className={`account-tab-btn${tab === item.id ? " is-active" : ""}`}
+                aria-current={tab === item.id ? "page" : undefined}
                 onClick={() => {
                   setTab(item.id);
                   setError("");

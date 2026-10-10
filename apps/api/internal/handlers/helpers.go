@@ -48,7 +48,11 @@ func userPayload(u *models.User, tier models.MembershipTier, endsAt *time.Time) 
 	}
 	avatarURL := ""
 	if u.AvatarPath != "" {
-		avatarURL = "/uploads/" + strings.TrimPrefix(u.AvatarPath, "/")
+		if strings.HasPrefix(u.AvatarPath, "http://") || strings.HasPrefix(u.AvatarPath, "https://") {
+			avatarURL = u.AvatarPath
+		} else {
+			avatarURL = "/uploads/" + strings.TrimPrefix(u.AvatarPath, "/")
+		}
 	}
 	var ends any
 	if endsAt != nil {
@@ -67,6 +71,10 @@ func userPayload(u *models.User, tier models.MembershipTier, endsAt *time.Time) 
 		"account_status":     u.AccountStatus,
 		"membership_tier":    tier,
 		"membership_ends_at": ends,
+		"google_id":          u.GoogleID,
+		"google_email":       u.GoogleEmail,
+		"has_google":         u.GoogleID != "",
+		"has_password":       len(u.PasswordHash) > 0,
 	}
 }
 
