@@ -39,6 +39,9 @@ func Run(db *gorm.DB, cfg *config.Config) error {
 	if err := seedCategories(db); err != nil {
 		return err
 	}
+	if err := backfillUserNames(db); err != nil {
+		return err
+	}
 	if err := seedDemoAccounts(db, cfg); err != nil {
 		return err
 	}
@@ -128,6 +131,22 @@ type demoAccount struct {
 	Notes    string
 }
 
+func backfillUserNames(db *gorm.DB) error {
+	var users []models.User
+	if err := db.Where("first_name = ? AND name <> ?", "", "").Find(&users).Error; err != nil {
+		return err
+	}
+	for _, u := range users {
+		if err := db.Model(&u).Updates(map[string]interface{}{
+			"first_name": u.Name,
+			"last_name":  "",
+		}).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func seedDemoAccounts(db *gorm.DB, cfg *config.Config) error {
 	accounts := []demoAccount{
 		{
@@ -188,9 +207,12 @@ func upsertDemoAccount(db *gorm.DB, a demoAccount) error {
 	now := time.Now().UTC()
 	var user models.User
 	err = db.Where("email = ?", email).First(&user).Error
+	first, last := splitName(a.Name)
 	if err == gorm.ErrRecordNotFound {
 		user = models.User{
 			Name:            a.Name,
+			FirstName:       first,
+			LastName:        last,
 			Email:           email,
 			PasswordHash:    hash,
 			EmailVerifiedAt: &now,
@@ -204,12 +226,17 @@ func upsertDemoAccount(db *gorm.DB, a demoAccount) error {
 	} else if err != nil {
 		return err
 	} else {
+		// Keep edited profile fields; only refresh auth/role for demo logins.
 		updates := map[string]interface{}{
-			"name":              a.Name,
 			"password_hash":     hash,
 			"staff_role":        a.Role,
 			"account_status":    models.StatusActive,
 			"email_verified_at": now,
+		}
+		if user.FirstName == "" {
+			updates["first_name"] = first
+			updates["last_name"] = last
+			updates["name"] = a.Name
 		}
 		if err := db.Model(&user).Updates(updates).Error; err != nil {
 			return err
@@ -217,6 +244,18 @@ func upsertDemoAccount(db *gorm.DB, a demoAccount) error {
 		log.Printf("updated demo account: %s (%s / %s)", email, a.Role, a.Tier)
 	}
 	return EnsureCurrentMembership(db, user.ID, a.Tier, a.Notes)
+}
+
+func splitName(full string) (first, last string) {
+	full = strings.TrimSpace(full)
+	if full == "" {
+		return "", ""
+	}
+	parts := strings.Fields(full)
+	if len(parts) == 1 {
+		return parts[0], ""
+	}
+	return parts[0], strings.Join(parts[1:], " ")
 }
 
 func CreateCurrentMember(db *gorm.DB, userID uuid.UUID, notes string) error {

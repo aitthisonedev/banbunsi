@@ -45,6 +45,57 @@ export function clientMe() {
   return clientFetch<User>("/auth/me");
 }
 
+export function clientUpdateProfile(body: {
+  first_name: string;
+  last_name: string;
+  phone: string;
+}) {
+  return clientFetch<User>("/account/profile", {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function clientUploadAvatar(file: File) {
+  const form = new FormData();
+  form.append("avatar", file);
+  const res = await fetch(`${API_URL}/api/v1/account/avatar`, {
+    method: "POST",
+    body: form,
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { error?: string }).error || `Request failed (${res.status})`,
+    );
+  }
+  return data as User;
+}
+
+export function clientDeleteAvatar() {
+  return clientFetch<User>("/account/avatar", { method: "DELETE" });
+}
+
+export function clientChangePassword(
+  currentPassword: string | undefined,
+  newPassword: string,
+) {
+  return clientFetch<{ message: string }>("/account/password", {
+    method: "POST",
+    body: JSON.stringify({
+      current_password: currentPassword || "",
+      new_password: newPassword,
+    }),
+  });
+}
+
+export function avatarSrc(avatarUrl: string | undefined | null) {
+  if (!avatarUrl) return "";
+  if (avatarUrl.startsWith("http")) return avatarUrl;
+  return `${API_URL}${avatarUrl}`;
+}
+
 export function clientVerifyEmail(token: string) {
   return clientFetch<{ message: string }>("/auth/verify-email", {
     method: "POST",
@@ -153,5 +204,36 @@ export function clientUpdateAdminDocument(
 export function clientDeleteAdminDocument(id: string) {
   return clientFetch<{ message: string }>(`/admin/documents/${id}`, {
     method: "DELETE",
+  });
+}
+
+export function clientUnlinkGoogle() {
+  return clientFetch<User>("/account/unlink-google", {
+    method: "POST",
+  });
+}
+
+export function getGoogleAuthUrl(
+  mode: "login" | "register" | "link" = "login",
+  next?: string,
+  locale?: string,
+) {
+  const params = new URLSearchParams();
+  params.set("mode", mode);
+  if (next) params.set("next", next);
+  if (locale) params.set("locale", locale);
+  return `${API_URL}/api/v1/auth/google?${params.toString()}`;
+}
+
+export function clientGoogleDevCallback(body: {
+  state?: string;
+  email: string;
+  name: string;
+  sub?: string;
+  picture?: string;
+}) {
+  return clientFetch<void>("/auth/google/dev-callback", {
+    method: "POST",
+    body: JSON.stringify(body),
   });
 }

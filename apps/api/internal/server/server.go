@@ -16,9 +16,11 @@ import (
 )
 
 func New(cfg *config.Config, db *gorm.DB) *fiber.App {
+	_ = handlers.EnsureUploadDir(cfg)
 	app := fiber.New(fiber.Config{
 		AppName:      "BAN BUNSI API",
 		ErrorHandler: errorHandler,
+		BodyLimit:    4 * 1024 * 1024,
 	})
 	app.Use(recover.New())
 	app.Use(logger.New())
@@ -29,10 +31,12 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 		AllowCredentials: true,
 	}))
 	app.Use(middleware.CSRF(cfg))
+	app.Static("/uploads", cfg.UploadDir)
 
 	sessions := &auth.SessionService{DB: db, TTL: cfg.SessionTTL}
 	mailer := mail.New(cfg)
 	authH := &handlers.AuthHandler{DB: db, Cfg: cfg, Sessions: sessions, Mailer: mailer}
+	accountH := &handlers.AccountHandler{DB: db, Cfg: cfg}
 	catH := &handlers.CategoryHandler{DB: db}
 	setH := &handlers.SettingsHandler{DB: db}
 	adminH := &handlers.AdminHandler{DB: db}
@@ -47,11 +51,21 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	v1.Post("/auth/register", authH.Register)
 	v1.Post("/auth/login", authH.Login)
 	v1.Post("/auth/logout", authH.Logout)
+	v1.Get("/auth/google", authH.GoogleAuth)
+	v1.Get("/auth/google/callback", authH.GoogleCallback)
+	v1.Post("/auth/google/dev-callback", authH.GoogleDevCallback)
 	v1.Post("/auth/verify-email", authH.VerifyEmail)
 	v1.Post("/auth/resend-verification", authH.ResendVerification)
 	v1.Post("/auth/forgot-password", authH.ForgotPassword)
 	v1.Post("/auth/reset-password", authH.ResetPassword)
 	v1.Get("/auth/me", middleware.Session(cfg, sessions), authH.Me)
+
+	account := v1.Group("/account", middleware.Session(cfg, sessions))
+	account.Patch("/profile", accountH.PatchProfile)
+	account.Post("/avatar", accountH.UploadAvatar)
+	account.Delete("/avatar", accountH.DeleteAvatar)
+	account.Post("/password", accountH.ChangePassword)
+	account.Post("/unlink-google", accountH.UnlinkGoogle)
 
 	v1.Get("/categories", catH.PublicList)
 	v1.Get("/settings/public", setH.PublicGet)

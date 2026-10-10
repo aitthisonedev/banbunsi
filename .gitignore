@@ -20,6 +20,7 @@ pnpm-debug.log*
 # Go
 apps/api/bin/
 apps/api/tmp/
+apps/api/uploads/
 *.exe
 *.test
 *.out

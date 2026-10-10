@@ -71,6 +71,8 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	}
 	user := models.User{
 		Name:          name,
+		FirstName:     name,
+		LastName:      "",
 		Email:         email,
 		PasswordHash:  hash,
 		StaffRole:     models.RoleMember,
@@ -106,8 +108,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return errJSON(c, fiber.StatusInternalServerError, "Could not create session")
 	}
 	h.setSessionCookie(c, raw)
-	tier := h.currentTier(user.ID)
-	return c.JSON(userPayload(&user, tier))
+	tier, endsAt := h.membershipInfo(user.ID)
+	return c.JSON(userPayload(&user, tier, endsAt))
 }
 
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {
@@ -119,8 +121,8 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 
 func (h *AuthHandler) Me(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
-	tier := h.currentTier(user.ID)
-	return c.JSON(userPayload(user, tier))
+	tier, endsAt := h.membershipInfo(user.ID)
+	return c.JSON(userPayload(user, tier, endsAt))
 }
 
 func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
@@ -235,19 +237,19 @@ func (h *AuthHandler) setSessionCookie(c *fiber.Ctx, raw string) {
 	})
 }
 
-func (h *AuthHandler) currentTier(userID interface{}) models.MembershipTier {
+func (h *AuthHandler) membershipInfo(userID interface{}) (models.MembershipTier, *time.Time) {
 	var m models.Membership
 	err := h.DB.Where("user_id = ? AND is_current = ?", userID, true).First(&m).Error
 	if err != nil {
-		return models.TierMember
+		return models.TierMember, nil
 	}
 	if m.Tier == models.TierVIP {
 		if m.EndsAt != nil && m.EndsAt.Before(time.Now().UTC()) {
-			return models.TierMember
+			return models.TierMember, m.EndsAt
 		}
-		return models.TierVIP
+		return models.TierVIP, m.EndsAt
 	}
-	return models.TierMember
+	return models.TierMember, m.EndsAt
 }
 
 func (h *AuthHandler) writeAudit(actor *models.User, action, targetType, targetID, result string) error {

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,13 +34,29 @@ const (
 type User struct {
 	ID              uuid.UUID     `gorm:"type:uuid;primaryKey" json:"id"`
 	Name            string        `gorm:"size:200;not null" json:"name"`
+	FirstName       string        `gorm:"size:100;not null;default:''" json:"first_name"`
+	LastName        string        `gorm:"size:100;not null;default:''" json:"last_name"`
+	Phone           string        `gorm:"size:32;not null;default:''" json:"phone"`
+	AvatarPath      string        `gorm:"size:500;not null;default:''" json:"avatar_path"`
 	Email           string        `gorm:"size:320;uniqueIndex;not null" json:"email"`
-	PasswordHash    string        `gorm:"size:255;not null" json:"-"`
+	PasswordHash    string        `gorm:"size:255;not null;default:''" json:"-"`
+	GoogleID        string        `gorm:"size:128;index;default:''" json:"google_id,omitempty"`
+	GoogleEmail     string        `gorm:"size:320;default:''" json:"google_email,omitempty"`
 	EmailVerifiedAt *time.Time    `json:"email_verified_at,omitempty"`
 	StaffRole       StaffRole     `gorm:"size:32;not null;default:member" json:"staff_role"`
 	AccountStatus   AccountStatus `gorm:"size:32;not null;default:active" json:"account_status"`
 	CreatedAt       time.Time     `json:"created_at"`
 	UpdatedAt       time.Time     `json:"updated_at"`
+}
+
+func DisplayName(firstName, lastName string) string {
+	return strings.TrimSpace(strings.TrimSpace(firstName) + " " + strings.TrimSpace(lastName))
+}
+
+func (u *User) SyncDisplayName() {
+	if dn := DisplayName(u.FirstName, u.LastName); dn != "" {
+		u.Name = dn
+	}
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
@@ -134,16 +151,16 @@ func (c *Category) BeforeCreate(tx *gorm.DB) error {
 }
 
 type CategoryTranslation struct {
-	ID              uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	CategoryID      uuid.UUID `gorm:"type:uuid;uniqueIndex:idx_cat_locale;not null" json:"category_id"`
-	Locale          string    `gorm:"size:8;uniqueIndex:idx_cat_locale;not null" json:"locale"`
-	Name            string    `gorm:"size:200;not null" json:"name"`
-	Description     string    `gorm:"size:1000" json:"description"`
-	Slug            string    `gorm:"size:220;not null" json:"slug"`
-	SEOTitle        string    `gorm:"size:255" json:"seo_title"`
-	SEODescription  string    `gorm:"size:500" json:"seo_description"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	CategoryID     uuid.UUID `gorm:"type:uuid;uniqueIndex:idx_cat_locale;not null" json:"category_id"`
+	Locale         string    `gorm:"size:8;uniqueIndex:idx_cat_locale;not null" json:"locale"`
+	Name           string    `gorm:"size:200;not null" json:"name"`
+	Description    string    `gorm:"size:1000" json:"description"`
+	Slug           string    `gorm:"size:220;not null" json:"slug"`
+	SEOTitle       string    `gorm:"size:255" json:"seo_title"`
+	SEODescription string    `gorm:"size:500" json:"seo_description"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 func (t *CategoryTranslation) BeforeCreate(tx *gorm.DB) error {
@@ -154,19 +171,19 @@ func (t *CategoryTranslation) BeforeCreate(tx *gorm.DB) error {
 }
 
 type SiteSettings struct {
-	ID                         uint   `gorm:"primaryKey" json:"id"`
-	SiteNameLo                 string `gorm:"size:200;not null" json:"site_name_lo"`
-	SiteNameEn                 string `gorm:"size:200;not null" json:"site_name_en"`
-	Timezone                   string `gorm:"size:64;not null" json:"timezone"`
-	ContactEmail               string `gorm:"size:320;not null" json:"contact_email"`
-	WhatsappNumber             string `gorm:"size:32;not null" json:"whatsapp_number"`
-	FacebookURL                string `gorm:"size:500;not null" json:"facebook_url"`
-	TiktokURL                  string `gorm:"size:500;not null" json:"tiktok_url"`
-	DefaultMetaDescriptionLo   string `gorm:"size:500" json:"default_meta_description_lo"`
-	DefaultMetaDescriptionEn   string `gorm:"size:500" json:"default_meta_description_en"`
-	DefaultSEOTitleLo          string `gorm:"size:255" json:"default_seo_title_lo"`
-	DefaultSEOTitleEn          string `gorm:"size:255" json:"default_seo_title_en"`
-	UpdatedAt                  time.Time `json:"updated_at"`
+	ID                       uint      `gorm:"primaryKey" json:"id"`
+	SiteNameLo               string    `gorm:"size:200;not null" json:"site_name_lo"`
+	SiteNameEn               string    `gorm:"size:200;not null" json:"site_name_en"`
+	Timezone                 string    `gorm:"size:64;not null" json:"timezone"`
+	ContactEmail             string    `gorm:"size:320;not null" json:"contact_email"`
+	WhatsappNumber           string    `gorm:"size:32;not null" json:"whatsapp_number"`
+	FacebookURL              string    `gorm:"size:500;not null" json:"facebook_url"`
+	TiktokURL                string    `gorm:"size:500;not null" json:"tiktok_url"`
+	DefaultMetaDescriptionLo string    `gorm:"size:500" json:"default_meta_description_lo"`
+	DefaultMetaDescriptionEn string    `gorm:"size:500" json:"default_meta_description_en"`
+	DefaultSEOTitleLo        string    `gorm:"size:255" json:"default_seo_title_lo"`
+	DefaultSEOTitleEn        string    `gorm:"size:255" json:"default_seo_title_en"`
+	UpdatedAt                time.Time `json:"updated_at"`
 }
 
 type Membership struct {
@@ -190,14 +207,14 @@ func (m *Membership) BeforeCreate(tx *gorm.DB) error {
 }
 
 type AuditLog struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	ID          uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
 	ActorUserID *uuid.UUID `gorm:"type:uuid;index" json:"actor_user_id,omitempty"`
-	Action      string    `gorm:"size:120;not null;index" json:"action"`
-	TargetType  string    `gorm:"size:120;not null" json:"target_type"`
-	TargetID    string    `gorm:"size:120" json:"target_id"`
-	Result      string    `gorm:"size:64;not null" json:"result"`
-	Metadata    string    `gorm:"type:jsonb;default:'{}'" json:"metadata"`
-	CreatedAt   time.Time `gorm:"index" json:"created_at"`
+	Action      string     `gorm:"size:120;not null;index" json:"action"`
+	TargetType  string     `gorm:"size:120;not null" json:"target_type"`
+	TargetID    string     `gorm:"size:120" json:"target_id"`
+	Result      string     `gorm:"size:64;not null" json:"result"`
+	Metadata    string     `gorm:"type:jsonb;default:'{}'" json:"metadata"`
+	CreatedAt   time.Time  `gorm:"index" json:"created_at"`
 }
 
 func (a *AuditLog) BeforeCreate(tx *gorm.DB) error {

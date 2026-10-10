@@ -7,25 +7,6 @@ import { getCategories, getDocuments } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
 
-function SparkleIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-    </svg>
-  );
-}
-
 function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -110,10 +91,6 @@ export default async function HomePage({
 
           <div className="hero-inner">
             <div className="hero-copy">
-              <span className="hero-badge">
-                <SparkleIcon />
-                <span>{t(raw, "trustBadge")}</span>
-              </span>
               <h1>{t(raw, "headline")}</h1>
               <p className="hero-lead">{t(raw, "subhead")}</p>
             </div>
@@ -173,42 +150,78 @@ export default async function HomePage({
             <div className="feature-grid">
               <Link href={`/${raw}/documents`} className="feature-card">
                 <span className="feature-icon" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
                     <path d="M12 4v10" />
-                    <path d="M8 10l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M8 10l4 4 4-4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                     <path d="M5 18h14" strokeLinecap="round" />
                   </svg>
                 </span>
                 <span className="feature-card-text">
-                  <span className="feature-card-title">{t(raw, "featureForms")}</span>
-                  <span className="feature-card-desc">{t(raw, "featureFormsDesc")}</span>
+                  <span className="feature-card-title">
+                    {t(raw, "featureForms")}
+                  </span>
+                  <span className="feature-card-desc">
+                    {t(raw, "featureFormsDesc")}
+                  </span>
                 </span>
               </Link>
               <Link
-                href={tax ? `/${raw}/categories/${tax.slug}` : `/${raw}/categories`}
+                href={
+                  tax ? `/${raw}/categories/${tax.slug}` : `/${raw}/categories`
+                }
                 className="feature-card"
               >
                 <span className="feature-icon" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
                     <rect x="4" y="5" width="16" height="15" rx="2" />
-                    <path d="M8 3v4M16 3v4M8 12h.01M12 12h.01M16 12h.01" strokeLinecap="round" />
+                    <path
+                      d="M8 3v4M16 3v4M8 12h.01M12 12h.01M16 12h.01"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </span>
                 <span className="feature-card-text">
-                  <span className="feature-card-title">{t(raw, "featureCalendar")}</span>
-                  <span className="feature-card-desc">{t(raw, "featureCalendarDesc")}</span>
+                  <span className="feature-card-title">
+                    {t(raw, "featureCalendar")}
+                  </span>
+                  <span className="feature-card-desc">
+                    {t(raw, "featureCalendarDesc")}
+                  </span>
                 </span>
               </Link>
               <Link href={`/${raw}/categories`} className="feature-card">
                 <span className="feature-icon" aria-hidden>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
                     <path d="M6 4h9l3 3v13H6z" />
                     <path d="M9 12h6M9 16h6" strokeLinecap="round" />
                   </svg>
                 </span>
                 <span className="feature-card-text">
-                  <span className="feature-card-title">{t(raw, "featureGuides")}</span>
-                  <span className="feature-card-desc">{t(raw, "featureGuidesDesc")}</span>
+                  <span className="feature-card-title">
+                    {t(raw, "featureGuides")}
+                  </span>
+                  <span className="feature-card-desc">
+                    {t(raw, "featureGuidesDesc")}
+                  </span>
                 </span>
               </Link>
             </div>
