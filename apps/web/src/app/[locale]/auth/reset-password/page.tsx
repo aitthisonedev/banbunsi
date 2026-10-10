@@ -45,7 +45,7 @@ function ResetInner() {
       locale={locale}
       title={t(locale, "resetPassword")}
       footer={
-        <Link className="text-bb-blue hover:underline" href={`/${locale}/auth/login`}>
+        <Link className="auth-link" href={`/${locale}/auth/login`}>
           {t(locale, "login")}
         </Link>
       }

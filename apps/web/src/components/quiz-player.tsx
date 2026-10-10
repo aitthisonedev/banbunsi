@@ -27,6 +27,8 @@ type ResultView = {
   }>;
 };
 
+const OPTION_LETTERS = "ABCDEFGH";
+
 export function QuizPlayer({
   locale,
   quiz,
@@ -43,6 +45,8 @@ export function QuizPlayer({
   const question = quiz.questions[index];
   const answeredCount = quiz.questions.filter((q) => answers[q.id]).length;
   const allAnswered = answeredCount === quiz.questions.length;
+  const currentAnswered = Boolean(question && answers[question.id]);
+  const progressPct = ((index + 1) / quiz.questions.length) * 100;
 
   function selectOption(optionId: string) {
     if (result || !question) return;
@@ -108,37 +112,55 @@ export function QuizPlayer({
   if (result) {
     return (
       <div className="quiz-result">
-        <h2 className="quiz-result-title">{t(locale, "quizResult")}</h2>
+        <div className="quiz-result-head">
+          <h2 className="quiz-result-title">{t(locale, "quizResult")}</h2>
+          <p
+            className={`quiz-result-badge${result.passed ? " is-pass" : " is-fail"}`}
+          >
+            {result.passed ? t(locale, "passed") : t(locale, "failed")}
+          </p>
+        </div>
         <p className="quiz-result-score">
-          {t(locale, "scoreLabel")}: {result.correct}/{result.total} ({result.percent}%)
-        </p>
-        <p className={`quiz-result-badge${result.passed ? " is-pass" : " is-fail"}`}>
-          {result.passed ? t(locale, "passed") : t(locale, "failed")}
-          <span>
-            {" "}
+          {t(locale, "scoreLabel")}:{" "}
+          <strong>
+            {result.correct}/{result.total}
+          </strong>{" "}
+          ({result.percent}%)
+          <span className="quiz-result-passline">
             · {t(locale, "passScore")} {result.passPercent}%
           </span>
         </p>
 
         <ul className="quiz-review">
-          {result.details.map((detail) => {
-            const selected = detail.options.find((o) => o.id === detail.selectedId);
-            const correct = detail.options.find((o) => o.id === detail.correctId);
+          {result.details.map((detail, i) => {
+            const selected = detail.options.find(
+              (o) => o.id === detail.selectedId,
+            );
+            const correct = detail.options.find(
+              (o) => o.id === detail.correctId,
+            );
             return (
               <li
                 key={detail.questionId}
                 className={`quiz-review-item${detail.isCorrect ? " is-correct" : " is-wrong"}`}
               >
+                <p className="quiz-review-num">
+                  {t(locale, "questions")} {i + 1}
+                </p>
                 <p className="quiz-review-prompt">{detail.prompt}</p>
                 <p className="quiz-review-line">
-                  <span>{t(locale, "yourAnswer")}:</span> {selected?.label ?? "—"}
+                  <span>{t(locale, "yourAnswer")}:</span>{" "}
+                  {selected?.label ?? "—"}
                 </p>
                 <p className="quiz-review-line">
                   <span>{t(locale, "correctAnswer")}:</span> {correct?.label}
                 </p>
-                <p className="quiz-review-expl">
-                  <span>{t(locale, "explanation")}:</span> {detail.explanation}
-                </p>
+                {detail.explanation ? (
+                  <p className="quiz-review-expl">
+                    <span>{t(locale, "explanation")}:</span>{" "}
+                    {detail.explanation}
+                  </p>
+                ) : null}
               </li>
             );
           })}
@@ -168,22 +190,34 @@ export function QuizPlayer({
           {answeredCount}/{quiz.questions.length}
         </span>
       </div>
-      <div className="quiz-progress-bar" aria-hidden>
-        <span style={{ width: `${((index + 1) / quiz.questions.length) * 100}%` }} />
+      <div
+        className="quiz-progress-bar"
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={quiz.questions.length}
+        aria-valuenow={index + 1}
+        aria-label={`${index + 1} / ${quiz.questions.length}`}
+      >
+        <span style={{ width: `${progressPct}%` }} />
       </div>
 
       <h2 className="quiz-prompt">{question.prompt}</h2>
       <ul className="quiz-options">
-        {question.options.map((opt) => {
+        {question.options.map((opt, optIndex) => {
           const selected = answers[question.id] === opt.id;
+          const letter = OPTION_LETTERS[optIndex] || String(optIndex + 1);
           return (
             <li key={opt.id}>
               <button
                 type="button"
                 className={`quiz-option${selected ? " is-selected" : ""}`}
                 onClick={() => selectOption(opt.id)}
+                aria-pressed={selected}
               >
-                {opt.label}
+                <span className="quiz-option-key" aria-hidden>
+                  {letter}
+                </span>
+                <span className="quiz-option-label">{opt.label}</span>
               </button>
             </li>
           );
@@ -205,8 +239,10 @@ export function QuizPlayer({
           <button
             type="button"
             className="btn-primary"
-            disabled={submitting}
-            onClick={() => setIndex((i) => Math.min(quiz.questions.length - 1, i + 1))}
+            disabled={!currentAnswered || submitting}
+            onClick={() =>
+              setIndex((i) => Math.min(quiz.questions.length - 1, i + 1))
+            }
           >
             {t(locale, "next")}
           </button>

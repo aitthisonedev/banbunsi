@@ -59,23 +59,31 @@ export function LoginForm() {
     <AuthPanel
       locale={locale}
       title={t(locale, "login")}
+      lead={t(locale, "loginLead")}
       footer={
-        <>
-          <Link className="text-bb-blue hover:underline" href={`/${locale}/auth/register`}>
-            {t(locale, "register")}
-          </Link>
-          <Link
-            className="text-bb-blue hover:underline"
-            href={`/${locale}/auth/forgot-password`}
-          >
-            {t(locale, "forgotPassword")}
-          </Link>
-        </>
+        <div className="auth-footer-row">
+          <span className="auth-footer-start">{t(locale, "noAccountYet")}</span>
+          <div className="auth-footer-end">
+            <Link className="auth-link" href={`/${locale}/auth/register`}>
+              {t(locale, "register")}
+            </Link>
+            <Link className="auth-link" href={`/${locale}/auth/forgot-password`}>
+              {t(locale, "forgotPassword")}
+            </Link>
+          </div>
+        </div>
       }
     >
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="auth-form">
         <FormField label={t(locale, "email")}>
-          <input className="input" name="email" type="email" required autoComplete="email" />
+          <input
+            className="input"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            inputMode="email"
+          />
         </FormField>
         <FormField label={t(locale, "password")}>
           <input
@@ -83,12 +91,12 @@ export function LoginForm() {
             name="password"
             type="password"
             required
-            minLength={8}
+            minLength={7}
             autoComplete="current-password"
           />
         </FormField>
         {error ? <p className="form-field-error">{error}</p> : null}
-        <button className="btn-primary w-full" disabled={loading} type="submit">
+        <button className="btn-primary auth-submit" disabled={loading} type="submit">
           {loading ? t(locale, "loading") : t(locale, "login")}
         </button>
       </form>

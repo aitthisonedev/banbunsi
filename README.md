@@ -52,12 +52,17 @@ cd apps/api && go run ./cmd/server
 cd apps/web && npm run dev
 ```
 
-### Seeded owner
+### Seeded demo accounts
 
-From `.env`:
+Upserted on API boot (also in `.env` for the owner):
 
-- Email: `owner@banbunsi.local`
-- Password: `ChangeMeOwner1!`
+| Role | Email | Password |
+|---|---|---|
+| Admin / owner | `banbunsi26@gmail.com` | `admin123` |
+| General member | `user@gmail.com` | `user123` |
+| VIP member | `vip@gmail.com` | `vip1123` |
+
+Login page defaults to the admin credentials. Staff land on `/admin`; members stay on the public site.
 
 ## What Foundation includes
 

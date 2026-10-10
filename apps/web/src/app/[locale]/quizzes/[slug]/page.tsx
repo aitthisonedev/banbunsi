@@ -55,9 +55,19 @@ export default async function QuizDetailPage({
             {t(raw, "backToQuizzes")}
           </Link>
         </div>
-        <p className="page-listing-meta">
-          {quiz.questions.length} {t(raw, "questions")} · {t(raw, "difficulty")}:{" "}
-          {t(raw, quiz.difficulty)} · {t(raw, "passScore")} {quiz.passPercent}%
+        {quiz.description ? (
+          <p className="quiz-detail-lead">{quiz.description}</p>
+        ) : null}
+        <p className="quiz-detail-meta">
+          <span>
+            {quiz.questions.length} {t(raw, "questions")}
+          </span>
+          <span>
+            {t(raw, "difficulty")}: {t(raw, quiz.difficulty)}
+          </span>
+          <span>
+            {t(raw, "passScore")} {quiz.passPercent}%
+          </span>
         </p>
         <QuizPlayer locale={raw} quiz={quiz} />
       </div>

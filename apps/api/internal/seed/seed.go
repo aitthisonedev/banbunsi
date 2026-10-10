@@ -2,6 +2,7 @@ package seed
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"github.com/banbunsi/banbunsi/apps/api/internal/auth"
@@ -38,7 +39,7 @@ func Run(db *gorm.DB, cfg *config.Config) error {
 	if err := seedCategories(db); err != nil {
 		return err
 	}
-	if err := seedOwner(db, cfg); err != nil {
+	if err := seedDemoAccounts(db, cfg); err != nil {
 		return err
 	}
 	if err := seedDocuments(db); err != nil {
@@ -118,50 +119,117 @@ func seedCategories(db *gorm.DB) error {
 	return nil
 }
 
-func seedOwner(db *gorm.DB, cfg *config.Config) error {
-	email := cfg.OwnerEmail
-	var user models.User
-	err := db.Where("email = ?", email).First(&user).Error
-	if err == nil {
+type demoAccount struct {
+	Email    string
+	Password string
+	Name     string
+	Role     models.StaffRole
+	Tier     models.MembershipTier
+	Notes    string
+}
+
+func seedDemoAccounts(db *gorm.DB, cfg *config.Config) error {
+	accounts := []demoAccount{
+		{
+			Email:    cfg.OwnerEmail,
+			Password: cfg.OwnerPassword,
+			Name:     cfg.OwnerName,
+			Role:     models.RoleOwner,
+			Tier:     models.TierMember,
+			Notes:    "seeded owner/admin",
+		},
+		{
+			Email:    "user@gmail.com",
+			Password: "user123",
+			Name:     "Demo User",
+			Role:     models.RoleMember,
+			Tier:     models.TierMember,
+			Notes:    "seeded general member",
+		},
+		{
+			Email:    "vip@gmail.com",
+			Password: "vip1123",
+			Name:     "Demo VIP",
+			Role:     models.RoleMember,
+			Tier:     models.TierVIP,
+			Notes:    "seeded VIP member",
+		},
+	}
+	for _, a := range accounts {
+		if err := upsertDemoAccount(db, a); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func upsertDemoAccount(db *gorm.DB, a demoAccount) error {
+	email := strings.ToLower(strings.TrimSpace(a.Email))
+	if email == "" || a.Password == "" {
 		return nil
 	}
-	if err != gorm.ErrRecordNotFound {
-		return err
-	}
-	hash, err := auth.HashPassword(cfg.OwnerPassword)
+	hash, err := auth.HashPassword(a.Password)
 	if err != nil {
 		return err
 	}
 	now := time.Now().UTC()
-	user = models.User{
-		Name:            cfg.OwnerName,
-		Email:           email,
-		PasswordHash:    hash,
-		EmailVerifiedAt: &now,
-		StaffRole:       models.RoleOwner,
-		AccountStatus:   models.StatusActive,
-	}
-	if err := db.Create(&user).Error; err != nil {
+	var user models.User
+	err = db.Where("email = ?", email).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		user = models.User{
+			Name:            a.Name,
+			Email:           email,
+			PasswordHash:    hash,
+			EmailVerifiedAt: &now,
+			StaffRole:       a.Role,
+			AccountStatus:   models.StatusActive,
+		}
+		if err := db.Create(&user).Error; err != nil {
+			return err
+		}
+		log.Printf("seeded account: %s (%s / %s)", email, a.Role, a.Tier)
+	} else if err != nil {
 		return err
+	} else {
+		updates := map[string]interface{}{
+			"name":              a.Name,
+			"password_hash":     hash,
+			"staff_role":        a.Role,
+			"account_status":    models.StatusActive,
+			"email_verified_at": now,
+		}
+		if err := db.Model(&user).Updates(updates).Error; err != nil {
+			return err
+		}
+		log.Printf("updated demo account: %s (%s / %s)", email, a.Role, a.Tier)
 	}
-	if err := CreateCurrentMember(db, user.ID, "seeded owner"); err != nil {
-		return err
-	}
-	log.Printf("seeded owner account: %s", email)
-	return nil
+	return EnsureCurrentMembership(db, user.ID, a.Tier, a.Notes)
 }
 
 func CreateCurrentMember(db *gorm.DB, userID uuid.UUID, notes string) error {
-	var count int64
-	if err := db.Model(&models.Membership{}).Where("user_id = ? AND is_current = ?", userID, true).Count(&count).Error; err != nil {
+	return EnsureCurrentMembership(db, userID, models.TierMember, notes)
+}
+
+func EnsureCurrentMembership(db *gorm.DB, userID uuid.UUID, tier models.MembershipTier, notes string) error {
+	var m models.Membership
+	err := db.Where("user_id = ? AND is_current = ?", userID, true).First(&m).Error
+	if err == nil {
+		if m.Tier == tier && m.Status == "active" {
+			return nil
+		}
+		return db.Model(&m).Updates(map[string]interface{}{
+			"tier":   tier,
+			"status": "active",
+			"notes":  notes,
+			"ends_at": nil,
+		}).Error
+	}
+	if err != gorm.ErrRecordNotFound {
 		return err
 	}
-	if count > 0 {
-		return nil
-	}
-	m := models.Membership{
+	m = models.Membership{
 		UserID:    userID,
-		Tier:      models.TierMember,
+		Tier:      tier,
 		Status:    "active",
 		IsCurrent: true,
 		StartsAt:  time.Now().UTC(),

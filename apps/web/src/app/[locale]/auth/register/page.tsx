@@ -47,18 +47,29 @@ export default function RegisterPage() {
     <AuthPanel
       locale={locale}
       title={t(locale, "register")}
+      lead={t(locale, "registerLead")}
       footer={
-        <Link className="text-bb-blue hover:underline" href={`/${locale}/auth/login`}>
-          {t(locale, "login")}
-        </Link>
+        <div className="auth-footer-row">
+          <span className="auth-footer-start">{t(locale, "haveAccount")}</span>
+          <Link className="auth-link auth-footer-end" href={`/${locale}/auth/login`}>
+            {t(locale, "login")}
+          </Link>
+        </div>
       }
     >
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="auth-form">
         <FormField label={t(locale, "name")}>
           <input className="input" name="name" required autoComplete="name" />
         </FormField>
         <FormField label={t(locale, "email")}>
-          <input className="input" name="email" type="email" required autoComplete="email" />
+          <input
+            className="input"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            inputMode="email"
+          />
         </FormField>
         <FormField label={t(locale, "password")}>
           <input
@@ -82,8 +93,8 @@ export default function RegisterPage() {
         </FormField>
         {error ? <p className="form-field-error">{error}</p> : null}
         {message ? <SuccessBanner>{message}</SuccessBanner> : null}
-        <button className="btn-primary w-full" disabled={loading} type="submit">
-          {loading ? t(locale, "loading") : t(locale, "submit")}
+        <button className="btn-primary auth-submit" disabled={loading} type="submit">
+          {loading ? t(locale, "loading") : t(locale, "register")}
         </button>
       </form>
     </AuthPanel>

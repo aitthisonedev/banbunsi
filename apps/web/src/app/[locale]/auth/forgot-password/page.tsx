@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
       locale={locale}
       title={t(locale, "forgotPassword")}
       footer={
-        <Link className="text-bb-blue hover:underline" href={`/${locale}/auth/login`}>
+        <Link className="auth-link" href={`/${locale}/auth/login`}>
           {t(locale, "login")}
         </Link>
       }
