@@ -1,6 +1,8 @@
 package seed
 
 import (
+	_ "embed"
+	"encoding/json"
 	"log"
 	"time"
 
@@ -9,22 +11,49 @@ import (
 	"gorm.io/gorm"
 )
 
-type docSeed struct {
-	Number   string
-	CatCode  string
-	Access   models.ReadAccess
-	Year     int
-	Tags     string
-	LoTitle  string
-	EnTitle  string
-	LoSlug   string
-	EnSlug   string
-	LoSum    string
-	EnSum    string
-	LoBody   string
-	EnBody   string
-	FileName string
-	FileDL   models.DownloadAccess
+//go:embed documents_demo.json
+var documentsDemoJSON []byte
+
+type docSeedJSON struct {
+	Number      string `json:"number"`
+	CatCode     string `json:"cat_code"`
+	Access      string `json:"access"`
+	Year        int    `json:"year"`
+	Tags        string `json:"tags"`
+	LoTitle     string `json:"lo_title"`
+	EnTitle     string `json:"en_title"`
+	LoSlug      string `json:"lo_slug"`
+	EnSlug      string `json:"en_slug"`
+	LoSum       string `json:"lo_sum"`
+	EnSum       string `json:"en_sum"`
+	LoBody      string `json:"lo_body"`
+	EnBody      string `json:"en_body"`
+	FileName    string `json:"file_name"`
+	FileDL      string `json:"file_dl"`
+	FileLabelLo string `json:"file_label_lo"`
+	FileLabelEn string `json:"file_label_en"`
+}
+
+// ReseedDocuments clears and reloads demo documents.
+func ReseedDocuments(db *gorm.DB) error {
+	if err := db.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&models.DocumentFile{}).Error; err != nil {
+		return err
+	}
+	if err := db.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&models.DocumentTranslation{}).Error; err != nil {
+		return err
+	}
+	if err := db.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&models.Document{}).Error; err != nil {
+		return err
+	}
+	return seedDocuments(db)
+}
+
+func loadDocSeeds() ([]docSeedJSON, error) {
+	var seeds []docSeedJSON
+	if err := json.Unmarshal(documentsDemoJSON, &seeds); err != nil {
+		return nil, err
+	}
+	return seeds, nil
 }
 
 func seedDocuments(db *gorm.DB) error {
@@ -34,6 +63,11 @@ func seedDocuments(db *gorm.DB) error {
 	}
 	if count > 0 {
 		return nil
+	}
+
+	seeds, err := loadDocSeeds()
+	if err != nil {
+		return err
 	}
 
 	cats := map[string]uuid.UUID{}
@@ -48,92 +82,26 @@ func seedDocuments(db *gorm.DB) error {
 	now := time.Now().UTC()
 	eff := time.Date(2026, 1, 15, 0, 0, 0, 0, time.UTC)
 
-	// Seed uses English for both locales so this file stays ASCII-safe.
-	// Staff can edit Lao copy via admin CRUD.
-	seeds := []docSeed{
-		{
-			Number: "BB-TAX-2026-001", CatCode: "tax", Access: models.ReadPublic, Year: 2026, Tags: "tax,form",
-			LoTitle: "Income tax form", EnTitle: "Income tax form",
-			LoSlug: "income-tax-form-lo", EnSlug: "income-tax-form",
-			LoSum: "Basic individual income tax form.", EnSum: "Basic individual income tax form.",
-			LoBody: "<p>This document explains how to complete the income tax form.</p>",
-			EnBody: "<p>This document explains how to complete the income tax form.</p>",
-			FileName: "income-tax-form.pdf", FileDL: models.DownloadMember,
-		},
-		{
-			Number: "BB-ACC-2026-002", CatCode: "accounting", Access: models.ReadPublic, Year: 2026, Tags: "accounting,guide",
-			LoTitle: "Basic accounting guide", EnTitle: "Basic accounting guide",
-			LoSlug: "basic-accounting-guide-lo", EnSlug: "basic-accounting-guide",
-			LoSum: "Introduction to basic accounting principles.", EnSum: "Introduction to basic accounting principles.",
-			LoBody: "<p>Overview of debit-credit basics and financial statements.</p>",
-			EnBody: "<p>Overview of debit-credit basics and financial statements.</p>",
-			FileName: "basic-accounting.pdf", FileDL: models.DownloadMember,
-		},
-		{
-			Number: "BB-LAW-2026-003", CatCode: "law", Access: models.ReadMember, Year: 2026, Tags: "law,enterprise",
-			LoTitle: "Enterprise law summary", EnTitle: "Enterprise law summary",
-			LoSlug: "enterprise-law-summary-lo", EnSlug: "enterprise-law-summary",
-			LoSum: "Member summary of enterprise law.", EnSum: "Member summary of enterprise law.",
-			LoBody: "<p>Full summary available to verified members.</p>",
-			EnBody: "<p>Full summary available to verified members.</p>",
-			FileName: "enterprise-law.pdf", FileDL: models.DownloadMember,
-		},
-		{
-			Number: "BB-FIN-2026-004", CatCode: "finance", Access: models.ReadPublic, Year: 2025, Tags: "finance,cashflow",
-			LoTitle: "Cash flow management", EnTitle: "Cash flow management",
-			LoSlug: "cash-flow-management-lo", EnSlug: "cash-flow-management",
-			LoSum: "How SMEs track cash flow.", EnSum: "How SMEs track cash flow.",
-			LoBody: "<p>Steps to plan and monitor cash flow.</p>",
-			EnBody: "<p>Steps to plan and monitor cash flow.</p>",
-			FileName: "cash-flow.pdf", FileDL: models.DownloadMember,
-		},
-		{
-			Number: "BB-AUD-2026-005", CatCode: "audit", Access: models.ReadPublic, Year: 2026, Tags: "audit,checklist",
-			LoTitle: "Internal audit checklist", EnTitle: "Internal audit checklist",
-			LoSlug: "internal-audit-checklist-lo", EnSlug: "internal-audit-checklist",
-			LoSum: "Checklist for accounting teams.", EnSum: "Checklist for accounting teams.",
-			LoBody: "<p>Use this checklist before the annual review.</p>",
-			EnBody: "<p>Use this checklist before the annual review.</p>",
-			FileName: "audit-checklist.pdf", FileDL: models.DownloadMember,
-		},
-		{
-			Number: "BB-VIP-2026-006", CatCode: "tax", Access: models.ReadVIP, Year: 2026, Tags: "tax,vip",
-			LoTitle: "Advanced tax guide (VIP)", EnTitle: "Advanced tax guide (VIP)",
-			LoSlug: "advanced-tax-guide-vip-lo", EnSlug: "advanced-tax-guide-vip",
-			LoSum: "VIP document - public summary only.", EnSum: "VIP document - public summary only.",
-			LoBody: "<p>Detailed VIP content.</p>",
-			EnBody: "<p>Detailed VIP content.</p>",
-			FileName: "advanced-tax-vip.pdf", FileDL: models.DownloadVIP,
-		},
-		{
-			Number: "BB-DUT-2026-007", CatCode: "duties", Access: models.ReadPublic, Year: 2026, Tags: "duties,customs",
-			LoTitle: "Customs duties guide", EnTitle: "Customs duties guide",
-			LoSlug: "customs-duties-guide-lo", EnSlug: "customs-duties-guide",
-			LoSum: "Basics of customs duties.", EnSum: "Basics of customs duties.",
-			LoBody: "<p>Explains duty types and required paperwork.</p>",
-			EnBody: "<p>Explains duty types and required paperwork.</p>",
-			FileName: "customs-duties.pdf", FileDL: models.DownloadMember,
-		},
-		{
-			Number: "BB-KNW-2026-008", CatCode: "knowledge", Access: models.ReadPublic, Year: 2026, Tags: "faq,start",
-			LoTitle: "Getting started with BAN BUNSI", EnTitle: "Getting started with BAN BUNSI",
-			LoSlug: "getting-started-ban-bunsi-lo", EnSlug: "getting-started-ban-bunsi",
-			LoSum: "How to search and download documents.", EnSum: "How to search and download documents.",
-			LoBody: "<p>Search from the home page or categories, then sign in to download.</p>",
-			EnBody: "<p>Search from the home page or categories, then sign in to download.</p>",
-			FileName: "getting-started.pdf", FileDL: models.DownloadMember,
-		},
-	}
-
 	for _, s := range seeds {
 		catID, ok := cats[s.CatCode]
 		if !ok {
 			continue
 		}
+		access := models.ReadPublic
+		switch s.Access {
+		case "member":
+			access = models.ReadMember
+		case "vip":
+			access = models.ReadVIP
+		}
+		dl := models.DownloadMember
+		if s.FileDL == "vip" {
+			dl = models.DownloadVIP
+		}
 		doc := models.Document{
 			DocumentNumber: s.Number,
 			CategoryID:     catID,
-			ReadAccess:     s.Access,
+			ReadAccess:     access,
 			Status:         models.DocPublished,
 			PublishedAt:    &now,
 			EffectiveDate:  &eff,
@@ -146,31 +114,32 @@ func seedDocuments(db *gorm.DB) error {
 		trs := []models.DocumentTranslation{
 			{
 				DocumentID: doc.ID, Locale: "lo", Title: s.LoTitle, Slug: s.LoSlug,
-				Summary: s.LoSum, BodyHTML: s.LoBody, SEOTitle: s.LoTitle + " | BAN BUNSI",
+				Summary: s.LoSum, BodyHTML: s.LoBody, SEOTitle: s.LoTitle + " | BAN BUNSI", SEODescription: s.LoSum,
 			},
 			{
 				DocumentID: doc.ID, Locale: "en", Title: s.EnTitle, Slug: s.EnSlug,
-				Summary: s.EnSum, BodyHTML: s.EnBody, SEOTitle: s.EnTitle + " | BAN BUNSI",
+				Summary: s.EnSum, BodyHTML: s.EnBody, SEOTitle: s.EnTitle + " | BAN BUNSI", SEODescription: s.EnSum,
 			},
 		}
 		if err := db.Create(&trs).Error; err != nil {
 			return err
 		}
-		file := models.DocumentFile{
-			DocumentID:     doc.ID,
-			Label:          s.EnTitle,
-			FileName:       s.FileName,
-			Mime:           "application/pdf",
-			SizeBytes:      240000,
-			Language:       "lo",
-			Version:        "1.0",
-			DownloadAccess: s.FileDL,
-			SortOrder:      0,
+		files := []models.DocumentFile{
+			{
+				DocumentID: doc.ID, Label: s.FileLabelLo, FileName: s.FileName,
+				Mime: "application/pdf", SizeBytes: 256000, Language: "lo",
+				Version: "1.0", DownloadAccess: dl, SortOrder: 0,
+			},
+			{
+				DocumentID: doc.ID, Label: s.FileLabelEn, FileName: "en-" + s.FileName,
+				Mime: "application/pdf", SizeBytes: 248000, Language: "en",
+				Version: "1.0", DownloadAccess: dl, SortOrder: 1,
+			},
 		}
-		if err := db.Create(&file).Error; err != nil {
+		if err := db.Create(&files).Error; err != nil {
 			return err
 		}
 	}
-	log.Printf("seeded %d documents", len(seeds))
+	log.Printf("seeded %d demo documents", len(seeds))
 	return nil
 }

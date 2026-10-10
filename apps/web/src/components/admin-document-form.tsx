@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import type { CategoryNode, Locale } from "@/lib/api";
+import { Select } from "@/components/ui";
 import {
   clientCreateAdminDocument,
   clientUpdateAdminDocument,
@@ -87,21 +88,24 @@ export function AdminDocumentForm({
           seo_title: enTitle,
         },
       ],
-      files: fileName
-        ? [
-            {
-              label: String(fd.get("file_label") || fileName),
-              file_name: fileName,
-              mime: String(fd.get("file_mime") || "application/pdf"),
-              size_bytes: Number(fd.get("file_size") || 0),
-              language: "lo",
-              version: String(fd.get("file_version") || "1.0"),
-              download_access: String(fd.get("download_access") || "member"),
-              sort_order: 0,
-            },
-          ]
-        : [],
     };
+    // Omit files on update when empty so API does not wipe existing rows.
+    if (fileName) {
+      body.files = [
+        {
+          label: String(fd.get("file_label") || fileName),
+          file_name: fileName,
+          mime: String(fd.get("file_mime") || "application/pdf"),
+          size_bytes: Number(fd.get("file_size") || 0),
+          language: "lo",
+          version: String(fd.get("file_version") || "1.0"),
+          download_access: String(fd.get("download_access") || "member"),
+          sort_order: 0,
+        },
+      ];
+    } else if (!initial?.id) {
+      body.files = [];
+    }
 
     try {
       if (initial?.id) {
@@ -122,7 +126,7 @@ export function AdminDocumentForm({
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">Document number</span>
+          <span className="mb-1 block text-bb-text-muted">{t(locale, "documentNumber")}</span>
           <input
             className="input"
             name="document_number"
@@ -132,46 +136,40 @@ export function AdminDocumentForm({
         </label>
         <label className="block text-sm">
           <span className="mb-1 block text-bb-text-muted">{t(locale, "categories")}</span>
-          <select
-            className="input"
+          <Select
             name="category_id"
             required
             defaultValue={initial?.category_id || flatCats[0]?.id || ""}
-          >
-            {flatCats.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            options={flatCats.map((c) => ({ value: c.id, label: c.name }))}
+          />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">Read access</span>
-          <select
-            className="input"
+          <span className="mb-1 block text-bb-text-muted">{t(locale, "readAccess")}</span>
+          <Select
             name="read_access"
             defaultValue={initial?.read_access || "public"}
-          >
-            <option value="public">public</option>
-            <option value="member">member</option>
-            <option value="vip">vip</option>
-          </select>
+            options={[
+              { value: "public", label: t(locale, "badgePublic") },
+              { value: "member", label: t(locale, "badgeMember") },
+              { value: "vip", label: t(locale, "badgeVip") },
+            ]}
+          />
         </label>
         <label className="block text-sm">
           <span className="mb-1 block text-bb-text-muted">{t(locale, "status")}</span>
           {!isAdminPlus ? (
             <input type="hidden" name="status" value={initial?.status || "draft"} />
           ) : null}
-          <select
-            className="input"
+          <Select
             name={isAdminPlus ? "status" : undefined}
             defaultValue={initial?.status || "draft"}
             disabled={!isAdminPlus}
-          >
-            <option value="draft">draft</option>
-            <option value="published">published</option>
-            <option value="archived">archived</option>
-          </select>
+            options={[
+              { value: "draft", label: "draft" },
+              { value: "published", label: "published" },
+              { value: "archived", label: "archived" },
+            ]}
+          />
         </label>
         <label className="block text-sm">
           <span className="mb-1 block text-bb-text-muted">{t(locale, "year")}</span>
@@ -183,7 +181,7 @@ export function AdminDocumentForm({
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">Effective date</span>
+          <span className="mb-1 block text-bb-text-muted">{t(locale, "effectiveDate")}</span>
           <input
             className="input"
             name="effective_date"
@@ -192,7 +190,7 @@ export function AdminDocumentForm({
           />
         </label>
         <label className="block text-sm md:col-span-2">
-          <span className="mb-1 block text-bb-text-muted">Tags</span>
+          <span className="mb-1 block text-bb-text-muted">{t(locale, "tags")}</span>
           <input className="input" name="tags" defaultValue={initial?.tags || ""} />
         </label>
       </div>
@@ -222,16 +220,20 @@ export function AdminDocumentForm({
           <input className="input" name="file_size" type="number" placeholder="bytes" defaultValue={file0?.size_bytes || 0} />
           <input className="input" name="file_version" placeholder="1.0" defaultValue={file0?.version || "1.0"} />
         </div>
-        <select className="input" name="download_access" defaultValue={file0?.download_access || "member"}>
-          <option value="member">member</option>
-          <option value="vip">vip</option>
-        </select>
+        <Select
+          name="download_access"
+          defaultValue={file0?.download_access || "member"}
+          options={[
+            { value: "member", label: t(locale, "badgeMember") },
+            { value: "vip", label: t(locale, "badgeVip") },
+          ]}
+        />
       </fieldset>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="form-field-error">{error}</p> : null}
       <div className="flex flex-wrap gap-3">
         <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "..." : t(locale, "save")}
+          {loading ? t(locale, "loading") : t(locale, "save")}
         </button>
         <Link href={`/${locale}/admin/documents`} className="btn-secondary">
           {t(locale, "cancel")}

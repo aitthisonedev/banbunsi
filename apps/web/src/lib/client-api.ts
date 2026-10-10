@@ -103,7 +103,8 @@ export type AdminDocumentPayload = {
     seo_title?: string;
     seo_description?: string;
   }>;
-  files: Array<{
+  /** Omit on update to leave existing files unchanged. Never send [] unless clearing. */
+  files?: Array<{
     label: string;
     file_name: string;
     mime: string;

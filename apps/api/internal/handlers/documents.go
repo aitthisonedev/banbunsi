@@ -7,6 +7,7 @@ import (
 	"github.com/banbunsi/banbunsi/apps/api/internal/auth"
 	"github.com/banbunsi/banbunsi/apps/api/internal/config"
 	"github.com/banbunsi/banbunsi/apps/api/internal/models"
+	"github.com/banbunsi/banbunsi/apps/api/internal/sanitize"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -418,7 +419,7 @@ func (h *DocumentHandler) replaceTranslations(tx *gorm.DB, docID uuid.UUID, trs 
 			Title:          strings.TrimSpace(tr.Title),
 			Slug:           strings.TrimSpace(tr.Slug),
 			Summary:        strings.TrimSpace(tr.Summary),
-			BodyHTML:       tr.BodyHTML,
+			BodyHTML:       sanitize.HTML(tr.BodyHTML),
 			SEOTitle:       strings.TrimSpace(tr.SEOTitle),
 			SEODescription: strings.TrimSpace(tr.SEODescription),
 		}

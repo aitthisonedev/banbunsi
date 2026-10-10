@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DocumentList } from "@/components/document-list";
+import { EmptyState, ErrorState } from "@/components/ui";
 import { getDocuments } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 
@@ -16,14 +17,11 @@ export default async function SearchPage({
   if (!isLocale(raw)) notFound();
 
   const query = (q || "").trim();
-  const { items } = query
-    ? await getDocuments(raw, { q: query, per_page: 40 }).catch(() => ({
-        items: [],
-        total: 0,
-        page: 1,
-        per_page: 40,
-      }))
-    : { items: [] };
+  const result = query
+    ? await getDocuments(raw, { q: query, per_page: 40 })
+        .then((data) => ({ ok: true as const, data }))
+        .catch(() => ({ ok: false as const }))
+    : null;
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-5">
@@ -45,9 +43,17 @@ export default async function SearchPage({
 
       <div className="mt-8 surface-panel">
         {!query ? (
-          <p className="text-muted">{t(raw, "searchHint")}</p>
+          <EmptyState title={t(raw, "searchHint")} />
+        ) : !result?.ok ? (
+          <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+        ) : result.data.items.length === 0 ? (
+          <EmptyState title={t(raw, "noDocuments")} />
         ) : (
-          <DocumentList locale={raw} items={items} emptyText={t(raw, "noDocuments")} />
+          <DocumentList
+            locale={raw}
+            items={result.data.items}
+            emptyText={t(raw, "noDocuments")}
+          />
         )}
       </div>
       <p className="mt-6">

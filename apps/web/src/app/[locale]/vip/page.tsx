@@ -9,26 +9,27 @@ export default async function VipPage({
 }) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
-  const settings = await getPublicSettings();
+  const settings = await getPublicSettings().catch(() => null);
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 md:px-5">
-      <h1 className="text-3xl font-bold">{t(raw, "vip")}</h1>
-      <p className="mt-4 text-bb-text-muted">
-        VIP membership unlocks premium documents. Contact the owner to request access. Online payment is not available in this release.
-      </p>
-      <div className="mt-6 flex flex-wrap gap-3">
-        <a className="btn-primary" href={`mailto:${settings.contact_email}`}>
-          Email
-        </a>
-        <a
-          className="btn-secondary"
-          href={whatsappLink(settings.whatsapp_number)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          WhatsApp
-        </a>
-      </div>
+    <div className="page-static">
+      <h1>{t(raw, "vip")}</h1>
+      <p className="lead">{t(raw, "vipBody")}</p>
+      {settings ? (
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a className="btn-primary" href={`mailto:${settings.contact_email}`}>
+            {t(raw, "email")}
+          </a>
+          <a
+            className="btn-secondary"
+            href={whatsappLink(settings.whatsapp_number)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t(raw, "whatsapp")}
+          </a>
+        </div>
+      ) : null}
     </div>
   );
 }

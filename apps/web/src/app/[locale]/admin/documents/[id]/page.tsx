@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminDocumentForm } from "@/components/admin-document-form";
+import { LoadingState } from "@/components/ui";
 import type { CategoryNode } from "@/lib/api";
 import { clientGetAdminDocument, clientMe } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
@@ -40,7 +41,7 @@ export default function AdminEditDocumentPage() {
   }, [id, locale, router]);
 
   if (!categories || !initial) {
-    return <div className="mx-auto max-w-3xl px-4 py-12">Loading...</div>;
+    return <LoadingState label={t(locale, "loading")} />;
   }
 
   const translations = (initial.translations || []) as Array<{
@@ -60,7 +61,7 @@ export default function AdminEditDocumentPage() {
   }>;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 md:px-5">
+    <div className="mx-auto max-w-3xl">
       <h1 className="mb-6 text-3xl font-bold">{t(locale, "editDocument")}</h1>
       <AdminDocumentForm
         locale={locale}

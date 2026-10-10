@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { AuthPanel } from "@/components/auth-panel";
+import { FormField, SuccessBanner } from "@/components/ui";
 import { clientRegister } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 
@@ -20,47 +22,70 @@ export default function RegisterPage() {
     setMessage("");
     setLoading(true);
     const fd = new FormData(e.currentTarget);
+    const password = String(fd.get("password") || "");
+    const confirm = String(fd.get("confirm") || "");
+    if (password !== confirm) {
+      setError(t(locale, "passwordMismatch"));
+      setLoading(false);
+      return;
+    }
     try {
       const res = await clientRegister(
         String(fd.get("name") || ""),
         String(fd.get("email") || ""),
-        String(fd.get("password") || ""),
+        password,
       );
       setMessage(res.message);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Register failed");
+      setError(err instanceof Error ? err.message : t(locale, "loadError"));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-12">
-      <h1 className="text-2xl font-bold">{t(locale, "register")}</h1>
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "name")}</span>
-          <input className="input" name="name" required />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "email")}</span>
-          <input className="input" name="email" type="email" required />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "password")}</span>
-          <input className="input" name="password" type="password" required minLength={8} />
-        </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {message && <p className="text-sm text-green-700">{message}</p>}
-        <button className="btn-primary w-full" disabled={loading} type="submit">
-          {loading ? "..." : t(locale, "submit")}
-        </button>
-      </form>
-      <p className="mt-4 text-sm">
+    <AuthPanel
+      locale={locale}
+      title={t(locale, "register")}
+      footer={
         <Link className="text-bb-blue hover:underline" href={`/${locale}/auth/login`}>
           {t(locale, "login")}
         </Link>
-      </p>
-    </div>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
+        <FormField label={t(locale, "name")}>
+          <input className="input" name="name" required autoComplete="name" />
+        </FormField>
+        <FormField label={t(locale, "email")}>
+          <input className="input" name="email" type="email" required autoComplete="email" />
+        </FormField>
+        <FormField label={t(locale, "password")}>
+          <input
+            className="input"
+            name="password"
+            type="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+          />
+        </FormField>
+        <FormField label={t(locale, "confirmPassword")}>
+          <input
+            className="input"
+            name="confirm"
+            type="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+          />
+        </FormField>
+        {error ? <p className="form-field-error">{error}</p> : null}
+        {message ? <SuccessBanner>{message}</SuccessBanner> : null}
+        <button className="btn-primary w-full" disabled={loading} type="submit">
+          {loading ? t(locale, "loading") : t(locale, "submit")}
+        </button>
+      </form>
+    </AuthPanel>
   );
 }

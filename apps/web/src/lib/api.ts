@@ -221,8 +221,13 @@ export function getDocuments(
   return apiFetch<DocumentListResponse>(`/documents?${params}`);
 }
 
-export function getDocument(locale: Locale, slug: string) {
+export function getDocument(
+  locale: Locale,
+  slug: string,
+  opts?: { cookie?: string },
+) {
   return apiFetch<DocumentListItem>(
     `/documents/${encodeURIComponent(slug)}?locale=${locale}`,
+    { cookie: opts?.cookie },
   );
 }

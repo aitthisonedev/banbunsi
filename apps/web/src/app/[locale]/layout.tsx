@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { SiteChrome } from "@/components/site-chrome";
 import { getPublicSettings } from "@/lib/api";
 import { isLocale } from "@/lib/i18n";
 
@@ -26,10 +25,17 @@ export default async function LocaleLayout({
   }));
 
   return (
-    <div lang={raw} className={raw === "lo" ? "font-lao flex min-h-screen flex-col" : "flex min-h-screen flex-col"}>
-      <SiteHeader locale={raw} />
-      <main className="flex-1">{children}</main>
-      <SiteFooter locale={raw} settings={settings} />
+    <div
+      lang={raw}
+      className={
+        raw === "lo"
+          ? "font-lao flex min-h-screen flex-col"
+          : "flex min-h-screen flex-col"
+      }
+    >
+      <SiteChrome locale={raw} settings={settings}>
+        {children}
+      </SiteChrome>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import type { DocumentListItem, Locale } from "@/lib/api";
 import { t } from "@/lib/i18n";
 
 function accessLabel(locale: Locale, access: string) {
-  if (access === "vip") return "VIP";
+  if (access === "vip") return t(locale, "badgeVip");
   if (access === "member") return t(locale, "badgeMember");
   return t(locale, "badgePublic");
 }
@@ -39,7 +39,7 @@ export function DocumentList({
               <span className="doc-badge">{accessLabel(locale, doc.read_access)}</span>
               {doc.files?.[0] ? (
                 <span className="doc-badge doc-badge-muted">
-                  {doc.files[0].download_access === "vip" ? "VIP" : t(locale, "badgeMember")}
+                  {accessLabel(locale, doc.files[0].download_access)}
                 </span>
               ) : null}
             </div>

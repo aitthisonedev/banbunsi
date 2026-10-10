@@ -9,11 +9,9 @@ export default async function PrivacyPage({
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 md:px-5">
-      <h1 className="text-3xl font-bold">{t(raw, "privacy")}</h1>
-      <p className="mt-4 text-bb-text-muted">
-        Privacy policy content will be provided by the site owner. Placeholder for Foundation.
-      </p>
+    <div className="page-static">
+      <h1>{t(raw, "privacy")}</h1>
+      <p className="lead">{t(raw, "privacyBody")}</p>
     </div>
   );
 }

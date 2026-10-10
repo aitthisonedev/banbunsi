@@ -9,11 +9,9 @@ export default async function AboutPage({
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 md:px-5">
-      <h1 className="text-3xl font-bold">{t(raw, "about")}</h1>
-      <p className="mt-4 text-bb-text-muted">
-        BAN BUNSI is a knowledge center for accounting, finance, tax, duties, auditing, and law.
-      </p>
+    <div className="page-static">
+      <h1>{t(raw, "about")}</h1>
+      <p className="lead">{t(raw, "aboutBody")}</p>
     </div>
   );
 }

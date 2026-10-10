@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { FormField, LoadingState, SuccessBanner } from "@/components/ui";
 import {
   clientGetAdminSettings,
   clientMe,
@@ -9,12 +10,26 @@ import {
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 
+const FIELD_LABELS: Record<string, string> = {
+  site_name_lo: "Site name (Lao)",
+  site_name_en: "Site name (English)",
+  timezone: "Timezone",
+  contact_email: "Contact email",
+  whatsapp_number: "WhatsApp",
+  facebook_url: "Facebook URL",
+  tiktok_url: "TikTok URL",
+  default_seo_title_lo: "SEO title (Lao)",
+  default_seo_title_en: "SEO title (English)",
+  default_meta_description_lo: "Meta description (Lao)",
+  default_meta_description_en: "Meta description (English)",
+};
+
 export default function AdminSettingsPage() {
   const params = useParams();
   const localeRaw = String(params.locale || "lo");
   const locale = isLocale(localeRaw) ? localeRaw : "lo";
   const router = useRouter();
-  const [form, setForm] = useState<Record<string, string>>({});
+  const [form, setForm] = useState<Record<string, string> | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,55 +48,43 @@ export default function AdminSettingsPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!form) return;
     setLoading(true);
     setError("");
     setMessage("");
     try {
       await clientPatchAdminSettings(form);
-      setMessage("Saved");
+      setMessage(t(locale, "saved"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
+      setError(err instanceof Error ? err.message : t(locale, "loadError"));
     } finally {
       setLoading(false);
     }
   }
 
-  if (!form.contact_email) {
-    return <div className="mx-auto max-w-3xl px-4 py-12">Loading...</div>;
+  if (!form) {
+    return <LoadingState label={t(locale, "loading")} />;
   }
 
-  const fields = [
-    "site_name_lo",
-    "site_name_en",
-    "timezone",
-    "contact_email",
-    "whatsapp_number",
-    "facebook_url",
-    "tiktok_url",
-    "default_seo_title_lo",
-    "default_seo_title_en",
-    "default_meta_description_lo",
-    "default_meta_description_en",
-  ];
+  const fields = Object.keys(FIELD_LABELS);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 md:px-5">
+    <div className="mx-auto max-w-3xl">
       <h1 className="text-3xl font-bold">{t(locale, "settings")}</h1>
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         {fields.map((key) => (
-          <label key={key} className="block text-sm">
-            <span className="mb-1 block text-bb-text-muted">{key}</span>
+          <FormField key={key} label={FIELD_LABELS[key] || key}>
             <input
               className="input"
               value={form[key] || ""}
-              onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+              onChange={(e) => setForm((f) => (f ? { ...f, [key]: e.target.value } : f))}
             />
-          </label>
+          </FormField>
         ))}
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {message && <p className="text-sm text-green-700">{message}</p>}
+        {error ? <p className="form-field-error">{error}</p> : null}
+        {message ? <SuccessBanner>{message}</SuccessBanner> : null}
         <button className="btn-primary" disabled={loading} type="submit">
-          {loading ? "..." : t(locale, "submit")}
+          {loading ? t(locale, "loading") : t(locale, "save")}
         </button>
       </form>
     </div>

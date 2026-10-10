@@ -3,8 +3,17 @@
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { AuthPanel } from "@/components/auth-panel";
+import { FormField } from "@/components/ui";
 import { clientLogin } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
+
+function safeNextPath(nextPath: string, locale: string) {
+  if (!nextPath.startsWith(`/${locale}`)) return null;
+  if (nextPath.startsWith("//")) return null;
+  if (nextPath.includes("://")) return null;
+  return nextPath;
+}
 
 export function LoginForm() {
   const params = useParams();
@@ -26,8 +35,9 @@ export function LoginForm() {
         String(fd.get("email") || ""),
         String(fd.get("password") || ""),
       );
-      if (nextPath.startsWith(`/${locale}`)) {
-        router.push(nextPath);
+      const safe = safeNextPath(nextPath, locale);
+      if (safe) {
+        router.push(safe);
       } else if (
         user.staff_role === "admin" ||
         user.staff_role === "owner" ||
@@ -39,37 +49,49 @@ export function LoginForm() {
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : t(locale, "loadError"));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-12">
-      <h1 className="text-2xl font-bold">{t(locale, "login")}</h1>
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "email")}</span>
-          <input className="input" name="email" type="email" required />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "password")}</span>
-          <input className="input" name="password" type="password" required minLength={8} />
-        </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+    <AuthPanel
+      locale={locale}
+      title={t(locale, "login")}
+      footer={
+        <>
+          <Link className="text-bb-blue hover:underline" href={`/${locale}/auth/register`}>
+            {t(locale, "register")}
+          </Link>
+          <Link
+            className="text-bb-blue hover:underline"
+            href={`/${locale}/auth/forgot-password`}
+          >
+            {t(locale, "forgotPassword")}
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
+        <FormField label={t(locale, "email")}>
+          <input className="input" name="email" type="email" required autoComplete="email" />
+        </FormField>
+        <FormField label={t(locale, "password")}>
+          <input
+            className="input"
+            name="password"
+            type="password"
+            required
+            minLength={8}
+            autoComplete="current-password"
+          />
+        </FormField>
+        {error ? <p className="form-field-error">{error}</p> : null}
         <button className="btn-primary w-full" disabled={loading} type="submit">
-          {loading ? "..." : t(locale, "login")}
+          {loading ? t(locale, "loading") : t(locale, "login")}
         </button>
       </form>
-      <div className="mt-4 flex flex-col gap-2 text-sm">
-        <Link className="text-bb-blue hover:underline" href={`/${locale}/auth/register`}>
-          {t(locale, "register")}
-        </Link>
-        <Link className="text-bb-blue hover:underline" href={`/${locale}/auth/forgot-password`}>
-          {t(locale, "forgotPassword")}
-        </Link>
-      </div>
-    </div>
+    </AuthPanel>
   );
 }
