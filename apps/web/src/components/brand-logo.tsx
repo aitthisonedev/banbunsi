@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/api";
+import logoLight from "../../public/brand/logo-light.png";
+import logoDark from "../../public/brand/logo-dark.png";
 
 export function BrandLogo({
   locale,
@@ -18,18 +20,14 @@ export function BrandLogo({
       aria-label="BAN BUNSI"
     >
       <Image
-        src="/brand/logo-light.png"
+        src={logoLight}
         alt="BAN BUNSI"
-        width={606}
-        height={320}
         priority={priority}
         className="logo-light h-10 w-auto md:h-12"
       />
       <Image
-        src="/brand/logo-dark.png"
+        src={logoDark}
         alt=""
-        width={606}
-        height={320}
         priority={priority}
         className="logo-dark h-10 w-auto md:h-12"
       />

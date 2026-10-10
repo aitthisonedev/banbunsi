@@ -34,5 +34,8 @@ func AutoMigrate(gdb *gorm.DB) error {
 		&models.SiteSettings{},
 		&models.Membership{},
 		&models.AuditLog{},
+		&models.Document{},
+		&models.DocumentTranslation{},
+		&models.DocumentFile{},
 	)
 }

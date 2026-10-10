@@ -48,9 +48,14 @@ export default function AdminDashboardPage() {
             {user.name} · {user.staff_role}
           </p>
         </div>
-        <Link href={`/${locale}/admin/settings`} className="btn-secondary">
-          {t(locale, "settings")}
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link href={`/${locale}/admin/documents`} className="btn-primary">
+            {t(locale, "adminDocuments")}
+          </Link>
+          <Link href={`/${locale}/admin/settings`} className="btn-secondary">
+            {t(locale, "settings")}
+          </Link>
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Object.entries(stats).map(([key, value]) => (

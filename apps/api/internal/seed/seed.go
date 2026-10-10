@@ -40,6 +40,9 @@ func Run(db *gorm.DB, cfg *config.Config) error {
 	if err := seedOwner(db, cfg); err != nil {
 		return err
 	}
+	if err := seedDocuments(db); err != nil {
+		return err
+	}
 	return nil
 }
 

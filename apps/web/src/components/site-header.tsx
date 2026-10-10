@@ -12,8 +12,10 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   const pathname = usePathname() || `/${locale}`;
   const homeHref = `/${locale}`;
   const categoriesHref = `/${locale}/categories`;
+  const documentsHref = `/${locale}/documents`;
   const isHome = pathname === homeHref || pathname === `${homeHref}/`;
   const onCategories = pathname.startsWith(categoriesHref);
+  const onDocuments = pathname.startsWith(documentsHref);
 
   return (
     <header className="site-header">
@@ -34,7 +36,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             >
               {t(locale, "knowledge")}
             </Link>
-            <Link href={categoriesHref} className="nav-link">
+            <Link
+              href={documentsHref}
+              className={`nav-link${onDocuments ? " is-active" : ""}`}
+              aria-current={onDocuments ? "page" : undefined}
+            >
               {t(locale, "documents")}
             </Link>
             <span className="nav-link nav-link--muted">{t(locale, "quizzes")}</span>

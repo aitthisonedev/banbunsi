@@ -150,3 +150,79 @@ export function getAdminCategories(locale: Locale) {
     `/admin/categories?locale=${locale}`,
   );
 }
+
+export type DocumentFileMeta = {
+  id: string;
+  label: string;
+  file_name: string;
+  mime: string;
+  size_bytes: number;
+  language: string;
+  version: string;
+  download_access: "member" | "vip";
+  sort_order: number;
+};
+
+export type DocumentListItem = {
+  id: string;
+  document_number: string;
+  category_id: string;
+  category_slug: string;
+  category_name: string;
+  read_access: "public" | "member" | "vip";
+  status: "draft" | "published" | "archived";
+  year: number;
+  tags: string;
+  published_at?: string | null;
+  effective_date?: string | null;
+  updated_at?: string;
+  title: string;
+  slug: string;
+  summary: string;
+  body_html?: string;
+  body_available?: boolean;
+  seo_title?: string;
+  seo_description?: string;
+  files: DocumentFileMeta[];
+  translations?: Array<{
+    locale: string;
+    title: string;
+    slug: string;
+    summary: string;
+    body_html: string;
+    seo_title?: string;
+    seo_description?: string;
+  }>;
+};
+
+export type DocumentListResponse = {
+  items: DocumentListItem[];
+  total: number;
+  page: number;
+  per_page: number;
+};
+
+export function getDocuments(
+  locale: Locale,
+  opts?: {
+    q?: string;
+    category?: string;
+    year?: number;
+    page?: number;
+    per_page?: number;
+  },
+) {
+  const params = new URLSearchParams({ locale });
+  if (opts?.q) params.set("q", opts.q);
+  if (opts?.category) params.set("category", opts.category);
+  if (opts?.year) params.set("year", String(opts.year));
+  if (opts?.page) params.set("page", String(opts.page));
+  if (opts?.per_page) params.set("per_page", String(opts.per_page));
+  return apiFetch<DocumentListResponse>(`/documents?${params}`);
+}
+
+export function getDocument(locale: Locale, slug: string) {
+  return apiFetch<DocumentListItem>(
+    `/documents/${encodeURIComponent(slug)}?locale=${locale}`,
+  );
+}

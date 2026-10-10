@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategories } from "@/lib/api";
+import { DocumentList } from "@/components/document-list";
+import { getCategories, getDocuments } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 
 export default async function HomePage({
@@ -11,7 +12,15 @@ export default async function HomePage({
 }) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
-  const { items } = await getCategories(raw).catch(() => ({ items: [] }));
+  const [{ items }, { items: latestDocs }] = await Promise.all([
+    getCategories(raw).catch(() => ({ items: [] })),
+    getDocuments(raw, { per_page: 5 }).catch(() => ({
+      items: [],
+      total: 0,
+      page: 1,
+      per_page: 5,
+    })),
+  ]);
   const preview = items.slice(0, 6);
   const tax = items.find((c) => c.code === "tax");
 
@@ -104,12 +113,16 @@ export default async function HomePage({
         <div className="mx-auto max-w-[1200px] px-4 md:px-5">
           <div className="mb-5 flex items-end justify-between gap-4">
             <h2 className="section-title">{t(raw, "latestDocuments")}</h2>
-            <Link href={`/${raw}/categories`} className="section-link">
-              {t(raw, "viewAllCategories")}
+            <Link href={`/${raw}/documents`} className="section-link">
+              {t(raw, "viewAllDocuments")}
             </Link>
           </div>
           <div className="surface-panel">
-            <p className="text-muted">{t(raw, "comingSoon")}</p>
+            <DocumentList
+              locale={raw}
+              items={latestDocs}
+              emptyText={t(raw, "noDocuments")}
+            />
           </div>
         </div>
       </section>

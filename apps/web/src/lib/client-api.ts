@@ -85,3 +85,70 @@ export function clientGetAdminDashboard() {
     download_requests: number;
   }>("/admin/dashboard");
 }
+
+export type AdminDocumentPayload = {
+  document_number: string;
+  category_id: string;
+  read_access: string;
+  status: string;
+  effective_date?: string | null;
+  year: number;
+  tags: string;
+  translations: Array<{
+    locale: string;
+    title: string;
+    slug: string;
+    summary: string;
+    body_html: string;
+    seo_title?: string;
+    seo_description?: string;
+  }>;
+  files: Array<{
+    label: string;
+    file_name: string;
+    mime: string;
+    size_bytes: number;
+    language: string;
+    version: string;
+    download_access: string;
+    sort_order: number;
+  }>;
+};
+
+export function clientListAdminDocuments(locale: string, q = "") {
+  const params = new URLSearchParams({ locale, per_page: "100" });
+  if (q) params.set("q", q);
+  return clientFetch<{
+    items: Array<Record<string, unknown>>;
+    total: number;
+  }>(`/admin/documents?${params}`);
+}
+
+export function clientGetAdminDocument(id: string, locale: string) {
+  return clientFetch<Record<string, unknown>>(
+    `/admin/documents/${id}?locale=${locale}`,
+  );
+}
+
+export function clientCreateAdminDocument(body: AdminDocumentPayload) {
+  return clientFetch<Record<string, unknown>>("/admin/documents", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function clientUpdateAdminDocument(
+  id: string,
+  body: AdminDocumentPayload,
+) {
+  return clientFetch<Record<string, unknown>>(`/admin/documents/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export function clientDeleteAdminDocument(id: string) {
+  return clientFetch<{ message: string }>(`/admin/documents/${id}`, {
+    method: "DELETE",
+  });
+}

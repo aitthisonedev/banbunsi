@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Locale, PublicSettings } from "@/lib/api";
 import { whatsappLink } from "@/lib/api";
 import { t } from "@/lib/i18n";
+import logoDark from "../../public/brand/logo-dark.png";
 
 function formatPhone(e164: string) {
   const digits = e164.replace(/\D/g, "");
@@ -27,10 +28,8 @@ export function SiteFooter({
         <div>
           <Link href={`/${locale}`} className="inline-block" aria-label="BAN BUNSI">
             <Image
-              src="/brand/logo-dark.png"
+              src={logoDark}
               alt="BAN BUNSI"
-              width={606}
-              height={320}
               className="h-12 w-auto"
             />
           </Link>
@@ -45,7 +44,7 @@ export function SiteFooter({
           </h3>
           <ul className="space-y-2 text-sm text-white/85">
             <li>
-              <Link href={`/${locale}/categories`} className="hover:text-white">
+              <Link href={`/${locale}/documents`} className="hover:text-white">
                 {t(locale, "documents")}
               </Link>
             </li>

@@ -17,13 +17,17 @@ func (h *AdminHandler) Dashboard(c *fiber.Ctx) error {
 	_ = h.DB.Model(&models.Membership{}).
 		Where("is_current = ? AND tier = ? AND status = ?", true, models.TierVIP, "active").
 		Count(&activeVIP)
+	var documents int64
+	_ = h.DB.Model(&models.Document{}).Count(&documents)
+	var pending int64
+	_ = h.DB.Model(&models.Document{}).Where("status = ?", models.DocDraft).Count(&pending)
 
 	return c.JSON(fiber.Map{
 		"articles":          0,
-		"documents":         0,
+		"documents":         documents,
 		"members":           members,
 		"active_vip":        activeVIP,
-		"pending_review":    0,
+		"pending_review":    pending,
 		"download_requests": 0,
 	})
 }
