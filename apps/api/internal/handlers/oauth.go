@@ -17,10 +17,10 @@ import (
 )
 
 type OAuthState struct {
-	Mode      string `json:"mode"`      // "login", "register", "link"
-	Next      string `json:"next"`      // redirect URL
-	Locale    string `json:"locale"`    // "lo" or "en"
-	UserID    string `json:"user_id"`   // if link mode
+	Mode      string `json:"mode"`    // "login", "register", "link"
+	Next      string `json:"next"`    // redirect URL
+	Locale    string `json:"locale"`  // "lo" or "en"
+	UserID    string `json:"user_id"` // if link mode
 	Nonce     string `json:"nonce"`
 	CreatedAt int64  `json:"created_at"`
 }
