@@ -27,10 +27,22 @@ export function ThemeToggle({
   darkLabel: string;
   lightLabel: string;
 }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() =>
+    typeof document !== "undefined" &&
+    document.documentElement.classList.contains("dark")
+      ? "dark"
+      : "light",
+  );
 
   useEffect(() => {
-    setTheme(readTheme());
+    const observer = new MutationObserver(() => {
+      setTheme(readTheme());
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
   }, []);
 
   function toggle() {
