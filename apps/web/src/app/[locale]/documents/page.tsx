@@ -3,7 +3,18 @@ import { notFound } from "next/navigation";
 import { DocumentList } from "@/components/document-list";
 import { EmptyState, ErrorState, Pagination, Select } from "@/components/ui";
 import { getCategories, getDocuments } from "@/lib/api";
+import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
+
+const PER_PAGE_OPTIONS = [8, 12, 16, 24, 50, 100];
+const DEFAULT_PER_PAGE = 8;
+
+function parsePerPage(raw: string | undefined) {
+  const n = Number(raw || DEFAULT_PER_PAGE);
+  if (PER_PAGE_OPTIONS.includes(n)) return n;
+  if (Number.isFinite(n) && n >= 4 && n <= 100) return Math.floor(n);
+  return DEFAULT_PER_PAGE;
+}
 
 export default async function DocumentsPage({
   params,
@@ -15,6 +26,7 @@ export default async function DocumentsPage({
     category?: string;
     year?: string;
     page?: string;
+    per_page?: string;
   }>;
 }) {
   const { locale: raw } = await params;
@@ -23,7 +35,7 @@ export default async function DocumentsPage({
 
   const year = sp.year ? Number(sp.year) : undefined;
   const page = Math.max(1, Number(sp.page || "1") || 1);
-  const perPage = 20;
+  const perPage = parsePerPage(sp.per_page);
 
   const [docsResult, catsResult] = await Promise.all([
     getDocuments(raw, {
@@ -40,90 +52,116 @@ export default async function DocumentsPage({
       .catch(() => ({ ok: false as const })),
   ]);
 
-  const categories = catsResult.ok ? catsResult.data.items : [];
+  const apiCats = catsResult.ok ? catsResult.data.items : [];
+  const { items: categories } = categoriesOrDemo(raw, apiCats);
 
-  function hrefFor(nextPage: number) {
-    const params = new URLSearchParams();
-    if (sp.q) params.set("q", sp.q);
-    if (sp.category) params.set("category", sp.category);
-    if (sp.year) params.set("year", sp.year);
-    if (nextPage > 1) params.set("page", String(nextPage));
-    const qs = params.toString();
-    return `/${raw}/documents${qs ? `?${qs}` : ""}`;
-  }
+  const total = docsResult.ok ? docsResult.data.total : 0;
+  const hasFilters = Boolean(sp.q || sp.category || sp.year);
+  const clearHref =
+    perPage !== DEFAULT_PER_PAGE
+      ? `/${raw}/documents?per_page=${perPage}`
+      : `/${raw}/documents`;
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-5">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{t(raw, "documents")}</h1>
-          <p className="mt-2 text-bb-text-muted">{t(raw, "documentsLead")}</p>
+    <div className="page-listing page-documents">
+      <div className="page-listing-inner">
+        <div className="page-listing-head">
+          <h1 className="page-listing-title">{t(raw, "documents")}</h1>
+          <Link href={`/${raw}/categories`} className="section-link">
+            {t(raw, "viewAllCategories")}
+          </Link>
         </div>
-        <Link href={`/${raw}/search`} className="section-link">
-          {t(raw, "search")}
-        </Link>
+
+        <form className="doc-toolbar" method="get" role="search">
+          {perPage !== DEFAULT_PER_PAGE ? (
+            <input type="hidden" name="per_page" value={perPage} />
+          ) : null}
+
+          <div className="doc-toolbar-line">
+            <label className="sr-only" htmlFor="doc-q">
+              {t(raw, "search")}
+            </label>
+            <input
+              id="doc-q"
+              className="doc-toolbar-input"
+              name="q"
+              defaultValue={sp.q || ""}
+              placeholder={t(raw, "searchPlaceholder")}
+            />
+            <Select
+              name="category"
+              aria-label={t(raw, "categories")}
+              defaultValue={sp.category || ""}
+              className="doc-toolbar-select"
+              options={[
+                { value: "", label: t(raw, "allCategories") },
+                ...categories.map((c) => ({ value: c.slug, label: c.name })),
+              ]}
+            />
+            <label className="doc-toolbar-year">
+              <span className="sr-only">{t(raw, "year")}</span>
+              <input
+                className="doc-toolbar-year-input"
+                name="year"
+                type="number"
+                defaultValue={sp.year || ""}
+                placeholder={t(raw, "year")}
+                inputMode="numeric"
+              />
+            </label>
+            <button className="doc-toolbar-submit" type="submit">
+              {t(raw, "search")}
+            </button>
+            {hasFilters ? (
+              <Link href={clearHref} className="doc-filter-reset">
+                {t(raw, "clearFilters")}
+              </Link>
+            ) : null}
+          </div>
+        </form>
+
+        {docsResult.ok ? (
+          <div className="page-listing-meta-row">
+            <p className="page-listing-meta">
+              {total} {t(raw, "documents")}
+            </p>
+          </div>
+        ) : null}
+
+        <div className="page-listing-body">
+          {!docsResult.ok ? (
+            <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+          ) : docsResult.data.items.length === 0 ? (
+            <EmptyState title={t(raw, "noDocuments")} />
+          ) : (
+            <DocumentList
+              locale={raw}
+              items={docsResult.data.items}
+              emptyText={t(raw, "noDocuments")}
+              variant="cards"
+            />
+          )}
+        </div>
+
+        {docsResult.ok ? (
+          <Pagination
+            page={docsResult.data.page}
+            perPage={perPage}
+            total={docsResult.data.total}
+            pathname={`/${raw}/documents`}
+            query={{
+              q: sp.q,
+              category: sp.category,
+              year: sp.year,
+            }}
+            prevLabel={t(raw, "previous")}
+            nextLabel={t(raw, "next")}
+            perPageLabel={t(raw, "perPage")}
+            perPageSizes={PER_PAGE_OPTIONS}
+            defaultPerPage={DEFAULT_PER_PAGE}
+          />
+        ) : null}
       </div>
-
-      <form className="doc-filters" method="get">
-        <label className="doc-filter-field">
-          <span>{t(raw, "search")}</span>
-          <input
-            className="input"
-            name="q"
-            defaultValue={sp.q || ""}
-            placeholder={t(raw, "searchPlaceholder")}
-          />
-        </label>
-        <label className="doc-filter-field">
-          <span>{t(raw, "categories")}</span>
-          <Select
-            name="category"
-            aria-label={t(raw, "categories")}
-            defaultValue={sp.category || ""}
-            options={[
-              { value: "", label: t(raw, "allCategories") },
-              ...categories.map((c) => ({ value: c.slug, label: c.name })),
-            ]}
-          />
-        </label>
-        <label className="doc-filter-field doc-filter-field--year">
-          <span>{t(raw, "year")}</span>
-          <input
-            className="input"
-            name="year"
-            type="number"
-            defaultValue={sp.year || ""}
-            placeholder="2026"
-          />
-        </label>
-        <button className="btn-primary" type="submit">
-          {t(raw, "filter")}
-        </button>
-      </form>
-
-      <div className="mt-8">
-        {!docsResult.ok ? (
-          <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
-        ) : (
-          <DocumentList
-            locale={raw}
-            items={docsResult.data.items}
-            emptyText={t(raw, "noDocuments")}
-            variant="cards"
-          />
-        )}
-      </div>
-
-      {docsResult.ok ? (
-        <Pagination
-          page={docsResult.data.page}
-          perPage={docsResult.data.per_page}
-          total={docsResult.data.total}
-          hrefFor={hrefFor}
-          prevLabel={t(raw, "previous")}
-          nextLabel={t(raw, "next")}
-        />
-      ) : null}
     </div>
   );
 }

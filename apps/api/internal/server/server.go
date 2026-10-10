@@ -37,6 +37,7 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	setH := &handlers.SettingsHandler{DB: db}
 	adminH := &handlers.AdminHandler{DB: db}
 	docH := &handlers.DocumentHandler{DB: db, Cfg: cfg, Sessions: sessions}
+	quizH := &handlers.QuizHandler{DB: db}
 
 	v1 := app.Group("/api/v1")
 	v1.Get("/health", func(c *fiber.Ctx) error {
@@ -56,6 +57,9 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	v1.Get("/settings/public", setH.PublicGet)
 	v1.Get("/documents", docH.PublicList)
 	v1.Get("/documents/:slug", docH.PublicGet)
+	v1.Get("/quizzes", quizH.PublicList)
+	v1.Get("/quizzes/:slug", quizH.PublicGet)
+	v1.Post("/quizzes/:slug/submit", quizH.PublicSubmit)
 
 	admin := v1.Group("/admin", middleware.Session(cfg, sessions), middleware.RequireStaff())
 	admin.Get("/dashboard", adminH.Dashboard)

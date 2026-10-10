@@ -89,6 +89,34 @@ export function demoCategories(locale: Locale): CategoryNode[] {
         description: "Enterprise law summaries and legal documents.",
       },
     },
+    {
+      code: "knowledge",
+      lo: {
+        name: "\u0e82\u0ecd\u0ec9\u0ea1\u0eb9\u0e99\u0e84\u0ea7\u0eb2\u0ea1\u0eae\u0eb9\u0ec9\u0ead\u0eb7\u0ec8\u0e99\u0ec6",
+        slug: "khwamhu-un",
+        description:
+          "\u0e9a\u0ebb\u0e94\u0e84\u0ea7\u0eb2\u0ea1\u0020\u0ec1\u0ea5\u0eb0\u0020\u0e84\u0ea7\u0eb2\u0ea1\u0eae\u0eb9\u0ec9\u0e97\u0ebb\u0ec8\u0ea7\u0ec4\u0e9b\u0e97\u0eb5\u0ec8\u0ec0\u0e9b\u0eb1\u0e99\u0e9b\u0eb0\u0ec2\u0eab\u0e8d\u0e94\u002e",
+      },
+      en: {
+        name: "Other Knowledge",
+        slug: "other-knowledge",
+        description: "Articles and general knowledge that help your work.",
+      },
+    },
+    {
+      code: "sme",
+      lo: {
+        name: "\u0e97\u0eb8\u0ea5\u0eb0\u0e81\u0eb4\u0e94\u0e82\u0eb0\u0edc\u0eb2\u0e94\u0e99\u0ec9\u0ead\u0e8d",
+        slug: "thurakit-noy",
+        description:
+          "\u0e84\u0eb9\u0ec8\u0ea1\u0eb7\u0020\u0ec1\u0ea5\u0eb0\u0020\u0ec0\u0ead\u0e81\u0eb0\u0eaa\u0eb2\u0e99\u0eaa\u0eb3\u0ea5\u0eb1\u0e9a\u0e97\u0eb8\u0ea5\u0eb0\u0e81\u0eb4\u0e94\u0e82\u0eb0\u0edc\u0eb2\u0e94\u0e99\u0ec9\u0ead\u0e8d\u002e",
+      },
+      en: {
+        name: "Small Business",
+        slug: "small-business",
+        description: "Guides and documents for small businesses.",
+      },
+    },
   ];
 
   return rows.map((row, i) => {

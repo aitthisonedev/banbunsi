@@ -12,6 +12,7 @@ const COVER_BY_CATEGORY: Record<string, string> = {
   audit: "/brand/categories/cat-audit.jpg",
   law: "/brand/categories/cat-law.jpg",
   knowledge: "/images/hero-default.jpeg",
+  sme: "/brand/categories/cat-finance.jpg",
 };
 
 const COVER_FALLBACKS = [

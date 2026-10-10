@@ -28,6 +28,7 @@ var categories = []categorySeed{
 	{Code: "audit", Order: 5, LoName: "ການກວດສອບ", EnName: "Auditing", LoSlug: "kan-kuatsop", EnSlug: "auditing"},
 	{Code: "law", Order: 6, LoName: "ກົດໝາຍ", EnName: "Law", LoSlug: "kotmai", EnSlug: "law"},
 	{Code: "knowledge", Order: 7, LoName: "ຂໍ້ມູນຄວາມຮູ້ອື່ນໆ", EnName: "Other Knowledge", LoSlug: "khwamhu-un", EnSlug: "other-knowledge"},
+	{Code: "sme", Order: 8, LoName: "ທຸລະກິດຂະໜາດນ້ອຍ", EnName: "Small Business", LoSlug: "thurakit-noy", EnSlug: "small-business"},
 }
 
 func Run(db *gorm.DB, cfg *config.Config) error {
@@ -41,6 +42,9 @@ func Run(db *gorm.DB, cfg *config.Config) error {
 		return err
 	}
 	if err := seedDocuments(db); err != nil {
+		return err
+	}
+	if err := seedQuizzes(db); err != nil {
 		return err
 	}
 	return nil

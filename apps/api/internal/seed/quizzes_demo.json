@@ -1,0 +1,462 @@
+[
+  {
+    "code": "tax-basics",
+    "difficulty": "easy",
+    "pass_percent": 60,
+    "sort_order": 1,
+    "lo_title": "ພາສີພື້ນຖານ",
+    "en_title": "Tax basics",
+    "lo_slug": "phasi-phuen-than",
+    "en_slug": "tax-basics",
+    "lo_category": "ພາສີ",
+    "en_category": "Tax",
+    "lo_description": "ຄຳຖາມພື້ນຖານກ່ຽວກັບພາສີ",
+    "en_description": "Basic questions about tax types and filing.",
+    "questions": {
+      "lo": [
+        {
+          "id": "t1",
+          "prompt": "Which tax is charged on business profits?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Value-added tax"
+            },
+            {
+              "id": "b",
+              "label": "Profit tax"
+            },
+            {
+              "id": "c",
+              "label": "Import duty"
+            },
+            {
+              "id": "d",
+              "label": "Land tax"
+            }
+          ],
+          "correct_option_id": "b",
+          "explanation": "Profit tax applies to business profits from operations."
+        },
+        {
+          "id": "t2",
+          "prompt": "You should keep basic documents before filing tax.",
+          "options": [
+            {
+              "id": "a",
+              "label": "ຖືກ"
+            },
+            {
+              "id": "b",
+              "label": "ຜິດ"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Supporting documents help prove figures in a filing."
+        },
+        {
+          "id": "t3",
+          "prompt": "Who usually announces official tax deadlines?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Tax authority"
+            },
+            {
+              "id": "b",
+              "label": "Banks"
+            },
+            {
+              "id": "c",
+              "label": "Market vendors"
+            },
+            {
+              "id": "d",
+              "label": "Website visitors"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Tax deadlines are set by the tax authority under the law."
+        },
+        {
+          "id": "t4",
+          "prompt": "Missing the legal filing deadline is always allowed.",
+          "options": [
+            {
+              "id": "a",
+              "label": "ຖືກ"
+            },
+            {
+              "id": "b",
+              "label": "ຜິດ"
+            }
+          ],
+          "correct_option_id": "b",
+          "explanation": "Filing on time is required by law."
+        }
+      ],
+      "en": [
+        {
+          "id": "t1",
+          "prompt": "Which tax is charged on business profits?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Value-added tax"
+            },
+            {
+              "id": "b",
+              "label": "Profit tax"
+            },
+            {
+              "id": "c",
+              "label": "Import duty"
+            },
+            {
+              "id": "d",
+              "label": "Land tax"
+            }
+          ],
+          "correct_option_id": "b",
+          "explanation": "Profit tax applies to business profits from operations."
+        },
+        {
+          "id": "t2",
+          "prompt": "You should keep basic documents before filing tax.",
+          "options": [
+            {
+              "id": "a",
+              "label": "True"
+            },
+            {
+              "id": "b",
+              "label": "False"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Supporting documents help prove figures in a filing."
+        },
+        {
+          "id": "t3",
+          "prompt": "Who usually announces official tax deadlines?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Tax authority"
+            },
+            {
+              "id": "b",
+              "label": "Banks"
+            },
+            {
+              "id": "c",
+              "label": "Market vendors"
+            },
+            {
+              "id": "d",
+              "label": "Website visitors"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Tax deadlines are set by the tax authority under the law."
+        },
+        {
+          "id": "t4",
+          "prompt": "Missing the legal filing deadline is always allowed.",
+          "options": [
+            {
+              "id": "a",
+              "label": "True"
+            },
+            {
+              "id": "b",
+              "label": "False"
+            }
+          ],
+          "correct_option_id": "b",
+          "explanation": "Filing on time is required by law."
+        }
+      ]
+    }
+  },
+  {
+    "code": "accounting-basics",
+    "difficulty": "easy",
+    "pass_percent": 60,
+    "sort_order": 2,
+    "lo_title": "ການບັນຊີພື້ນຖານ",
+    "en_title": "Accounting basics",
+    "lo_slug": "banchi-phuen-than",
+    "en_slug": "accounting-basics",
+    "lo_category": "ການບັນຊີ",
+    "en_category": "Accounting",
+    "lo_description": "ຄຳຖາມພື້ນຖານກ່ຽວກັບການບັນຊີ",
+    "en_description": "Basic accounting equation, income, and records.",
+    "questions": {
+      "lo": [
+        {
+          "id": "a1",
+          "prompt": "What is the basic accounting equation?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Assets = Liabilities + Equity"
+            },
+            {
+              "id": "b",
+              "label": "Assets = Revenue - Debt"
+            },
+            {
+              "id": "c",
+              "label": "Revenue = Assets + Liabilities"
+            },
+            {
+              "id": "d",
+              "label": "Debt = Assets - Revenue"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "The fundamental equation is Assets = Liabilities + Equity."
+        },
+        {
+          "id": "a2",
+          "prompt": "Revenue is income earned from main business activity.",
+          "options": [
+            {
+              "id": "a",
+              "label": "ຖືກ"
+            },
+            {
+              "id": "b",
+              "label": "ຜິດ"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Revenue comes from core selling or service activity."
+        },
+        {
+          "id": "a3",
+          "prompt": "Why keep accounting documents?",
+          "options": [
+            {
+              "id": "a",
+              "label": "To record financial transactions"
+            },
+            {
+              "id": "b",
+              "label": "To decorate the office"
+            },
+            {
+              "id": "c",
+              "label": "To sell to tax officers"
+            },
+            {
+              "id": "d",
+              "label": "They are never needed"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Documents support accurate bookkeeping."
+        }
+      ],
+      "en": [
+        {
+          "id": "a1",
+          "prompt": "What is the basic accounting equation?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Assets = Liabilities + Equity"
+            },
+            {
+              "id": "b",
+              "label": "Assets = Revenue - Debt"
+            },
+            {
+              "id": "c",
+              "label": "Revenue = Assets + Liabilities"
+            },
+            {
+              "id": "d",
+              "label": "Debt = Assets - Revenue"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "The fundamental equation is Assets = Liabilities + Equity."
+        },
+        {
+          "id": "a2",
+          "prompt": "Revenue is income earned from main business activity.",
+          "options": [
+            {
+              "id": "a",
+              "label": "True"
+            },
+            {
+              "id": "b",
+              "label": "False"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Revenue comes from core selling or service activity."
+        },
+        {
+          "id": "a3",
+          "prompt": "Why keep accounting documents?",
+          "options": [
+            {
+              "id": "a",
+              "label": "To record financial transactions"
+            },
+            {
+              "id": "b",
+              "label": "To decorate the office"
+            },
+            {
+              "id": "c",
+              "label": "To sell to tax officers"
+            },
+            {
+              "id": "d",
+              "label": "They are never needed"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Documents support accurate bookkeeping."
+        }
+      ]
+    }
+  },
+  {
+    "code": "business-law-basics",
+    "difficulty": "medium",
+    "pass_percent": 70,
+    "sort_order": 3,
+    "lo_title": "ກົດໝາຍທຸລະກິດພື້ນຖານ",
+    "en_title": "Business law basics",
+    "lo_slug": "kotmai-thurakit-phuen-than",
+    "en_slug": "business-law-basics",
+    "lo_category": "ກົດໝາຍ",
+    "en_category": "Law",
+    "lo_description": "ຄຳຖາມພື້ນຖານກ່ຽວກັບກົດໝາຍ",
+    "en_description": "Basic questions about business setup and contracts.",
+    "questions": {
+      "lo": [
+        {
+          "id": "l1",
+          "prompt": "Business registration should follow the related laws.",
+          "options": [
+            {
+              "id": "a",
+              "label": "ຖືກ"
+            },
+            {
+              "id": "b",
+              "label": "ຜິດ"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Registering under the law keeps the business compliant."
+        },
+        {
+          "id": "l2",
+          "prompt": "What is a binding contract?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Any informal chat"
+            },
+            {
+              "id": "b",
+              "label": "An agreement with legal effect"
+            },
+            {
+              "id": "c",
+              "label": "Something with no rules"
+            },
+            {
+              "id": "d",
+              "label": "Only used for marketing"
+            }
+          ],
+          "correct_option_id": "b",
+          "explanation": "A binding contract has legal force between parties."
+        },
+        {
+          "id": "l3",
+          "prompt": "Tax law allows every business to skip filing forever.",
+          "options": [
+            {
+              "id": "a",
+              "label": "ຖືກ"
+            },
+            {
+              "id": "b",
+              "label": "ຜິດ"
+            }
+          ],
+          "correct_option_id": "b",
+          "explanation": "Tax law requires filing on time, not skipping forever."
+        }
+      ],
+      "en": [
+        {
+          "id": "l1",
+          "prompt": "Business registration should follow the related laws.",
+          "options": [
+            {
+              "id": "a",
+              "label": "True"
+            },
+            {
+              "id": "b",
+              "label": "False"
+            }
+          ],
+          "correct_option_id": "a",
+          "explanation": "Registering under the law keeps the business compliant."
+        },
+        {
+          "id": "l2",
+          "prompt": "What is a binding contract?",
+          "options": [
+            {
+              "id": "a",
+              "label": "Any informal chat"
+            },
+            {
+              "id": "b",
+              "label": "An agreement with legal effect"
+            },
+            {
+              "id": "c",
+              "label": "Something with no rules"
+            },
+            {
+              "id": "d",
+              "label": "Only used for marketing"
+            }
+          ],
+          "correct_option_id": "b",
+          "explanation": "A binding contract has legal force between parties."
+        },
+        {
+          "id": "l3",
+          "prompt": "Tax law allows every business to skip filing forever.",
+          "options": [
+            {
+              "id": "a",
+              "label": "True"
+            },
+            {
+              "id": "b",
+              "label": "False"
+            }
+          ],
+          "correct_option_id": "b",
+          "explanation": "Tax law requires filing on time, not skipping forever."
+        }
+      ]
+    }
+  }
+]

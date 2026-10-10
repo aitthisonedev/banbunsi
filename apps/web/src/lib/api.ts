@@ -231,3 +231,71 @@ export function getDocument(
     { cookie: opts?.cookie },
   );
 }
+
+export type QuizListItem = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  difficulty: "easy" | "medium" | "hard" | string;
+  pass_percent: number;
+  question_count: number;
+};
+
+export type QuizDetail = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  pass_percent: number;
+  questions: Array<{
+    id: string;
+    prompt: string;
+    options: Array<{ id: string; label: string }>;
+  }>;
+};
+
+export type QuizSubmitResult = {
+  slug: string;
+  correct: number;
+  total: number;
+  percent: number;
+  passed: boolean;
+  pass_percent: number;
+  details: Array<{
+    question_id: string;
+    prompt: string;
+    selected_id: string;
+    correct_id: string;
+    is_correct: boolean;
+    explanation: string;
+    options: Array<{ id: string; label: string }>;
+  }>;
+};
+
+export function getQuizzes(locale: Locale) {
+  return apiFetch<{ items: QuizListItem[] }>(`/quizzes?locale=${locale}`);
+}
+
+export function getQuiz(locale: Locale, slug: string) {
+  return apiFetch<QuizDetail>(
+    `/quizzes/${encodeURIComponent(slug)}?locale=${locale}`,
+  );
+}
+
+export function submitQuiz(
+  locale: Locale,
+  slug: string,
+  answers: Record<string, string>,
+) {
+  return apiFetch<QuizSubmitResult>(
+    `/quizzes/${encodeURIComponent(slug)}/submit?locale=${locale}`,
+    {
+      method: "POST",
+      body: JSON.stringify({ answers }),
+    },
+  );
+}

@@ -24,7 +24,7 @@ export default async function HomePage({
     })),
   ]);
   const { items: categoryItems } = categoriesOrDemo(raw, items);
-  const preview = categoryItems.slice(0, 6);
+  const preview = categoryItems.slice(0, 8);
   const latestDocs = latest.items.slice(0, 8);
   const tax = categoryItems.find((c) => c.code === "tax");
   const counts: Record<string, number> = {};
@@ -38,7 +38,6 @@ export default async function HomePage({
       <div className="hero-stack">
         <section className="hero">
           <div className="hero-media" aria-hidden>
-            {/* Replace file at: apps/web/public/images/hero-default.jpeg */}
             <Image
               src="/images/hero-default.jpeg"
               alt=""
@@ -67,7 +66,13 @@ export default async function HomePage({
                 placeholder={t(raw, "searchPlaceholder")}
               />
               <button type="submit" aria-label={t(raw, "search")}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
                   <circle cx="11" cy="11" r="7" />
                   <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
                 </svg>
@@ -82,7 +87,7 @@ export default async function HomePage({
 
           <div className="feature-bridge">
             <div className="feature-grid">
-              <Link href={`/${raw}/categories`} className="feature-card">
+              <Link href={`/${raw}/documents`} className="feature-card">
                 <span className="feature-icon" aria-hidden>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <path d="M12 4v10" />
@@ -90,7 +95,10 @@ export default async function HomePage({
                     <path d="M5 18h14" strokeLinecap="round" />
                   </svg>
                 </span>
-                <span>{t(raw, "featureForms")}</span>
+                <span className="feature-card-text">
+                  <span className="feature-card-title">{t(raw, "featureForms")}</span>
+                  <span className="feature-card-desc">{t(raw, "featureFormsDesc")}</span>
+                </span>
               </Link>
               <Link
                 href={tax ? `/${raw}/categories/${tax.slug}` : `/${raw}/categories`}
@@ -102,7 +110,10 @@ export default async function HomePage({
                     <path d="M8 3v4M16 3v4M8 12h.01M12 12h.01M16 12h.01" strokeLinecap="round" />
                   </svg>
                 </span>
-                <span>{t(raw, "featureCalendar")}</span>
+                <span className="feature-card-text">
+                  <span className="feature-card-title">{t(raw, "featureCalendar")}</span>
+                  <span className="feature-card-desc">{t(raw, "featureCalendarDesc")}</span>
+                </span>
               </Link>
               <Link href={`/${raw}/categories`} className="feature-card">
                 <span className="feature-icon" aria-hidden>
@@ -111,16 +122,19 @@ export default async function HomePage({
                     <path d="M9 12h6M9 16h6" strokeLinecap="round" />
                   </svg>
                 </span>
-                <span>{t(raw, "featureGuides")}</span>
+                <span className="feature-card-text">
+                  <span className="feature-card-title">{t(raw, "featureGuides")}</span>
+                  <span className="feature-card-desc">{t(raw, "featureGuidesDesc")}</span>
+                </span>
               </Link>
             </div>
           </div>
         </section>
       </div>
 
-      <section className="band-after-hero">
-        <div className="mx-auto max-w-[1200px] px-4 md:px-5">
-          <div className="mb-5 flex items-end justify-between gap-4">
+      <section className="band-after-hero home-section">
+        <div className="home-section-inner">
+          <div className="home-section-head">
             <h2 className="section-title">{t(raw, "latestDocuments")}</h2>
             <Link href={`/${raw}/documents`} className="section-link">
               {t(raw, "viewAllDocuments")}
@@ -135,15 +149,32 @@ export default async function HomePage({
         </div>
       </section>
 
-      <section className="band-plain">
-        <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-5">
-          <div className="mb-5 flex items-end justify-between gap-4">
+      <section className="band-plain home-section home-section--categories">
+        <div className="home-section-inner">
+          <div className="home-section-head">
             <h2 className="section-title">{t(raw, "categories")}</h2>
             <Link href={`/${raw}/categories`} className="section-link">
               {t(raw, "viewAllCategories")}
             </Link>
           </div>
           <CategoryCards locale={raw} items={preview} counts={counts} />
+        </div>
+      </section>
+
+      <section className="home-promo">
+        <div className="home-promo-inner">
+          <div className="home-promo-copy">
+            <h2 className="home-promo-title">{t(raw, "homePromoTitle")}</h2>
+            <p className="home-promo-lead">{t(raw, "homePromoLead")}</p>
+          </div>
+          <div className="home-promo-actions">
+            <Link href={`/${raw}/auth/login`} className="btn-primary">
+              {t(raw, "login")}
+            </Link>
+            <Link href={`/${raw}/vip`} className="btn-secondary home-promo-secondary">
+              {t(raw, "vipBenefits")}
+            </Link>
+          </div>
         </div>
       </section>
     </div>

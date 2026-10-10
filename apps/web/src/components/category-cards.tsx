@@ -21,6 +21,7 @@ const COVER_BY_CODE: Record<string, string> = {
   audit: COVER_LIST[4],
   law: COVER_LIST[5],
   knowledge: "/images/hero-default.jpeg",
+  sme: COVER_LIST[1],
 };
 
 function coverFor(code: string, index: number) {
@@ -72,7 +73,6 @@ export function CategoryCards({
                 <span className="category-card-title-on-image">{title}</span>
               </span>
               <span className="category-card-body">
-                <span className="category-card-title">{title}</span>
                 {cat.description ? (
                   <span className="category-card-desc">{cat.description}</span>
                 ) : null}

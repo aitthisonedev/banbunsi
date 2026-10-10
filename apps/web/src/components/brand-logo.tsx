@@ -8,11 +8,31 @@ export function BrandLogo({
   locale,
   priority = false,
   className = "",
+  variant = "auto",
 }: {
   locale: Locale;
   priority?: boolean;
   className?: string;
+  /** auto = theme swap; light/dark = fixed asset for that surface */
+  variant?: "auto" | "light" | "dark";
 }) {
+  if (variant === "light" || variant === "dark") {
+    return (
+      <Link
+        href={`/${locale}`}
+        className={`inline-flex items-center ${className}`}
+        aria-label="BAN BUNSI"
+      >
+        <Image
+          src={variant === "light" ? logoLight : logoDark}
+          alt="BAN BUNSI"
+          priority={priority}
+          className="h-10 w-auto md:h-12"
+        />
+      </Link>
+    );
+  }
+
   return (
     <Link
       href={`/${locale}`}

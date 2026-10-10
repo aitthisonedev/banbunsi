@@ -37,5 +37,7 @@ func AutoMigrate(gdb *gorm.DB) error {
 		&models.Document{},
 		&models.DocumentTranslation{},
 		&models.DocumentFile{},
+		&models.Quiz{},
+		&models.QuizTranslation{},
 	)
 }

@@ -24,8 +24,8 @@ export function SiteFooter({
   const year = new Date().getFullYear();
   return (
     <footer className="site-footer">
-      <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-12 md:grid-cols-4 md:px-5">
-        <div>
+      <div className="bb-content grid grid-cols-2 gap-x-6 gap-y-8 py-12 md:grid-cols-4 md:gap-10">
+        <div className="col-span-2 md:col-span-1">
           <Link href={`/${locale}`} className="inline-block" aria-label="BAN BUNSI">
             <Image
               src={logoDark}
@@ -52,7 +52,9 @@ export function SiteFooter({
               <span className="opacity-70">{t(locale, "latestArticles")}</span>
             </li>
             <li>
-              <span className="opacity-70">{t(locale, "quizzes")}</span>
+              <Link href={`/${locale}/quizzes`} className="hover:text-white">
+                {t(locale, "quizzes")}
+              </Link>
             </li>
           </ul>
         </div>
@@ -78,51 +80,53 @@ export function SiteFooter({
           </ul>
         </div>
 
-        <div>
+        <div className="col-span-2 md:col-span-1">
           <h3 className="mb-4 text-sm font-bold tracking-wide">
             {t(locale, "contactUs")}
           </h3>
-          <ul className="space-y-3 text-sm text-white/85">
-            <li>
-              <a
-                className="inline-flex items-center gap-2.5 hover:text-white"
-                href={`mailto:${settings.contact_email}`}
-              >
-                <IconMail />
-                {settings.contact_email}
-              </a>
-            </li>
-            <li>
-              <a
-                className="inline-flex items-center gap-2.5 hover:text-white"
+          <div className="footer-contact-row">
+            <ul className="space-y-3 text-sm text-white/85">
+              <li>
+                <a
+                  className="inline-flex items-center gap-2.5 hover:text-white"
+                  href={`mailto:${settings.contact_email}`}
+                >
+                  <IconMail />
+                  {settings.contact_email}
+                </a>
+              </li>
+              <li>
+                <a
+                  className="inline-flex items-center gap-2.5 hover:text-white"
+                  href={whatsappLink(settings.whatsapp_number)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <IconPhone />
+                  {formatPhone(settings.whatsapp_number)}
+                </a>
+              </li>
+            </ul>
+            <div className="footer-socials">
+              <SocialLink href={settings.facebook_url} label="Facebook">
+                <IconFacebook />
+              </SocialLink>
+              <SocialLink href={settings.tiktok_url} label="TikTok">
+                <IconTikTok />
+              </SocialLink>
+              <SocialLink
                 href={whatsappLink(settings.whatsapp_number)}
-                target="_blank"
-                rel="noreferrer"
+                label="WhatsApp"
               >
-                <IconPhone />
-                {formatPhone(settings.whatsapp_number)}
-              </a>
-            </li>
-          </ul>
-          <div className="mt-5 flex gap-2">
-            <SocialLink href={settings.facebook_url} label="Facebook">
-              <IconFacebook />
-            </SocialLink>
-            <SocialLink href={settings.tiktok_url} label="TikTok">
-              <IconTikTok />
-            </SocialLink>
-            <SocialLink
-              href={whatsappLink(settings.whatsapp_number)}
-              label="WhatsApp"
-            >
-              <IconWhatsApp />
-            </SocialLink>
+                <IconWhatsApp />
+              </SocialLink>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="border-t border-white/20">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-4 py-4 text-xs text-white/75 md:px-5">
+        <div className="bb-content flex flex-wrap items-center justify-between gap-3 py-4 text-xs text-white/75">
           <p>
             © {year} BAN BUNSI. {t(locale, "allRights")}
           </p>

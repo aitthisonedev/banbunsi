@@ -26,5 +26,8 @@ func main() {
 	if err := seed.ReseedDocuments(gdb); err != nil {
 		log.Fatalf("reseed documents: %v", err)
 	}
-	log.Println("Demo documents reseeded successfully.")
+	if err := seed.ReseedQuizzes(gdb); err != nil {
+		log.Fatalf("reseed quizzes: %v", err)
+	}
+	log.Println("Demo documents and quizzes reseeded successfully.")
 }
