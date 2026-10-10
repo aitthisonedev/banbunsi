@@ -3989,6 +3989,108 @@ html.dark .account-method-badge.is-connected {
   border: 1px solid var(--bb-border);
 }
 
+.account-method-icon--google {
+  background: rgba(66, 133, 244, 0.1);
+  color: #4285f4;
+}
+
+.account-method-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.account-unlink-btn {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 8px;
+  background: transparent;
+  color: #e53e3e;
+  border: 1px solid rgba(229, 62, 62, 0.3);
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.account-unlink-btn:hover:not(:disabled) {
+  background: rgba(229, 62, 62, 0.1);
+  border-color: #e53e3e;
+}
+
+.account-unlink-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.account-connect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.45rem 0.95rem;
+  border-radius: 8px;
+  text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* OAuth Social Buttons (Login & Register) */
+.auth-oauth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 1.15rem;
+}
+
+.auth-oauth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--bb-text);
+  background: var(--bb-surface);
+  border: 1px solid var(--bb-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.auth-oauth-btn:hover {
+  background: var(--bb-bg-muted);
+  border-color: color-mix(in srgb, var(--bb-blue) 40%, var(--bb-border));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.auth-oauth-btn--google svg {
+  flex-shrink: 0;
+}
+
+.auth-divider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 1rem 0;
+  color: var(--bb-text-muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auth-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--bb-border);
+}
+
 /* Membership Card */
 .account-membership-card {
   display: flex;
