@@ -43,6 +43,52 @@ export function clientMe() {
   return clientFetch<User>("/auth/me");
 }
 
+export function clientUpdateProfile(body: {
+  first_name: string;
+  last_name: string;
+  phone: string;
+}) {
+  return clientFetch<User>("/account/profile", {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function clientUploadAvatar(file: File) {
+  const form = new FormData();
+  form.append("avatar", file);
+  const res = await fetch(`${API_URL}/api/v1/account/avatar`, {
+    method: "POST",
+    body: form,
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((data as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return data as User;
+}
+
+export function clientDeleteAvatar() {
+  return clientFetch<User>("/account/avatar", { method: "DELETE" });
+}
+
+export function clientChangePassword(currentPassword: string, newPassword: string) {
+  return clientFetch<{ message: string }>("/account/password", {
+    method: "POST",
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
+  });
+}
+
+export function avatarSrc(avatarUrl: string | undefined | null) {
+  if (!avatarUrl) return "";
+  if (avatarUrl.startsWith("http")) return avatarUrl;
+  return `${API_URL}${avatarUrl}`;
+}
+
 export function clientVerifyEmail(token: string) {
   return clientFetch<{ message: string }>("/auth/verify-email", {
     method: "POST",

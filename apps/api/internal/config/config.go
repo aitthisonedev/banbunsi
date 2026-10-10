@@ -24,6 +24,7 @@ type Config struct {
 	OwnerEmail          string
 	OwnerPassword       string
 	OwnerName           string
+	UploadDir           string
 	SMTPHost            string
 	SMTPPort            int
 	SMTPFrom            string
@@ -47,6 +48,7 @@ func Load() (*Config, error) {
 		OwnerEmail:         strings.ToLower(strings.TrimSpace(env("OWNER_EMAIL", "banbunsi26@gmail.com"))),
 		OwnerPassword:      env("OWNER_PASSWORD", "admin123"),
 		OwnerName:          env("OWNER_NAME", "BAN BUNSI Admin"),
+		UploadDir:          env("UPLOAD_DIR", "uploads"),
 		SMTPHost:           env("SMTP_HOST", ""),
 		SMTPPort:           envInt("SMTP_PORT", 1025),
 		SMTPFrom:           env("SMTP_FROM", "noreply@banbunsi.local"),

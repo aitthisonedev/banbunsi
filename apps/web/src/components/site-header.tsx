@@ -89,6 +89,13 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             {t(locale, "admin")}
           </Link>
         ) : null}
+        <Link
+          href={`/${locale}/account`}
+          className="btn-header-secondary"
+          onClick={() => setMenuOpen(false)}
+        >
+          {t(locale, "account")}
+        </Link>
         <button type="button" className="btn-header-primary" onClick={onLogout}>
           {t(locale, "logout")}
         </button>

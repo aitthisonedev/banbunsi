@@ -31,11 +31,16 @@ export type CategoryNode = {
 export type User = {
   id: string;
   name: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  avatar_url: string;
   email: string;
   email_verified: boolean;
   staff_role: "member" | "editor" | "admin" | "owner";
   account_status: "active" | "suspended";
   membership_tier: "member" | "vip" | "none";
+  membership_ends_at: string | null;
 };
 
 export function whatsappLink(e164: string) {

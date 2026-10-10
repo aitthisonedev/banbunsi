@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,6 +34,10 @@ const (
 type User struct {
 	ID              uuid.UUID     `gorm:"type:uuid;primaryKey" json:"id"`
 	Name            string        `gorm:"size:200;not null" json:"name"`
+	FirstName       string        `gorm:"size:100;not null;default:''" json:"first_name"`
+	LastName        string        `gorm:"size:100;not null;default:''" json:"last_name"`
+	Phone           string        `gorm:"size:32;not null;default:''" json:"phone"`
+	AvatarPath      string        `gorm:"size:500;not null;default:''" json:"avatar_path"`
 	Email           string        `gorm:"size:320;uniqueIndex;not null" json:"email"`
 	PasswordHash    string        `gorm:"size:255;not null" json:"-"`
 	EmailVerifiedAt *time.Time    `json:"email_verified_at,omitempty"`
@@ -40,6 +45,16 @@ type User struct {
 	AccountStatus   AccountStatus `gorm:"size:32;not null;default:active" json:"account_status"`
 	CreatedAt       time.Time     `json:"created_at"`
 	UpdatedAt       time.Time     `json:"updated_at"`
+}
+
+func DisplayName(firstName, lastName string) string {
+	return strings.TrimSpace(strings.TrimSpace(firstName) + " " + strings.TrimSpace(lastName))
+}
+
+func (u *User) SyncDisplayName() {
+	if dn := DisplayName(u.FirstName, u.LastName); dn != "" {
+		u.Name = dn
+	}
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
