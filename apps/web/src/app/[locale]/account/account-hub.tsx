@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { User } from "@/lib/api";
 import {
@@ -9,8 +9,10 @@ import {
   clientChangePassword,
   clientDeleteAvatar,
   clientMe,
+  clientUnlinkGoogle,
   clientUpdateProfile,
   clientUploadAvatar,
+  getGoogleAuthUrl,
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 import {
@@ -45,11 +47,43 @@ export function AccountHub() {
   const localeRaw = String(params.locale || "lo");
   const locale = isLocale(localeRaw) ? localeRaw : "lo";
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const initialTab: TabId =
+    searchParams.get("success") || searchParams.get("error")
+      ? "login"
+      : "profile";
+
+  const initialMessage =
+    searchParams.get("success") === "google_linked"
+      ? locale === "lo"
+        ? "ເຊື່ອມຕໍ່ບັນຊີ Google ສຳເລັດແລ້ວ!"
+        : "Google account connected successfully!"
+      : "";
+
+  const initialError = (() => {
+    const err = searchParams.get("error");
+    if (!err) return "";
+    if (err === "google_already_linked") {
+      return locale === "lo"
+        ? "ບັນຊີ Google ນີ້ຖືກເຊື່ອມຕໍ່ກັບບັນຊີອື່ນແລ້ວ."
+        : "This Google account is already linked to another account.";
+    }
+    if (err === "google_cancelled") {
+      return locale === "lo"
+        ? "ການເຊື່ອມຕໍ່ Google ຖືກຍົກເລີກ."
+        : "Google authentication was cancelled.";
+    }
+    return locale === "lo"
+      ? `ເກີດຂໍ້ຜິດພາດໃນການເຊື່ອມຕໍ່ Google (${err})`
+      : `Google authentication failed (${err})`;
+  })();
+
   const [user, setUser] = useState<User | null>(null);
-  const [tab, setTab] = useState<TabId>("profile");
+  const [tab, setTab] = useState<TabId>(initialTab);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState(initialMessage);
+  const [error, setError] = useState(initialError);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -288,7 +322,7 @@ export function AccountHub() {
   async function onChangePassword(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const current = String(fd.get("current") || "");
+    const current = user?.has_password !== false ? String(fd.get("current") || "") : undefined;
     const nextPw = String(fd.get("next") || "");
     const confirm = String(fd.get("confirm") || "");
     setError("");
@@ -300,8 +334,45 @@ export function AccountHub() {
     setBusy(true);
     try {
       await clientChangePassword(current, nextPw);
-      setMessage(t(locale, "passwordChanged"));
+      setMessage(
+        user?.has_password === false
+          ? locale === "lo"
+            ? "ຕັ້ງລະຫັດຜ່ານສຳເລັດແລ້ວ!"
+            : "Password set successfully!"
+          : t(locale, "passwordChanged"),
+      );
+      if (user) {
+        setUser({ ...user, has_password: true });
+      }
       e.currentTarget.reset();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(locale, "loadError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onUnlinkGoogle() {
+    if (
+      !window.confirm(
+        locale === "lo"
+          ? "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການຍົກເລີກການເຊື່ອມຕໍ່ບັນຊີ Google?"
+          : "Are you sure you want to disconnect your Google account?",
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      const nextUser = await clientUnlinkGoogle();
+      setUser(nextUser);
+      setMessage(
+        locale === "lo"
+          ? "ຍົກເລີກການເຊື່ອມຕໍ່ບັນຊີ Google ສຳເລັດແລ້ວ."
+          : "Google account disconnected successfully.",
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : t(locale, "loadError"));
     } finally {
@@ -561,29 +632,39 @@ export function AccountHub() {
               <div className="account-tab-pane">
                 <div className="account-pane-head">
                   <h2 className="account-pane-title">
-                    {t(locale, "securityTab")}
+                    {user.has_password === false
+                      ? locale === "lo"
+                        ? "ຕັ້ງລະຫັດຜ່ານ"
+                        : "Set Password"
+                      : t(locale, "securityTab")}
                   </h2>
                   <p className="account-pane-desc">
-                    {locale === "lo"
-                      ? "ປ່ຽນລະຫັດຜ່ານເພື່ອຮັກສາຄວາມປອດໄພຂອງບັນຊີທ່ານ."
-                      : "Update your password to keep your account safe and secure."}
+                    {user.has_password === false
+                      ? locale === "lo"
+                        ? "ຕັ້ງລະຫັດຜ່ານສຳລັບບັນຊີຂອງທ່ານ ເພື່ອໃຫ້ສາມາດເຂົ້າສູ່ລະບົບດ້ວຍອີເມວແລະລະຫັດຜ່ານໄດ້ນອກເໜືອຈາກ Google."
+                        : "Set a password for your account so you can sign in with your email and password in addition to Google."
+                      : locale === "lo"
+                        ? "ປ່ຽນລະຫັດຜ່ານເພື່ອຮັກສາຄວາມປອດໄພຂອງບັນຊີທ່ານ."
+                        : "Update your password to keep your account safe and secure."}
                   </p>
                 </div>
 
                 <form className="account-form" onSubmit={onChangePassword}>
-                  <FormField
-                    label={t(locale, "currentPassword")}
-                    htmlFor="pw-current"
-                  >
-                    <input
-                      id="pw-current"
-                      className="input"
-                      name="current"
-                      type="password"
-                      required
-                      autoComplete="current-password"
-                    />
-                  </FormField>
+                  {user.has_password !== false ? (
+                    <FormField
+                      label={t(locale, "currentPassword")}
+                      htmlFor="pw-current"
+                    >
+                      <input
+                        id="pw-current"
+                        className="input"
+                        name="current"
+                        type="password"
+                        required
+                        autoComplete="current-password"
+                      />
+                    </FormField>
+                  ) : null}
                   <FormField label={t(locale, "newPassword")} htmlFor="pw-next">
                     <input
                       id="pw-next"
@@ -622,7 +703,11 @@ export function AccountHub() {
                     >
                       {busy
                         ? t(locale, "loading")
-                        : t(locale, "changePassword")}
+                        : user.has_password === false
+                          ? locale === "lo"
+                            ? "ຕັ້ງລະຫັດຜ່ານ"
+                            : "Set Password"
+                          : t(locale, "changePassword")}
                     </button>
                   </div>
                 </form>
@@ -698,7 +783,7 @@ export function AccountHub() {
                   </div>
 
                   <div className="account-method-card">
-                    <div className="account-method-icon">
+                    <div className="account-method-icon account-method-icon--google">
                       <svg
                         viewBox="0 0 24 24"
                         width="20"
@@ -712,14 +797,47 @@ export function AccountHub() {
                     <div className="account-method-info">
                       <span className="account-method-name">Google</span>
                       <span className="account-method-value">
-                        {locale === "lo"
-                          ? "ເຂົ້າສູ່ລະບົບດ້ວຍ Google"
-                          : "Sign in with Google"}
+                        {user.has_google
+                          ? user.google_email || user.email
+                          : locale === "lo"
+                            ? "ຍັງບໍ່ທັນໄດ້ເຊື່ອມຕໍ່"
+                            : "Not connected"}
                       </span>
                     </div>
-                    <span className="account-method-badge is-coming">
-                      {t(locale, "comingSoon")}
-                    </span>
+                    {user.has_google ? (
+                      <div className="account-method-actions">
+                        <span className="account-method-badge is-connected">
+                          ✓ {t(locale, "connected")}
+                        </span>
+                        <button
+                          type="button"
+                          className="account-unlink-btn"
+                          onClick={onUnlinkGoogle}
+                          disabled={busy}
+                          title={locale === "lo" ? "ຍົກເລີກການເຊື່ອມຕໍ່" : "Disconnect Google"}
+                        >
+                          {locale === "lo" ? "ຍົກເລີກການເຊື່ອມຕໍ່" : "Disconnect"}
+                        </button>
+                      </div>
+                    ) : (
+                      <a
+                        href={getGoogleAuthUrl("link", `/${locale}/account`, locale)}
+                        className="btn-secondary account-connect-btn"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+                        </svg>
+                        <span>
+                          {locale === "lo" ? "ເຊື່ອມຕໍ່ Google" : "Connect Google"}
+                        </span>
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
