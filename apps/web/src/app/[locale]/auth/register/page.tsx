@@ -312,194 +312,218 @@ export default function RegisterPage() {
       ) : (
         <>
           <div className="auth-oauth-section">
-          <a
-            href={getGoogleAuthUrl("register", `/${locale}/account`, locale)}
-            className="auth-oauth-btn auth-oauth-btn--google"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path
-                fill="#4285F4"
-                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17Z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.36 24 12 24Z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.94 0 12s.45 3.84 1.25 5.42l4.03-3.15Z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"
-              />
-            </svg>
-            <span>
-              {locale === "lo"
-                ? "ລົງທະບຽນດ້ວຍ Google"
-                : "Sign up with Google"}
-            </span>
-          </a>
-        </div>
-
-        <div className="auth-divider-row" aria-hidden="true">
-          <span className="auth-divider-line" />
-          <span>{locale === "lo" ? "ຫຼື" : "or"}</span>
-          <span className="auth-divider-line" />
-        </div>
-
-        <form onSubmit={onSubmit} className="auth-form" noValidate={false}>
-          <FormField label={t(locale, "name")} htmlFor="register-name">
-            <div className="auth-input-wrap">
-              <span className="auth-input-icon">
-                <UserIcon />
-              </span>
-              <input
-                id="register-name"
-                className="input has-icon-left"
-                name="name"
-                placeholder={locale === "lo" ? "ສົມສັກ ໄຊຍະວົງ" : "John Doe"}
-                required
-                autoComplete="name"
-              />
-            </div>
-          </FormField>
-
-          <FormField label={t(locale, "email")} htmlFor="register-email">
-            <div className="auth-input-wrap">
-              <span className="auth-input-icon">
-                <MailIcon />
-              </span>
-              <input
-                id="register-email"
-                className="input has-icon-left"
-                name="email"
-                type="email"
-                placeholder="user@example.com"
-                required
-                autoComplete="email"
-                inputMode="email"
-              />
-            </div>
-          </FormField>
-
-          <FormField label={t(locale, "password")} htmlFor="register-password">
-            <div className="auth-input-wrap">
-              <span className="auth-input-icon">
-                <LockIcon />
-              </span>
-              <input
-                id="register-password"
-                className="input has-icon-left has-icon-right"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="auth-eye-btn"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? t(locale, "hidePassword") : t(locale, "showPassword")}
-                title={showPassword ? t(locale, "hidePassword") : t(locale, "showPassword")}
+            <a
+              href={getGoogleAuthUrl("register", `/${locale}/account`, locale)}
+              className="auth-oauth-btn auth-oauth-btn--google"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                aria-hidden="true"
               >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
-            </div>
-            <div className="auth-password-hints">
-              <span
-                className={`auth-hint-pill ${isMinLength ? "is-valid" : ""}`}
-              >
-                {isMinLength ? <CheckIcon /> : "•"}
-                <span>{t(locale, "passwordMinChars")}</span>
+                <path
+                  fill="#4285F4"
+                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17Z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.36 24 12 24Z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.94 0 12s.45 3.84 1.25 5.42l4.03-3.15Z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"
+                />
+              </svg>
+              <span>
+                {locale === "lo"
+                  ? "ລົງທະບຽນດ້ວຍ Google"
+                  : "Sign up with Google"}
               </span>
-            </div>
-          </FormField>
+            </a>
+          </div>
 
-          <FormField
-            label={t(locale, "confirmPassword")}
-            htmlFor="register-confirm"
-          >
-            <div className="auth-input-wrap">
-              <span className="auth-input-icon">
-                <ShieldCheckIcon />
-              </span>
-              <input
-                id="register-confirm"
-                className="input has-icon-left has-icon-right"
-                name="confirm"
-                type={showConfirm ? "text" : "password"}
-                placeholder="••••••••"
-                required
-                minLength={8}
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="auth-eye-btn"
-                onClick={() => setShowConfirm((prev) => !prev)}
-                aria-label={showConfirm ? t(locale, "hidePassword") : t(locale, "showPassword")}
-                title={showConfirm ? t(locale, "hidePassword") : t(locale, "showPassword")}
-              >
-                {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
-            </div>
-            {confirm.length > 0 ? (
+          <div className="auth-divider-row" aria-hidden="true">
+            <span className="auth-divider-line" />
+            <span>{locale === "lo" ? "ຫຼື" : "or"}</span>
+            <span className="auth-divider-line" />
+          </div>
+
+          <form onSubmit={onSubmit} className="auth-form" noValidate={false}>
+            <FormField label={t(locale, "name")} htmlFor="register-name">
+              <div className="auth-input-wrap">
+                <span className="auth-input-icon">
+                  <UserIcon />
+                </span>
+                <input
+                  id="register-name"
+                  className="input has-icon-left"
+                  name="name"
+                  placeholder={locale === "lo" ? "ສົມສັກ ໄຊຍະວົງ" : "John Doe"}
+                  required
+                  autoComplete="name"
+                />
+              </div>
+            </FormField>
+
+            <FormField label={t(locale, "email")} htmlFor="register-email">
+              <div className="auth-input-wrap">
+                <span className="auth-input-icon">
+                  <MailIcon />
+                </span>
+                <input
+                  id="register-email"
+                  className="input has-icon-left"
+                  name="email"
+                  type="email"
+                  placeholder="user@example.com"
+                  required
+                  autoComplete="email"
+                  inputMode="email"
+                />
+              </div>
+            </FormField>
+
+            <FormField
+              label={t(locale, "password")}
+              htmlFor="register-password"
+            >
+              <div className="auth-input-wrap">
+                <span className="auth-input-icon">
+                  <LockIcon />
+                </span>
+                <input
+                  id="register-password"
+                  className="input has-icon-left has-icon-right"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  className="auth-eye-btn"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={
+                    showPassword
+                      ? t(locale, "hidePassword")
+                      : t(locale, "showPassword")
+                  }
+                  title={
+                    showPassword
+                      ? t(locale, "hidePassword")
+                      : t(locale, "showPassword")
+                  }
+                >
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
               <div className="auth-password-hints">
                 <span
-                  className={`auth-hint-pill ${isMatched ? "is-valid" : isMismatch ? "is-invalid" : ""}`}
+                  className={`auth-hint-pill ${isMinLength ? "is-valid" : ""}`}
                 >
-                  {isMatched ? <CheckIcon /> : "•"}
-                  <span>
-                    {isMatched
-                      ? t(locale, "passwordsMatch")
-                      : t(locale, "passwordsDoNotMatch")}
-                  </span>
+                  {isMinLength ? <CheckIcon /> : "•"}
+                  <span>{t(locale, "passwordMinChars")}</span>
                 </span>
               </div>
+            </FormField>
+
+            <FormField
+              label={t(locale, "confirmPassword")}
+              htmlFor="register-confirm"
+            >
+              <div className="auth-input-wrap">
+                <span className="auth-input-icon">
+                  <ShieldCheckIcon />
+                </span>
+                <input
+                  id="register-confirm"
+                  className="input has-icon-left has-icon-right"
+                  name="confirm"
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  className="auth-eye-btn"
+                  onClick={() => setShowConfirm((prev) => !prev)}
+                  aria-label={
+                    showConfirm
+                      ? t(locale, "hidePassword")
+                      : t(locale, "showPassword")
+                  }
+                  title={
+                    showConfirm
+                      ? t(locale, "hidePassword")
+                      : t(locale, "showPassword")
+                  }
+                >
+                  {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+              {confirm.length > 0 ? (
+                <div className="auth-password-hints">
+                  <span
+                    className={`auth-hint-pill ${isMatched ? "is-valid" : isMismatch ? "is-invalid" : ""}`}
+                  >
+                    {isMatched ? <CheckIcon /> : "•"}
+                    <span>
+                      {isMatched
+                        ? t(locale, "passwordsMatch")
+                        : t(locale, "passwordsDoNotMatch")}
+                    </span>
+                  </span>
+                </div>
+              ) : null}
+            </FormField>
+
+            <p className="auth-terms-note">
+              <span>{t(locale, "termsNotice")} </span>
+              <Link href={`/${locale}/privacy`}>
+                {t(locale, "privacyPolicy")}
+              </Link>
+            </p>
+
+            {error ? (
+              <div className="auth-alert auth-alert--error" role="alert">
+                <span className="auth-alert-icon">
+                  <AlertCircleIcon />
+                </span>
+                <span>{error}</span>
+              </div>
             ) : null}
-          </FormField>
 
-          <p className="auth-terms-note">
-            <span>{t(locale, "termsNotice")} </span>
-            <Link href={`/${locale}/privacy`}>
-              {t(locale, "privacyPolicy")}
-            </Link>
-          </p>
-
-          {error ? (
-            <div className="auth-alert auth-alert--error" role="alert">
-              <span className="auth-alert-icon">
-                <AlertCircleIcon />
-              </span>
-              <span>{error}</span>
-            </div>
-          ) : null}
-
-          <button
-            className="auth-submit-btn"
-            disabled={loading}
-            type="submit"
-          >
-            {loading ? (
-              <>
-                <SpinnerIcon />
-                <span>{t(locale, "loading")}</span>
-              </>
-            ) : (
-              <>
-                <span>{t(locale, "register")}</span>
-                <ArrowRightIcon className="auth-btn-arrow" />
-              </>
-            )}
-          </button>
-        </form>
+            <button
+              className="auth-submit-btn"
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? (
+                <>
+                  <SpinnerIcon />
+                  <span>{t(locale, "loading")}</span>
+                </>
+              ) : (
+                <>
+                  <span>{t(locale, "register")}</span>
+                  <ArrowRightIcon className="auth-btn-arrow" />
+                </>
+              )}
+            </button>
+          </form>
         </>
       )}
     </AuthPanel>

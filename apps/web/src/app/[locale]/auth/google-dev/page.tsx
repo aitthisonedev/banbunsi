@@ -59,7 +59,9 @@ export default function GoogleDevSandboxPage() {
           state,
           name: name.trim(),
           email: email.trim().toLowerCase(),
-          sub: `google-${btoa(email.trim().toLowerCase()).replace(/[^a-zA-Z0-9]/g, "").slice(0, 24)}`,
+          sub: `google-${btoa(email.trim().toLowerCase())
+            .replace(/[^a-zA-Z0-9]/g, "")
+            .slice(0, 24)}`,
           picture: "https://lh3.googleusercontent.com/a/ACg8ocIS0mock=s96-c",
         }),
       });
@@ -79,7 +81,9 @@ export default function GoogleDevSandboxPage() {
       router.push(nextPath);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Development authorization failed");
+      setError(
+        err instanceof Error ? err.message : "Development authorization failed",
+      );
       setLoading(false);
     }
   }
@@ -112,7 +116,9 @@ export default function GoogleDevSandboxPage() {
             marginBottom: "0.5rem",
           }}
         >
-          <p style={{ margin: "0 0 0.35rem", fontWeight: 700, color: "#4285f4" }}>
+          <p
+            style={{ margin: "0 0 0.35rem", fontWeight: 700, color: "#4285f4" }}
+          >
             🛠️ Google OAuth Local Sandbox
           </p>
           <p style={{ margin: 0, opacity: 0.9 }}>
@@ -166,7 +172,9 @@ export default function GoogleDevSandboxPage() {
           }}
         >
           {loading ? (
-            <span>{locale === "lo" ? "ກຳລັງຢືນຢັນ..." : "Simulating OAuth..."}</span>
+            <span>
+              {locale === "lo" ? "ກຳລັງຢືນຢັນ..." : "Simulating OAuth..."}
+            </span>
           ) : (
             <span>
               {mode === "link"
