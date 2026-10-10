@@ -303,8 +303,16 @@ export function LoginForm() {
               type="button"
               className="auth-eye-btn"
               onClick={() => setShowPassword((prev) => !prev)}
-              aria-label={showPassword ? t(locale, "hidePassword") : t(locale, "showPassword")}
-              title={showPassword ? t(locale, "hidePassword") : t(locale, "showPassword")}
+              aria-label={
+                showPassword
+                  ? t(locale, "hidePassword")
+                  : t(locale, "showPassword")
+              }
+              title={
+                showPassword
+                  ? t(locale, "hidePassword")
+                  : t(locale, "showPassword")
+              }
             >
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
@@ -339,11 +347,7 @@ export function LoginForm() {
           </div>
         ) : null}
 
-        <button
-          className="auth-submit-btn"
-          disabled={loading}
-          type="submit"
-        >
+        <button className="auth-submit-btn" disabled={loading} type="submit">
           {loading ? (
             <>
               <SpinnerIcon />
