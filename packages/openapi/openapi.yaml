@@ -1,0 +1,355 @@
+openapi: 3.0.3
+info:
+  title: BAN BUNSI API
+  version: 0.1.0
+  description: Foundation API for BAN BUNSI knowledge center CMS.
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /auth/register:
+    post:
+      summary: Register with email and password
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "200":
+          description: Enumeration-safe acceptance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+  /auth/login:
+    post:
+      summary: Login
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          description: Invalid credentials
+  /auth/logout:
+    post:
+      summary: Logout
+      operationId: logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+  /auth/me:
+    get:
+      summary: Current user
+      operationId: me
+      responses:
+        "200":
+          description: Current session user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          description: Unauthorized
+  /auth/verify-email:
+    post:
+      summary: Verify email with token
+      operationId: verifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Verified or already verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+  /auth/resend-verification:
+    post:
+      summary: Resend verification email
+      operationId: resendVerification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Enumeration-safe acceptance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+  /auth/forgot-password:
+    post:
+      summary: Request password reset
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Enumeration-safe acceptance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+  /auth/reset-password:
+    post:
+      summary: Reset password with token
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        "200":
+          description: Password updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+  /categories:
+    get:
+      summary: Public active category tree
+      operationId: listPublicCategories
+      parameters:
+        - name: locale
+          in: query
+          schema:
+            type: string
+            enum: [lo, en]
+            default: lo
+      responses:
+        "200":
+          description: Category tree
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CategoryNode"
+  /settings/public:
+    get:
+      summary: Public site settings
+      operationId: getPublicSettings
+      responses:
+        "200":
+          description: Public settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicSettings"
+  /admin/categories:
+    get:
+      summary: Admin category list
+      operationId: listAdminCategories
+      parameters:
+        - name: locale
+          in: query
+          schema:
+            type: string
+            enum: [lo, en]
+            default: lo
+      responses:
+        "200":
+          description: Categories including inactive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CategoryNode"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /admin/settings:
+    get:
+      summary: Admin settings
+      operationId: getAdminSettings
+      responses:
+        "200":
+          description: Full settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+    patch:
+      summary: Update settings
+      operationId: patchAdminSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SiteSettingsPatch"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+  /admin/dashboard:
+    get:
+      summary: Admin dashboard stub
+      operationId: getAdminDashboard
+      responses:
+        "200":
+          description: Placeholder counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articles: { type: integer }
+                  documents: { type: integer }
+                  members: { type: integer }
+                  active_vip: { type: integer }
+                  pending_review: { type: integer }
+                  download_requests: { type: integer }
+components:
+  schemas:
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+    UserResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string }
+        email_verified: { type: boolean }
+        staff_role: { type: string, enum: [member, editor, admin, owner] }
+        account_status: { type: string, enum: [active, suspended] }
+        membership_tier: { type: string, enum: [member, vip, none] }
+    CategoryNode:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        description: { type: string }
+        sort_order: { type: integer }
+        is_active: { type: boolean }
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryNode"
+    PublicSettings:
+      type: object
+      properties:
+        site_name_lo: { type: string }
+        site_name_en: { type: string }
+        timezone: { type: string }
+        contact_email: { type: string }
+        whatsapp_number: { type: string }
+        facebook_url: { type: string }
+        tiktok_url: { type: string }
+        default_meta_description_lo: { type: string }
+        default_meta_description_en: { type: string }
+    SiteSettings:
+      allOf:
+        - $ref: "#/components/schemas/PublicSettings"
+        - type: object
+          properties:
+            default_seo_title_lo: { type: string }
+            default_seo_title_en: { type: string }
+    SiteSettingsPatch:
+      type: object
+      properties:
+        site_name_lo: { type: string }
+        site_name_en: { type: string }
+        timezone: { type: string }
+        contact_email: { type: string }
+        whatsapp_number: { type: string }
+        facebook_url: { type: string }
+        tiktok_url: { type: string }
+        default_meta_description_lo: { type: string }
+        default_meta_description_en: { type: string }
+        default_seo_title_lo: { type: string }
+        default_seo_title_en: { type: string }

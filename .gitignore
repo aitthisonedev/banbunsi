@@ -1,0 +1,38 @@
+# env
+.env
+.env.local
+.env.*.local
+apps/web/.env*.local
+
+# local run pids/logs
+.run/
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Go
+apps/api/bin/
+apps/api/tmp/
+*.exe
+*.test
+*.out
+vendor/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# coverage / misc
+coverage/
+*.log
+.turbo/
