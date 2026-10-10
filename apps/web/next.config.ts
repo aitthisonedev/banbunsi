@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   // Foundation uses per-request locale + API fetches; enable Cache Components later.
   cacheComponents: false,
   turbopack: {

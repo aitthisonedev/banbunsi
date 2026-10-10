@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -10,21 +11,22 @@ import (
 )
 
 type Config struct {
-	DatabaseURL        string
-	APIAddr            string
-	AppEnv             string
-	AppPublicURL       string
-	APIPublicURL       string
-	CORSOrigins        []string
-	CSRFTrustedOrigins []string
-	SessionCookieName  string
-	SessionTTL         time.Duration
-	OwnerEmail         string
-	OwnerPassword      string
-	OwnerName          string
-	SMTPHost           string
-	SMTPPort           int
-	SMTPFrom           string
+	DatabaseURL         string
+	APIAddr             string
+	AppEnv              string
+	AppPublicURL        string
+	APIPublicURL        string
+	CORSOrigins         []string
+	CSRFTrustedOrigins  []string
+	SessionCookieName   string
+	SessionCookieSecure bool
+	SessionTTL          time.Duration
+	OwnerEmail          string
+	OwnerPassword       string
+	OwnerName           string
+	SMTPHost            string
+	SMTPPort            int
+	SMTPFrom            string
 }
 
 func Load() (*Config, error) {
@@ -48,6 +50,19 @@ func Load() (*Config, error) {
 		SMTPHost:           env("SMTP_HOST", ""),
 		SMTPPort:           envInt("SMTP_PORT", 1025),
 		SMTPFrom:           env("SMTP_FROM", "noreply@banbunsi.local"),
+	}
+	cfg.SessionCookieSecure = !cfg.IsDev()
+	if value := os.Getenv("SESSION_COOKIE_SECURE"); value != "" {
+		secure, err := strconv.ParseBool(value)
+		if err != nil {
+			return nil, fmt.Errorf("SESSION_COOKIE_SECURE must be true or false: %w", err)
+		}
+		cfg.SessionCookieSecure = secure
+	}
+	if !cfg.IsDev() {
+		if strings.TrimSpace(os.Getenv("OWNER_EMAIL")) == "" || len(os.Getenv("OWNER_PASSWORD")) < 12 {
+			return nil, fmt.Errorf("production requires OWNER_EMAIL and an OWNER_PASSWORD of at least 12 characters")
+		}
 	}
 	return cfg, nil
 }

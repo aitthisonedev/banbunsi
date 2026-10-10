@@ -96,12 +96,12 @@ func seedCategories(db *gorm.DB) error {
 		}
 		trs := []models.CategoryTranslation{
 			{
-				CategoryID: cat.ID,
-				Locale:     "lo",
-				Name:       c.LoName,
+				CategoryID:  cat.ID,
+				Locale:      "lo",
+				Name:        c.LoName,
 				Description: c.LoName,
-				Slug:       c.LoSlug,
-				SEOTitle:   c.LoName + " | BAN BUNSI",
+				Slug:        c.LoSlug,
+				SEOTitle:    c.LoName + " | BAN BUNSI",
 			},
 			{
 				CategoryID:  cat.ID,
@@ -155,7 +155,20 @@ func seedDemoAccounts(db *gorm.DB, cfg *config.Config) error {
 			Notes:    "seeded VIP member",
 		},
 	}
+	if !cfg.IsDev() {
+		// Production creates the owner once, never demo members or password resets.
+		accounts = accounts[:1]
+	}
 	for _, a := range accounts {
+		if !cfg.IsDev() {
+			var count int64
+			if err := db.Model(&models.User{}).Where("email = ?", strings.ToLower(strings.TrimSpace(a.Email))).Count(&count).Error; err != nil {
+				return err
+			}
+			if count > 0 {
+				continue
+			}
+		}
 		if err := upsertDemoAccount(db, a); err != nil {
 			return err
 		}
@@ -218,9 +231,9 @@ func EnsureCurrentMembership(db *gorm.DB, userID uuid.UUID, tier models.Membersh
 			return nil
 		}
 		return db.Model(&m).Updates(map[string]interface{}{
-			"tier":   tier,
-			"status": "active",
-			"notes":  notes,
+			"tier":    tier,
+			"status":  "active",
+			"notes":   notes,
 			"ends_at": nil,
 		}).Error
 	}

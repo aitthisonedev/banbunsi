@@ -1,0 +1,26 @@
+[Unit]
+Description=BAN BUNSI Next.js frontend
+After=network.target banbunsi-api.service
+
+[Service]
+Type=simple
+User=banbunsi
+Group=banbunsi
+WorkingDirectory=/opt/banbunsi/current/web
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+Environment=HOSTNAME=127.0.0.1
+Environment=PORT=13000
+Environment=API_URL=http://127.0.0.1:18080
+ExecStart=/opt/banbunsi/current/runtime/node /opt/banbunsi/current/web/server.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/banbunsi/current/web/.next/cache
+ProtectHome=true
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

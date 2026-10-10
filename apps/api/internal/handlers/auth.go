@@ -229,7 +229,7 @@ func (h *AuthHandler) setSessionCookie(c *fiber.Ctx, raw string) {
 		Value:    raw,
 		Path:     "/",
 		HTTPOnly: true,
-		Secure:   !h.Cfg.IsDev(),
+		Secure:   h.Cfg.SessionCookieSecure,
 		SameSite: "Lax",
 		MaxAge:   int(h.Cfg.SessionTTL.Seconds()),
 	})

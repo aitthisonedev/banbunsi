@@ -1,0 +1,23 @@
+[Unit]
+Description=BAN BUNSI Go API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=banbunsi
+Group=banbunsi
+WorkingDirectory=/opt/banbunsi/current/api
+EnvironmentFile=/etc/banbunsi/api.env
+Environment=UPLOAD_DIR=/var/lib/banbunsi/uploads
+ExecStart=/opt/banbunsi/current/api/server
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+StateDirectory=banbunsi
+ProtectHome=true
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

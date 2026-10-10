@@ -8,7 +8,7 @@ import type { CategoryNode } from "@/lib/api";
 import { clientMe } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export default function AdminNewDocumentPage() {
   const params = useParams();

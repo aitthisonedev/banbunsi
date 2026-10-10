@@ -2,6 +2,8 @@
 
 Knowledge center CMS (Foundation slice): Next.js public shell + Go Fiber API + PostgreSQL.
 
+Production deployment and GitHub Actions: [VPS guide](deploy/README.md).
+
 ## Stack
 
 - `apps/web` — Next.js (App Router), Tailwind, Lao/English UI
@@ -54,7 +56,7 @@ cd apps/web && npm run dev
 
 ### Seeded demo accounts
 
-Upserted on API boot (also in `.env` for the owner):
+Upserted on API boot in development (also in `.env` for the owner):
 
 | Role | Email | Password |
 |---|---|---|
@@ -62,7 +64,9 @@ Upserted on API boot (also in `.env` for the owner):
 | General member | `user@gmail.com` | `user123` |
 | VIP member | `vip@gmail.com` | `vip1123` |
 
-Login page defaults to the admin credentials. Staff land on `/admin`; members stay on the public site.
+Staff land on `/admin`; members stay on the public site. Production requires an
+explicit owner email and a password of at least 12 characters, creates the owner
+once, and does not seed demo member/VIP accounts.
 
 ## What Foundation includes
 
