@@ -264,10 +264,10 @@ export default async function HomePage({
             <p className="home-promo-lead">{t(raw, "homePromoLead")}</p>
           </div>
           <div className="home-promo-actions">
-            <Link href={`/${raw}/auth/login`} className="btn-hero-primary home-promo-btn">
+            <Link href={`/${raw}/auth/login`} className="home-promo-btn">
               {t(raw, "login")}
             </Link>
-            <Link href={`/${raw}/vip`} className="btn-hero-secondary home-promo-secondary">
+            <Link href={`/${raw}/vip`} className="home-promo-secondary">
               {t(raw, "vipBenefits")}
             </Link>
           </div>

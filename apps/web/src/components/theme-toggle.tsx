@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "banbunsi-theme";
 
@@ -20,6 +20,24 @@ function applyTheme(theme: Theme) {
   }
 }
 
+function subscribe(callback: () => void) {
+  if (typeof document === "undefined") return () => {};
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+  return () => observer.disconnect();
+}
+
+function getSnapshot(): Theme {
+  return readTheme();
+}
+
+function getServerSnapshot(): Theme {
+  return "light";
+}
+
 export function ThemeToggle({
   darkLabel,
   lightLabel,
@@ -27,41 +45,26 @@ export function ThemeToggle({
   darkLabel: string;
   lightLabel: string;
 }) {
-  const [theme, setTheme] = useState<Theme>(() =>
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark")
-      ? "dark"
-      : "light",
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setTheme(readTheme());
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
     applyTheme(next);
   }
 
-  const label = theme === "dark" ? lightLabel : darkLabel;
+  const isDark = theme === "dark";
+  const label = isDark ? lightLabel : darkLabel;
 
   return (
     <button
       type="button"
       className="icon-btn"
       onClick={toggle}
-      aria-pressed={theme === "dark"}
+      aria-pressed={isDark}
       aria-label={label}
       title={label}
       data-theme={theme}
+      suppressHydrationWarning
     >
       <svg
         className="theme-icon theme-icon-moon"
