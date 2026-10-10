@@ -7,8 +7,9 @@ import type { Locale, User } from "@/lib/api";
 import { BrandLogo } from "@/components/brand-logo";
 import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UserNavMenu } from "@/components/user-nav-menu";
 import { Drawer } from "@/components/ui";
-import { clientLogout, clientMe } from "@/lib/client-api";
+import { avatarSrc, clientLogout, clientMe } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
 
 export function SiteHeader({ locale }: { locale: Locale }) {
@@ -79,27 +80,12 @@ export function SiteHeader({ locale }: { locale: Locale }) {
 
   const authActions =
     user === undefined ? null : user ? (
-      <>
-        {isStaff ? (
-          <Link
-            href={`/${locale}/admin`}
-            className="btn-header-secondary"
-            onClick={() => setMenuOpen(false)}
-          >
-            {t(locale, "admin")}
-          </Link>
-        ) : null}
-        <Link
-          href={`/${locale}/account`}
-          className="btn-header-secondary"
-          onClick={() => setMenuOpen(false)}
-        >
-          {t(locale, "account")}
-        </Link>
-        <button type="button" className="btn-header-primary" onClick={onLogout}>
-          {t(locale, "logout")}
-        </button>
-      </>
+      <UserNavMenu
+        user={user}
+        locale={locale}
+        isStaff={Boolean(isStaff)}
+        onLogout={onLogout}
+      />
     ) : (
       <>
         <Link
@@ -117,6 +103,81 @@ export function SiteHeader({ locale }: { locale: Locale }) {
           {t(locale, "register")}
         </Link>
       </>
+    );
+
+  const drawerAuth =
+    user === undefined ? null : user ? (
+      <div className="drawer-user-section">
+        <div className="drawer-user-head">
+          <span className="user-nav-avatar">
+            {user.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarSrc(user.avatar_url)}
+                alt=""
+                width={40}
+                height={40}
+                className="user-nav-avatar-img"
+              />
+            ) : (
+              <span className="user-nav-avatar-initials">
+                {(
+                  (user.first_name || user.name || "?").trim().charAt(0) +
+                  (user.last_name || "").trim().charAt(0)
+                ).toUpperCase() || "?"}
+              </span>
+            )}
+          </span>
+          <div className="drawer-user-info">
+            <span className="drawer-user-name">
+              {user.name || [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email}
+            </span>
+            <span className="drawer-user-email">{user.email}</span>
+          </div>
+        </div>
+        <div className="drawer-user-actions">
+          <Link
+            href={`/${locale}/account`}
+            className="btn-secondary drawer-user-btn"
+            onClick={() => setMenuOpen(false)}
+          >
+            {t(locale, "account")}
+          </Link>
+          {isStaff ? (
+            <Link
+              href={`/${locale}/admin`}
+              className="btn-secondary drawer-user-btn"
+              onClick={() => setMenuOpen(false)}
+            >
+              {t(locale, "admin")}
+            </Link>
+          ) : null}
+          <button
+            type="button"
+            className="btn-secondary drawer-user-btn drawer-user-btn--logout"
+            onClick={onLogout}
+          >
+            {t(locale, "logout")}
+          </button>
+        </div>
+      </div>
+    ) : (
+      <div className="drawer-auth-buttons">
+        <Link
+          href={`/${locale}/auth/login`}
+          className="btn-header-secondary"
+          onClick={() => setMenuOpen(false)}
+        >
+          {t(locale, "login")}
+        </Link>
+        <Link
+          href={`/${locale}/auth/register`}
+          className="btn-header-primary"
+          onClick={() => setMenuOpen(false)}
+        >
+          {t(locale, "register")}
+        </Link>
+      </div>
     );
 
   return (
@@ -164,7 +225,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
       >
         <nav className="drawer-nav" aria-label="Mobile">
           {navLinks}
-          <div className="drawer-auth">{authActions}</div>
+          <div className="drawer-auth">{drawerAuth}</div>
         </nav>
       </Drawer>
     </header>
