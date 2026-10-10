@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CategoryCards } from "@/components/category-cards";
 import { EmptyState, ErrorState } from "@/components/ui";
-import { getCategories } from "@/lib/api";
+import { getCategories, getDocuments } from "@/lib/api";
+import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
 
 export default async function CategoriesPage({
@@ -12,48 +14,35 @@ export default async function CategoriesPage({
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
 
-  const result = await getCategories(raw)
-    .then((data) => ({ ok: true as const, data }))
-    .catch(() => ({ ok: false as const }));
+  const [catResult, docs] = await Promise.all([
+    getCategories(raw)
+      .then((data) => ({ ok: true as const, data }))
+      .catch(() => ({ ok: false as const })),
+    getDocuments(raw, { per_page: 100 }).catch(() => null),
+  ]);
+
+  const apiItems = catResult.ok ? catResult.data.items : [];
+  const { items } = categoriesOrDemo(raw, apiItems);
+  const counts: Record<string, number> = {};
+  for (const doc of docs?.items || []) {
+    if (!doc.category_slug) continue;
+    counts[doc.category_slug] = (counts[doc.category_slug] || 0) + 1;
+  }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 md:px-5">
-      <h1 className="text-3xl font-bold">{t(raw, "categories")}</h1>
-      {!result.ok ? (
-        <div className="mt-8">
-          <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
-        </div>
-      ) : result.data.items.length === 0 ? (
-        <div className="mt-8">
-          <EmptyState title={t(raw, "noCategories")} />
-        </div>
+    <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-5">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <h1 className="text-3xl font-bold">{t(raw, "categories")}</h1>
+        <Link href={`/${raw}/documents`} className="section-link">
+          {t(raw, "viewAllDocuments")}
+        </Link>
+      </div>
+      {!catResult.ok && items.length === 0 ? (
+        <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+      ) : items.length === 0 ? (
+        <EmptyState title={t(raw, "noCategories")} />
       ) : (
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-          {result.data.items.map((cat) => (
-            <li key={cat.id} className="card-soft">
-              <Link
-                href={`/${raw}/categories/${cat.slug}`}
-                className="font-semibold text-bb-blue hover:underline"
-              >
-                {cat.name}
-              </Link>
-              {cat.description ? (
-                <p className="mt-1 text-sm text-bb-text-muted">{cat.description}</p>
-              ) : null}
-              {cat.children?.length ? (
-                <ul className="mt-3 flex flex-wrap gap-2">
-                  {cat.children.map((child) => (
-                    <li key={child.id}>
-                      <Link href={`/${raw}/categories/${child.slug}`} className="chip">
-                        {child.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </li>
-          ))}
-        </ul>
+        <CategoryCards locale={raw} items={items} counts={counts} />
       )}
     </div>
   );

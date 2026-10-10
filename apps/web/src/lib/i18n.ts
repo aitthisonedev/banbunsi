@@ -119,6 +119,7 @@ const lo: Dict = {
   statsArticles: "\u0E9A\u0EBB\u0E94\u0E84\u0EA7\u0EB2\u0EA1",
   statsDownloads: "\u0E84\u0E33\u0E82\u0ECD\u0E94\u0EB2\u0EA7\u0EC2\u0EAB\u0EA5\u0E94",
   noCategories: "\u0E9A\u0ECD\u0EC8\u0E9E\u0EBB\u0E9A\u0EDC\u0EA7\u0E94",
+  browseCategory: "\u0EC0\u0E9A\u0EB4\u0EC8\u0E87\u0EC0\u0EAD\u0E81\u0EB0\u0EAA\u0EB2\u0E99",
 };
 
 const en: Dict = {
@@ -224,6 +225,7 @@ const en: Dict = {
   statsArticles: "Articles",
   statsDownloads: "Download requests",
   noCategories: "No categories found",
+  browseCategory: "Browse documents",
 };
 
 const dictionaries: Record<Locale, Dict> = { lo, en };

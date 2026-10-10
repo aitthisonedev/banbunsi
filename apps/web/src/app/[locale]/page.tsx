@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CategoryCards } from "@/components/category-cards";
 import { DocumentList } from "@/components/document-list";
 import { getCategories, getDocuments } from "@/lib/api";
+import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
 
 export default async function HomePage({
@@ -12,17 +14,24 @@ export default async function HomePage({
 }) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
-  const [{ items }, { items: latestDocs }] = await Promise.all([
+  const [{ items }, latest] = await Promise.all([
     getCategories(raw).catch(() => ({ items: [] })),
-    getDocuments(raw, { per_page: 5 }).catch(() => ({
+    getDocuments(raw, { per_page: 40 }).catch(() => ({
       items: [],
       total: 0,
       page: 1,
-      per_page: 5,
+      per_page: 40,
     })),
   ]);
-  const preview = items.slice(0, 6);
-  const tax = items.find((c) => c.code === "tax");
+  const { items: categoryItems } = categoriesOrDemo(raw, items);
+  const preview = categoryItems.slice(0, 6);
+  const latestDocs = latest.items.slice(0, 8);
+  const tax = categoryItems.find((c) => c.code === "tax");
+  const counts: Record<string, number> = {};
+  for (const doc of latest.items) {
+    if (!doc.category_slug) continue;
+    counts[doc.category_slug] = (counts[doc.category_slug] || 0) + 1;
+  }
 
   return (
     <div className="page-home">
@@ -117,13 +126,12 @@ export default async function HomePage({
               {t(raw, "viewAllDocuments")}
             </Link>
           </div>
-          <div className="surface-panel">
-            <DocumentList
-              locale={raw}
-              items={latestDocs}
-              emptyText={t(raw, "noDocuments")}
-            />
-          </div>
+          <DocumentList
+            locale={raw}
+            items={latestDocs}
+            emptyText={t(raw, "noDocuments")}
+            variant="cards"
+          />
         </div>
       </section>
 
@@ -135,13 +143,7 @@ export default async function HomePage({
               {t(raw, "viewAllCategories")}
             </Link>
           </div>
-          <div className="flex flex-wrap gap-3">
-            {preview.map((cat) => (
-              <Link key={cat.id} href={`/${raw}/categories/${cat.slug}`} className="chip">
-                {cat.name}
-              </Link>
-            ))}
-          </div>
+          <CategoryCards locale={raw} items={preview} counts={counts} />
         </div>
       </section>
     </div>

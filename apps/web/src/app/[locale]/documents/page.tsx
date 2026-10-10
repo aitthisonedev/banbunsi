@@ -101,16 +101,15 @@ export default async function DocumentsPage({
         </button>
       </form>
 
-      <div className="mt-8 surface-panel">
+      <div className="mt-8">
         {!docsResult.ok ? (
           <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
-        ) : docsResult.data.items.length === 0 ? (
-          <EmptyState title={t(raw, "noDocuments")} />
         ) : (
           <DocumentList
             locale={raw}
             items={docsResult.data.items}
             emptyText={t(raw, "noDocuments")}
+            variant="cards"
           />
         )}
       </div>
