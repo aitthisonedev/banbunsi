@@ -3733,15 +3733,15 @@ html.dark .account-upgrade-btn {
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
 }
 
-/* Layout: Sidebar + Panel */
+/* Layout: Sidebar + Panel — stretch so left card matches right height */
 .account-layout {
   display: grid;
   gap: 1.5rem;
+  align-items: stretch;
 }
 @media (min-width: 900px) {
   .account-layout {
     grid-template-columns: 15.5rem minmax(0, 1fr);
-    align-items: start;
     gap: 1.75rem;
   }
 }
@@ -3750,7 +3750,10 @@ html.dark .account-upgrade-btn {
 .account-tabs-card {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   gap: 0.35rem;
+  height: 100%;
+  min-height: 100%;
   padding: 0.5rem;
   border-radius: 14px;
   border: 1px solid var(--bb-border);
@@ -3760,6 +3763,7 @@ html.dark .account-upgrade-btn {
 @media (min-width: 900px) {
   .account-tabs-card {
     flex-direction: column;
+    flex-wrap: nowrap;
     padding: 0.65rem;
   }
 }
