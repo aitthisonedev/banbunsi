@@ -1,6 +1,6 @@
 # VPS deployment
 
-Production URL: **http://129.121.128.135/lo** (English: `/en`).
+Production URL: **https://banbunsi.aitthisone.com/lo** (English: `/en`).
 
 `.github/workflows/deploy.yml` runs on pushes and pull requests to `main` and
 `prod`, plus manual dispatch.
@@ -119,10 +119,32 @@ systemctl restart banbunsi-api banbunsi-web
 cat current/REVISION > deployed-revision
 ```
 
-This IP deployment uses HTTP with `SESSION_COOKIE_SECURE=false` so sign-in works.
-To add HTTPS, configure a domain/certificate in Nginx, update `APP_PUBLIC_URL`,
-`API_PUBLIC_URL`, `CORS_ORIGINS`, and `CSRF_TRUSTED_ORIGINS` in the API environment,
-then set `SESSION_COOKIE_SECURE=true` and restart the API.
+## Domain and HTTPS
+
+DNS for `aitthisone.com` must contain an A record named `banbunsi` pointing to
+`129.121.128.135`. Keep the VPS IP for SSH deployments; browser requests use the
+domain and the same-origin API.
+
+After the first VPS bootstrap, run as root from this repository's `deploy` directory:
+
+```bash
+bash configure-domain.sh banbunsi.aitthisone.com 129.121.128.135
+```
+
+The script prepares the HTTP virtual host, checks DNS, issues a Let's Encrypt
+certificate using Certbot's webroot, and activates HTTPS. It changes only BAN BUNSI
+virtual hosts, redirects HTTP and the old IP URL to the HTTPS domain, updates the
+API's public URLs/CORS/CSRF origins, and enables Secure session cookies. Existing
+database and owner credentials are preserved. Configuration backups are kept in
+`/root/banbunsi-domain-backup.*` and restored if activation checks fail.
+
+Use `--prepare` as the third argument to prepare routing while DNS is pending.
+The existing `certbot.timer` renews the certificate; a dedicated deploy hook
+validates and reloads Nginx after this domain's certificate renews. Verify renewal:
+
+```bash
+certbot renew --cert-name banbunsi.aitthisone.com --dry-run --run-deploy-hooks
+```
 
 Email delivery needs a trusted SMTP relay configured with `SMTP_HOST`, `SMTP_PORT`,
 and `SMTP_FROM`. Until configured, verification/reset links are written to API logs.
