@@ -2,16 +2,25 @@
 
 Production URL: **http://129.121.128.135/lo** (English: `/en`).
 
-`.github/workflows/deploy.yml` runs on pushes to `main`, pull requests to `main`,
-and manual dispatch. On `main`, it formats changed Go files with `gofmt` and
-changed frontend files with the pinned Prettier version, then commits formatting
-changes as `github-actions[bot]`. It tests/vets the API, lints/builds Next.js, and
-deploys that exact resulting commit. Pull requests only run checks.
+`.github/workflows/deploy.yml` runs on pushes and pull requests to `main` and
+`prod`, plus manual dispatch.
+
+| Branch/event | Behavior |
+| --- | --- |
+| Push to `main` | Auto-commit formatting changes, test/vet API, lint/build frontend; no deployment |
+| Push to `prod` | Test/vet API, lint/build frontend, deploy that exact commit to the VPS |
+| Pull request to either branch | Run checks only; no formatting commits or deployment |
+| Manual dispatch | Run CI on `main`; check and deploy on `prod` |
+
+On `main`, changed Go files are formatted with `gofmt` and changed frontend files
+with the pinned Prettier version, then committed as `github-actions[bot]`.
+Production deploys only when `prod` changes or the workflow is manually run on
+`prod`. Merging or pushing to `main` never changes the running production site.
 
 Only the formatting job has repository write permission. Its push uses
 `GITHUB_TOKEN`, which [does not recursively trigger push workflows](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).
-Build/deploy continues in the same workflow using the formatting commit SHA. If
-`main` advances before formatting begins, that outdated run skips deployment.
+CI continues in the same workflow using the formatting commit SHA. If
+`main` advances before formatting begins, that outdated run skips its checks.
 If branch protection disallows bot pushes, grant the appropriate GitHub App
 permission or use a formatting pull request process instead.
 
@@ -65,7 +74,22 @@ The bootstrap supports standard Ubuntu and this VPS's aaPanel Nginx directories.
    Optional repository variables: `VPS_HOST` (default `129.121.128.135`),
    `VPS_PORT` (default `22`), `VPS_USER` (default `banbunsi-deploy`).
 
-4. Push to `main`, or run `gh workflow run deploy.yml --ref main`.
+4. Push to `main` to run CI. Promote a checked commit to `prod` to deploy, or run
+   `gh workflow run deploy.yml --ref prod` to redeploy the current production branch.
+
+## Promote to production
+
+After the `main` CI run passes, fetch the formatting bot's commit before promoting:
+
+```bash
+git fetch origin
+git switch prod
+git merge --ff-only origin/main
+git push origin prod
+```
+
+You can also merge a reviewed pull request from `main` into `prod` on GitHub.
+An open pull request runs checks; merging it triggers the production deployment.
 
 The dedicated deployment account can restart only the two BAN BUNSI services via
 sudo. Builds and secrets are never shared with pull request deployments.
