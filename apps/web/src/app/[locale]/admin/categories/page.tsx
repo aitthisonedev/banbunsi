@@ -68,7 +68,7 @@ export default function AdminCategoriesPage() {
   if (!items) return <LoadingState label={t(locale, "loading")} />;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="w-full">
       <div className="admin-page-head">
         <div>
           <p>{t(locale, "adminCatsLead")}</p>

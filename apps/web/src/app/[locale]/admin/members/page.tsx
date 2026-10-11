@@ -115,7 +115,7 @@ export default function AdminMembersPage() {
   );
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="w-full">
       <div className="admin-page-head">
         <div>
           <p>{t(locale, "adminMembersLead")}</p>

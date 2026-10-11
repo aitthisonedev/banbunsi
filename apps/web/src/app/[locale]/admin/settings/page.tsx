@@ -69,7 +69,7 @@ export default function AdminSettingsPage() {
   const fields = Object.keys(FIELD_LABELS);
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="w-full">
       <form onSubmit={onSubmit} className="space-y-4">
         {fields.map((key) => (
           <FormField key={key} label={FIELD_LABELS[key] || key}>
