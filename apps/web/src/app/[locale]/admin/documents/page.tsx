@@ -28,7 +28,9 @@ export default function AdminDocumentsPage() {
   const [items, setItems] = useState<Row[] | null>(null);
   const [error, setError] = useState("");
   const [q, setQ] = useState("");
-  const [accessFilter, setAccessFilter] = useState<"all" | "public" | "member" | "vip">("all");
+  const [accessFilter, setAccessFilter] = useState<
+    "all" | "public" | "member" | "vip"
+  >("all");
   const [canDelete, setCanDelete] = useState(false);
 
   async function load(query = q) {
@@ -229,9 +231,7 @@ export default function AdminDocumentsPage() {
                   <th className="px-4 sm:px-5 py-3">
                     {locale === "lo" ? "ການເຂົ້າເຖິງ" : "Access"}
                   </th>
-                  <th className="px-4 sm:px-5 py-3">
-                    {t(locale, "status")}
-                  </th>
+                  <th className="px-4 sm:px-5 py-3">{t(locale, "status")}</th>
                   <th className="px-4 sm:px-5 py-3 text-right">
                     {locale === "lo" ? "ຈັດການ" : "Actions"}
                   </th>
@@ -264,7 +264,8 @@ export default function AdminDocumentsPage() {
                             ) : null}
                             {row.files && row.files.length > 0 ? (
                               <span className="text-[10px] text-slate-400">
-                                📎 {row.files.length} {locale === "lo" ? "ໄຟລ໌" : "file(s)"}
+                                📎 {row.files.length}{" "}
+                                {locale === "lo" ? "ໄຟລ໌" : "file(s)"}
                               </span>
                             ) : null}
                           </div>
@@ -316,7 +317,12 @@ export default function AdminDocumentsPage() {
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition cursor-pointer"
                           title={t(locale, "edit")}
                         >
-                          <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
+                          <svg
+                            viewBox="0 0 20 20"
+                            width="13"
+                            height="13"
+                            fill="currentColor"
+                          >
                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                           </svg>
                           <span>{t(locale, "edit")}</span>
@@ -329,7 +335,12 @@ export default function AdminDocumentsPage() {
                             onClick={() => onDelete(row.id)}
                             title={t(locale, "delete")}
                           >
-                            <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
+                            <svg
+                              viewBox="0 0 20 20"
+                              width="13"
+                              height="13"
+                              fill="currentColor"
+                            >
                               <path
                                 fillRule="evenodd"
                                 d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
