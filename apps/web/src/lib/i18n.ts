@@ -302,6 +302,48 @@ const lo: Dict = {
   verified: "\u0EA2\u0EB7\u0E99\u0EA2\u0EB1\u0E99\u0EC1\u0EA5\u0EC9\u0EA7",
   unverified:
     "\u0E8D\u0EB1\u0E87\u0E9A\u0ECD\u0EC8\u0EA2\u0EB7\u0E99\u0EA2\u0EB1\u0E99",
+  adminCategories:
+    "\u0E88\u0EB1\u0E94\u0E81\u0EB2\u0E99\u0EDC\u0EA7\u0E94",
+  adminQuizzes:
+    "\u0E88\u0EB1\u0E94\u0E81\u0EB2\u0E99\u0EC1\u0E9A\u0E9A\u0E97\u0EBB\u0E94\u0EAA\u0EAD\u0E9A",
+  adminMembers:
+    "\u0E88\u0EB1\u0E94\u0E81\u0EB2\u0E99\u0EAA\u0EA1\u0EB2\u0E8A\u0EB4\u0E81",
+  newCategory: "\u0EDC\u0EA7\u0E94\u0EC3\u0EAB\u0EA1\u0EC8",
+  editCategory: "\u0EC1\u0E81\u0EC9\u0EC4\u0E82\u0EDC\u0EA7\u0E94",
+  newQuiz: "\u0EC1\u0E9A\u0E9A\u0E97\u0EBB\u0E94\u0EAA\u0EAD\u0E9A\u0EC3\u0EAB\u0EA1\u0EC8",
+  editQuiz: "\u0EC1\u0E81\u0EC9\u0EC4\u0E82\u0EC1\u0E9A\u0E9A\u0E97\u0EBB\u0E94\u0EAA\u0EAD\u0E9A",
+  categoryCode: "\u0EA3\u0EB0\u0EAB\u0EB1\u0EAA\u0EDC\u0EA7\u0E94",
+  quizCode: "\u0EA3\u0EB0\u0EAB\u0EB1\u0EAA\u0EC1\u0E9A\u0E9A\u0E97\u0EBB\u0E94",
+  sortOrder: "\u0EA5\u0EB3\u0E94\u0EB1\u0E9A",
+  active: "\u0EC3\u0E8A\u0EC9\u0E87\u0EB2\u0E99",
+  inactive: "\u0E9B\u0EB4\u0E94",
+  published: "\u0EC0\u0E9C\u0EA5\u0EB5\u0EC8\u0E9E\u0EB6\u0E81\u0EC1\u0EA5\u0EC9\u0EA7",
+  draft: "\u0EA3\u0EC8\u0EB2\u0E87",
+  description: "\u0E84\u0EB3\u0EAD\u0EB0\u0E97\u0EB4\u0E9A\u0EB2\u0EA2",
+  slug: "Slug",
+  seoTitle: "\u0E8A\u0EB7\u0EC8 SEO",
+  deleteCategoryConfirm:
+    "\u0EA5\u0EBB\u0E9A\u0EDC\u0EA7\u0E94\u0E99\u0EB5\u0EC9\u0E9A\u0ECD\u0EC8?",
+  deleteQuizConfirm:
+    "\u0EA5\u0EBB\u0E9A\u0EC1\u0E9A\u0E9A\u0E97\u0EBB\u0E94\u0EAA\u0EAD\u0E9A\u0E99\u0EB5\u0EC9\u0E9A\u0ECD\u0EC8?",
+  staffRole: "\u0E9A\u0EB2\u0E94\u0E9A\u0EB1\u0E99",
+  accountStatus: "\u0EAA\u0E96\u0EB2\u0E99\u0EB0\u0E9A\u0EB1\u0E99\u0E8A\u0EB5",
+  approveVip: "\u0EA2\u0EB7\u0E99\u0EA2\u0EB1\u0E99 VIP",
+  renewVip: "\u0E95\u0EC8\u0EAD\u0EAD\u0EB2\u0EA2\u0EB8 VIP",
+  cancelVip: "\u0EA2\u0E81\u0EC0\u0EA5\u0EB5\u0E81 VIP",
+  suspend: "\u0E8A\u0EB0\u0EA5\u0EB0",
+  activateAccount: "\u0EC0\u0E9B\u0EB4\u0E94\u0EC3\u0E8A\u0EC9",
+  noMembers: "\u0E9A\u0ECD\u0EC8\u0E9E\u0EBB\u0E9A\u0EAA\u0EA1\u0EB2\u0E8A\u0EB4\u0E81",
+  questionsJson: "\u0E84\u0EB3\u0E96\u0EB2\u0EA1 (JSON)",
+  passPercent: "\u0E84\u0EB0\u0EC1\u0E99\u0E99\u0E9C\u0EC8\u0EB2\u0E99",
+  adminDocsLead:
+    "\u0EAA\u0EB3\u0E99\u0EB1\u0E81, \u0EC1\u0E81\u0EC9\u0EC4\u0E82, \u0EC1\u0EA5\u0EB0\u0EC0\u0E9C\u0EA5\u0EB5\u0EC8\u0E9E\u0EB6\u0E81\u0EC0\u0EAD\u0E81\u0EB0\u0EAA\u0EB2\u0E99",
+  adminCatsLead:
+    "\u0E88\u0EB1\u0E94\u0E81\u0EB2\u0E99\u0EDC\u0EA7\u0E94\u0E84\u0EA7\u0EB2\u0EA1\u0EAE\u0EB9\u0EC9\u0EAA\u0EAD\u0E87\u0E9E\u0EB2\u0EAA\u0EB2",
+  adminQuizzesLead:
+    "\u0EAA\u0EB3\u0E99\u0EB1\u0E81\u0EC1\u0E9A\u0E9A\u0E97\u0EBB\u0E94\u0EAA\u0EAD\u0E9A \u0E84\u0EB3\u0E96\u0EB2\u0EA1, \u0EC1\u0EA5\u0EB0\u0EAA\u0E96\u0EB2\u0E99\u0EB0\u0EC0\u0E9C\u0EA5\u0EB5\u0EC8\u0E9E\u0EB6\u0E81",
+  adminMembersLead:
+    "\u0E88\u0EB1\u0E94\u0E81\u0EB2\u0E99\u0E9A\u0EB2\u0E94\u0E9A\u0EB1\u0E99, \u0EAA\u0E96\u0EB2\u0E99\u0EB0\u0E9A\u0EB1\u0E99\u0E8A\u0EB5, \u0EC1\u0EA5\u0EB0 VIP",
 };
 
 const en: Dict = {
@@ -499,6 +541,39 @@ const en: Dict = {
   avatarHint: "JPEG, PNG, or WebP up to 2MB",
   verified: "Verified",
   unverified: "Not verified",
+  adminCategories: "Categories",
+  adminQuizzes: "Quizzes",
+  adminMembers: "Members",
+  newCategory: "New category",
+  editCategory: "Edit category",
+  newQuiz: "New quiz",
+  editQuiz: "Edit quiz",
+  categoryCode: "Category code",
+  quizCode: "Quiz code",
+  sortOrder: "Sort order",
+  active: "Active",
+  inactive: "Inactive",
+  published: "Published",
+  draft: "Draft",
+  description: "Description",
+  slug: "Slug",
+  seoTitle: "SEO title",
+  deleteCategoryConfirm: "Delete this category?",
+  deleteQuizConfirm: "Delete this quiz?",
+  staffRole: "Staff role",
+  accountStatus: "Account status",
+  approveVip: "Approve VIP",
+  renewVip: "Renew VIP",
+  cancelVip: "Cancel VIP",
+  suspend: "Suspend",
+  activateAccount: "Activate",
+  noMembers: "No members found",
+  questionsJson: "Questions (JSON)",
+  passPercent: "Pass percent",
+  adminDocsLead: "Create, edit, and publish documents.",
+  adminCatsLead: "Manage bilingual knowledge categories.",
+  adminQuizzesLead: "Manage quizzes, questions, and publish state.",
+  adminMembersLead: "Manage roles, account status, and VIP.",
 };
 
 const dictionaries: Record<Locale, Dict> = { lo, en };

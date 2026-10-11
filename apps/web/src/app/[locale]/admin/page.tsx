@@ -40,10 +40,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{t(locale, "dashboard")}</h1>
-        </div>
+      <div className="admin-page-head">
+        <div />
         <Link href={`/${locale}/admin/documents`} className="btn-primary">
           {t(locale, "adminDocuments")}
         </Link>

@@ -70,8 +70,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="text-3xl font-bold">{t(locale, "settings")}</h1>
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4">
         {fields.map((key) => (
           <FormField key={key} label={FIELD_LABELS[key] || key}>
             <input

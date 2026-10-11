@@ -61,8 +61,10 @@ export default function AdminDocumentsPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-3xl font-bold">{t(locale, "adminDocuments")}</h1>
+      <div className="admin-page-head">
+        <div>
+          <p>{t(locale, "adminDocsLead")}</p>
+        </div>
         <Link href={`/${locale}/admin/documents/new`} className="btn-primary">
           {t(locale, "newDocument")}
         </Link>

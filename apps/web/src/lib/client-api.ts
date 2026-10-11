@@ -207,6 +207,185 @@ export function clientDeleteAdminDocument(id: string) {
   });
 }
 
+export type AdminCategoryTranslation = {
+  locale: string;
+  name: string;
+  description: string;
+  slug: string;
+  seo_title?: string;
+};
+
+export type AdminCategoryPayload = {
+  code: string;
+  sort_order: number;
+  is_active: boolean;
+  translations: AdminCategoryTranslation[];
+};
+
+export type AdminCategory = AdminCategoryPayload & {
+  id: string;
+};
+
+export function clientListAdminCategories(locale: string) {
+  return clientFetch<{
+    items: Array<{
+      id: string;
+      code: string;
+      slug: string;
+      name: string;
+      description: string;
+      sort_order: number;
+      is_active: boolean;
+      children: Array<Record<string, unknown>>;
+    }>;
+  }>(`/admin/categories?locale=${locale}`);
+}
+
+export function clientGetAdminCategory(id: string) {
+  return clientFetch<AdminCategory>(`/admin/categories/${id}`);
+}
+
+export function clientCreateAdminCategory(body: AdminCategoryPayload) {
+  return clientFetch<AdminCategory>("/admin/categories", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function clientUpdateAdminCategory(
+  id: string,
+  body: AdminCategoryPayload,
+) {
+  return clientFetch<AdminCategory>(`/admin/categories/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export function clientDeleteAdminCategory(id: string) {
+  return clientFetch<{ message: string }>(`/admin/categories/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export type AdminQuizTranslation = {
+  locale: string;
+  title: string;
+  description: string;
+  category: string;
+  slug: string;
+};
+
+export type AdminQuizQuestion = {
+  id: string;
+  prompt: string;
+  options: Array<{ id: string; label: string }>;
+  correct_option_id: string;
+  explanation: string;
+};
+
+export type AdminQuizPayload = {
+  code: string;
+  difficulty: string;
+  pass_percent: number;
+  sort_order: number;
+  is_published: boolean;
+  questions: Record<string, AdminQuizQuestion[]>;
+  translations: AdminQuizTranslation[];
+};
+
+export type AdminQuiz = AdminQuizPayload & { id: string };
+
+export function clientListAdminQuizzes(locale: string) {
+  return clientFetch<{
+    items: Array<{
+      id: string;
+      code: string;
+      title: string;
+      slug: string;
+      difficulty: string;
+      pass_percent: number;
+      sort_order: number;
+      is_published: boolean;
+      question_count: number;
+    }>;
+  }>(`/admin/quizzes?locale=${locale}`);
+}
+
+export function clientGetAdminQuiz(id: string) {
+  return clientFetch<AdminQuiz>(`/admin/quizzes/${id}`);
+}
+
+export function clientCreateAdminQuiz(body: AdminQuizPayload) {
+  return clientFetch<AdminQuiz>("/admin/quizzes", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function clientUpdateAdminQuiz(id: string, body: AdminQuizPayload) {
+  return clientFetch<AdminQuiz>(`/admin/quizzes/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export function clientDeleteAdminQuiz(id: string) {
+  return clientFetch<{ message: string }>(`/admin/quizzes/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export type AdminMember = {
+  id: string;
+  name: string;
+  email: string;
+  staff_role: string;
+  account_status: string;
+  email_verified?: boolean;
+  membership_tier: string;
+  membership_ends_at?: string | null;
+  created_at?: string;
+};
+
+export function clientListAdminMembers(q = "") {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  const qs = params.toString();
+  return clientFetch<{ items: AdminMember[] }>(
+    `/admin/members${qs ? `?${qs}` : ""}`,
+  );
+}
+
+export function clientPatchAdminMember(
+  id: string,
+  body: { staff_role?: string; account_status?: string },
+) {
+  return clientFetch<AdminMember>(`/admin/members/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export function clientPatchAdminMemberVip(
+  id: string,
+  body: {
+    action: "approve" | "renew" | "cancel";
+    starts_at?: string;
+    ends_at?: string;
+    notes?: string;
+  },
+) {
+  return clientFetch<{
+    id: string;
+    membership_tier: string;
+    membership_ends_at?: string | null;
+  }>(`/admin/members/${id}/vip`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 export function clientUnlinkGoogle() {
   return clientFetch<User>("/account/unlink-google", {
     method: "POST",
