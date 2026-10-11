@@ -60,9 +60,11 @@ export default function AdminDocumentsPage() {
   if (!items) return <LoadingState label={t(locale, "loading")} />;
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-3xl font-bold">{t(locale, "adminDocuments")}</h1>
+    <div className="w-full">
+      <div className="admin-page-head">
+        <div>
+          <p>{t(locale, "adminDocsLead")}</p>
+        </div>
         <Link href={`/${locale}/admin/documents/new`} className="btn-primary">
           {t(locale, "newDocument")}
         </Link>
@@ -73,7 +75,9 @@ export default function AdminDocumentsPage() {
         onSubmit={(e) => {
           e.preventDefault();
           load(q).catch((err) =>
-            setError(err instanceof Error ? err.message : t(locale, "loadError")),
+            setError(
+              err instanceof Error ? err.message : t(locale, "loadError"),
+            ),
           );
         }}
       >

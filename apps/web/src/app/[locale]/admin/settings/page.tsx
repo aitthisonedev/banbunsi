@@ -69,15 +69,16 @@ export default function AdminSettingsPage() {
   const fields = Object.keys(FIELD_LABELS);
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <h1 className="text-3xl font-bold">{t(locale, "settings")}</h1>
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+    <div className="w-full">
+      <form onSubmit={onSubmit} className="space-y-4">
         {fields.map((key) => (
           <FormField key={key} label={FIELD_LABELS[key] || key}>
             <input
               className="input"
               value={form[key] || ""}
-              onChange={(e) => setForm((f) => (f ? { ...f, [key]: e.target.value } : f))}
+              onChange={(e) =>
+                setForm((f) => (f ? { ...f, [key]: e.target.value } : f))
+              }
             />
           </FormField>
         ))}

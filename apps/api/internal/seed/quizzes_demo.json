@@ -10,37 +10,37 @@
     "en_slug": "tax-basics",
     "lo_category": "ພາສີ",
     "en_category": "Tax",
-    "lo_description": "ຄຳຖາມພື້ນຖານກ່ຽວກັບພາສີ",
+    "lo_description": "ຄຳຖາມພື້ນຖານກ່ຽວກັບປະເພດພາສີອາກອນ ແລະ ການແຈ້ງພາສີອາກອນ.",
     "en_description": "Basic questions about tax types and filing.",
     "questions": {
       "lo": [
         {
           "id": "t1",
-          "prompt": "Which tax is charged on business profits?",
+          "prompt": "ພາສີອາກອນປະເພດໃດທີ່ເກັບຈາກກຳໄລຂອງທຸລະກິດ?",
           "options": [
             {
               "id": "a",
-              "label": "Value-added tax"
+              "label": "ອາກອນມູນຄ່າເພີ່ມ"
             },
             {
               "id": "b",
-              "label": "Profit tax"
+              "label": "ອາກອນກຳໄລ"
             },
             {
               "id": "c",
-              "label": "Import duty"
+              "label": "ພາສີນຳເຂົ້າ"
             },
             {
               "id": "d",
-              "label": "Land tax"
+              "label": "ພາສີທີ່ດິນ"
             }
           ],
           "correct_option_id": "b",
-          "explanation": "Profit tax applies to business profits from operations."
+          "explanation": "ອາກອນກຳໄລແມ່ນເກັບຈາກກຳໄລທີ່ເກີດຈາກການດຳເນີນທຸລະກິດ."
         },
         {
           "id": "t2",
-          "prompt": "You should keep basic documents before filing tax.",
+          "prompt": "ທ່ານຄວນເກັບຮັກສາເອກະສານພື້ນຖານກ່ອນແຈ້ງພາສີອາກອນ.",
           "options": [
             {
               "id": "a",
@@ -52,35 +52,35 @@
             }
           ],
           "correct_option_id": "a",
-          "explanation": "Supporting documents help prove figures in a filing."
+          "explanation": "ເອກະສານປະກອບຊ່ວຍຢັ້ງຢືນຕົວເລກໃນການແຈ້ງພາສີອາກອນ."
         },
         {
           "id": "t3",
-          "prompt": "Who usually announces official tax deadlines?",
+          "prompt": "ໂດຍທົ່ວໄປ ໜ່ວຍງານໃດເປັນຜູ້ປະກາດກຳນົດເວລາແຈ້ງພາສີອາກອນຢ່າງເປັນທາງການ?",
           "options": [
             {
               "id": "a",
-              "label": "Tax authority"
+              "label": "ໜ່ວຍງານຄຸ້ມຄອງພາສີອາກອນ"
             },
             {
               "id": "b",
-              "label": "Banks"
+              "label": "ທະນາຄານ"
             },
             {
               "id": "c",
-              "label": "Market vendors"
+              "label": "ຜູ້ຄ້າໃນຕະຫຼາດ"
             },
             {
               "id": "d",
-              "label": "Website visitors"
+              "label": "ຜູ້ເຂົ້າຊົມເວັບໄຊ"
             }
           ],
           "correct_option_id": "a",
-          "explanation": "Tax deadlines are set by the tax authority under the law."
+          "explanation": "ໜ່ວຍງານຄຸ້ມຄອງພາສີອາກອນເປັນຜູ້ກຳນົດເວລາແຈ້ງພາສີອາກອນຕາມກົດໝາຍ."
         },
         {
           "id": "t4",
-          "prompt": "Missing the legal filing deadline is always allowed.",
+          "prompt": "ການແຈ້ງພາສີອາກອນຊ້າກວ່າກຳນົດເວລາຕາມກົດໝາຍແມ່ນໄດ້ຮັບອະນຸຍາດສະເໝີ.",
           "options": [
             {
               "id": "a",
@@ -92,7 +92,7 @@
             }
           ],
           "correct_option_id": "b",
-          "explanation": "Filing on time is required by law."
+          "explanation": "ກົດໝາຍກຳນົດໃຫ້ແຈ້ງພາສີອາກອນພາຍໃນກຳນົດເວລາ."
         }
       ],
       "en": [
@@ -190,37 +190,37 @@
     "en_slug": "accounting-basics",
     "lo_category": "ການບັນຊີ",
     "en_category": "Accounting",
-    "lo_description": "ຄຳຖາມພື້ນຖານກ່ຽວກັບການບັນຊີ",
+    "lo_description": "ສົມຜົນບັນຊີພື້ນຖານ, ລາຍຮັບ ແລະ ການບັນທຶກບັນຊີ.",
     "en_description": "Basic accounting equation, income, and records.",
     "questions": {
       "lo": [
         {
           "id": "a1",
-          "prompt": "What is the basic accounting equation?",
+          "prompt": "ສົມຜົນບັນຊີພື້ນຖານແມ່ນຫຍັງ?",
           "options": [
             {
               "id": "a",
-              "label": "Assets = Liabilities + Equity"
+              "label": "ຊັບສິນ = ໜີ້ສິນ + ທຶນຂອງເຈົ້າຂອງ"
             },
             {
               "id": "b",
-              "label": "Assets = Revenue - Debt"
+              "label": "ຊັບສິນ = ລາຍຮັບ - ໜີ້ສິນ"
             },
             {
               "id": "c",
-              "label": "Revenue = Assets + Liabilities"
+              "label": "ລາຍຮັບ = ຊັບສິນ + ໜີ້ສິນ"
             },
             {
               "id": "d",
-              "label": "Debt = Assets - Revenue"
+              "label": "ໜີ້ສິນ = ຊັບສິນ - ລາຍຮັບ"
             }
           ],
           "correct_option_id": "a",
-          "explanation": "The fundamental equation is Assets = Liabilities + Equity."
+          "explanation": "ສົມຜົນບັນຊີພື້ນຖານແມ່ນ ຊັບສິນ = ໜີ້ສິນ + ທຶນຂອງເຈົ້າຂອງ."
         },
         {
           "id": "a2",
-          "prompt": "Revenue is income earned from main business activity.",
+          "prompt": "ລາຍຮັບແມ່ນລາຍໄດ້ທີ່ເກີດຈາກກິດຈະກຳຫຼັກຂອງທຸລະກິດ.",
           "options": [
             {
               "id": "a",
@@ -232,31 +232,31 @@
             }
           ],
           "correct_option_id": "a",
-          "explanation": "Revenue comes from core selling or service activity."
+          "explanation": "ລາຍຮັບເກີດຈາກການຂາຍສິນຄ້າ ຫຼື ການໃຫ້ບໍລິການທີ່ເປັນກິດຈະກຳຫຼັກຂອງທຸລະກິດ."
         },
         {
           "id": "a3",
-          "prompt": "Why keep accounting documents?",
+          "prompt": "ເປັນຫຍັງຈຶ່ງຕ້ອງເກັບຮັກສາເອກະສານບັນຊີ?",
           "options": [
             {
               "id": "a",
-              "label": "To record financial transactions"
+              "label": "ເພື່ອບັນທຶກລາຍການທາງການເງິນ"
             },
             {
               "id": "b",
-              "label": "To decorate the office"
+              "label": "ເພື່ອຕົກແຕ່ງຫ້ອງການ"
             },
             {
               "id": "c",
-              "label": "To sell to tax officers"
+              "label": "ເພື່ອຂາຍໃຫ້ພະນັກງານອາກອນ"
             },
             {
               "id": "d",
-              "label": "They are never needed"
+              "label": "ບໍ່ຈຳເປັນຕ້ອງໃຊ້ເອກະສານເຫຼົ່ານີ້"
             }
           ],
           "correct_option_id": "a",
-          "explanation": "Documents support accurate bookkeeping."
+          "explanation": "ເອກະສານຊ່ວຍໃຫ້ການບັນທຶກບັນຊີມີຄວາມຖືກຕ້ອງ."
         }
       ],
       "en": [
@@ -338,13 +338,13 @@
     "en_slug": "business-law-basics",
     "lo_category": "ກົດໝາຍ",
     "en_category": "Law",
-    "lo_description": "ຄຳຖາມພື້ນຖານກ່ຽວກັບກົດໝາຍ",
+    "lo_description": "ຄຳຖາມພື້ນຖານກ່ຽວກັບການສ້າງຕັ້ງທຸລະກິດ ແລະ ສັນຍາ.",
     "en_description": "Basic questions about business setup and contracts.",
     "questions": {
       "lo": [
         {
           "id": "l1",
-          "prompt": "Business registration should follow the related laws.",
+          "prompt": "ການຈົດທະບຽນທຸລະກິດຄວນປະຕິບັດຕາມກົດໝາຍທີ່ກ່ຽວຂ້ອງ.",
           "options": [
             {
               "id": "a",
@@ -356,35 +356,35 @@
             }
           ],
           "correct_option_id": "a",
-          "explanation": "Registering under the law keeps the business compliant."
+          "explanation": "ການຈົດທະບຽນຕາມກົດໝາຍຊ່ວຍໃຫ້ທຸລະກິດດຳເນີນງານຢ່າງຖືກຕ້ອງຕາມກົດໝາຍ."
         },
         {
           "id": "l2",
-          "prompt": "What is a binding contract?",
+          "prompt": "ສັນຍາທີ່ມີຜົນຜູກພັນຕາມກົດໝາຍແມ່ນຫຍັງ?",
           "options": [
             {
               "id": "a",
-              "label": "Any informal chat"
+              "label": "ການສົນທະນາແບບບໍ່ເປັນທາງການທຸກຮູບແບບ"
             },
             {
               "id": "b",
-              "label": "An agreement with legal effect"
+              "label": "ຂໍ້ຕົກລົງທີ່ມີຜົນທາງກົດໝາຍ"
             },
             {
               "id": "c",
-              "label": "Something with no rules"
+              "label": "ສິ່ງທີ່ບໍ່ມີກົດລະບຽບ"
             },
             {
               "id": "d",
-              "label": "Only used for marketing"
+              "label": "ສິ່ງທີ່ໃຊ້ສະເພາະສຳລັບການຕະຫຼາດ"
             }
           ],
           "correct_option_id": "b",
-          "explanation": "A binding contract has legal force between parties."
+          "explanation": "ສັນຍາທີ່ມີຜົນຜູກພັນແມ່ນມີຜົນບັງຄັບໃຊ້ທາງກົດໝາຍລະຫວ່າງຄູ່ສັນຍາ."
         },
         {
           "id": "l3",
-          "prompt": "Tax law allows every business to skip filing forever.",
+          "prompt": "ກົດໝາຍພາສີອາກອນອະນຸຍາດໃຫ້ທຸກທຸລະກິດບໍ່ຕ້ອງແຈ້ງພາສີອາກອນຕະຫຼອດໄປ.",
           "options": [
             {
               "id": "a",
@@ -396,7 +396,7 @@
             }
           ],
           "correct_option_id": "b",
-          "explanation": "Tax law requires filing on time, not skipping forever."
+          "explanation": "ກົດໝາຍພາສີອາກອນກຳນົດໃຫ້ແຈ້ງພາສີອາກອນຕາມກຳນົດເວລາ ແລະ ບໍ່ອະນຸຍາດໃຫ້ລະເວັ້ນການແຈ້ງຕະຫຼອດໄປ."
         }
       ],
       "en": [

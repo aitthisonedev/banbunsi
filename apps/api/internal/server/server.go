@@ -75,14 +75,30 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	v1.Get("/quizzes/:slug", quizH.PublicGet)
 	v1.Post("/quizzes/:slug/submit", quizH.PublicSubmit)
 
+	membersH := &handlers.MembersHandler{DB: db, Sessions: sessions}
+
 	admin := v1.Group("/admin", middleware.Session(cfg, sessions), middleware.RequireStaff())
 	admin.Get("/dashboard", adminH.Dashboard)
 	admin.Get("/categories", catH.AdminList)
+	admin.Get("/categories/:id", catH.AdminGet)
+	admin.Post("/categories", catH.AdminCreate)
+	admin.Patch("/categories/:id", catH.AdminUpdate)
+	admin.Delete("/categories/:id", catH.AdminDelete)
 	admin.Get("/documents", docH.AdminList)
 	admin.Get("/documents/:id", docH.AdminGet)
 	admin.Post("/documents", docH.AdminCreate)
 	admin.Patch("/documents/:id", docH.AdminUpdate)
 	admin.Delete("/documents/:id", docH.AdminDelete)
+	admin.Get("/quizzes", quizH.AdminList)
+	admin.Get("/quizzes/:id", quizH.AdminGet)
+	admin.Post("/quizzes", quizH.AdminCreate)
+	admin.Patch("/quizzes/:id", quizH.AdminUpdate)
+	admin.Delete("/quizzes/:id", quizH.AdminDelete)
+
+	adminPlus := admin.Group("", middleware.RequireAdmin())
+	adminPlus.Get("/members", membersH.List)
+	adminPlus.Patch("/members/:id", membersH.PatchUser)
+	adminPlus.Post("/members/:id/vip", membersH.PatchVIP)
 
 	adminSettings := admin.Group("/settings", middleware.RequireAdmin())
 	adminSettings.Get("/", setH.AdminGet)
