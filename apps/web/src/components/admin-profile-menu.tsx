@@ -29,7 +29,8 @@ export function AdminProfileMenu({
     user.name ||
     [user.first_name, user.last_name].filter(Boolean).join(" ") ||
     user.email;
-  const isAdminPlus = user.staff_role === "admin" || user.staff_role === "owner";
+  const isAdminPlus =
+    user.staff_role === "admin" || user.staff_role === "owner";
 
   useEffect(() => {
     if (!open) return;
@@ -159,7 +160,14 @@ export function AdminProfileMenu({
               role="menuitem"
               onClick={() => setOpen(false)}
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
@@ -173,7 +181,14 @@ export function AdminProfileMenu({
                 role="menuitem"
                 onClick={() => setOpen(false)}
               >
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
                 <span>{t(locale, "staffAccess")}</span>
@@ -186,7 +201,14 @@ export function AdminProfileMenu({
               role="menuitem"
               onClick={() => setOpen(false)}
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                 <polyline points="15 3 21 3 21 9" />
                 <line x1="10" y1="14" x2="21" y2="3" />
@@ -205,7 +227,14 @@ export function AdminProfileMenu({
                 void onLogout();
               }}
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
