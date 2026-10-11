@@ -340,6 +340,7 @@ export type AdminMember = {
   id: string;
   name: string;
   email: string;
+  avatar_url?: string;
   staff_role: string;
   account_status: string;
   email_verified?: boolean;
