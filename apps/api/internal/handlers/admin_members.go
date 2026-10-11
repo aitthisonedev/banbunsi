@@ -22,10 +22,10 @@ type memberRoleBody struct {
 }
 
 type vipBody struct {
-	Action    string  `json:"action"` // approve | renew | cancel
-	StartsAt  *string `json:"starts_at"`
-	EndsAt    *string `json:"ends_at"`
-	Notes     string  `json:"notes"`
+	Action   string  `json:"action"` // approve | renew | cancel
+	StartsAt *string `json:"starts_at"`
+	EndsAt   *string `json:"ends_at"`
+	Notes    string  `json:"notes"`
 }
 
 func (h *MembersHandler) List(c *fiber.Ctx) error {

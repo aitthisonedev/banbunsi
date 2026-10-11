@@ -21,13 +21,13 @@ type quizTranslationIn struct {
 }
 
 type quizAdminBody struct {
-	Code          string                   `json:"code"`
-	Difficulty    string                   `json:"difficulty"`
-	PassPercent   int                      `json:"pass_percent"`
-	SortOrder     int                      `json:"sort_order"`
-	IsPublished   *bool                    `json:"is_published"`
-	Questions     quizQuestionsByLocale    `json:"questions"`
-	Translations  []quizTranslationIn      `json:"translations"`
+	Code         string                `json:"code"`
+	Difficulty   string                `json:"difficulty"`
+	PassPercent  int                   `json:"pass_percent"`
+	SortOrder    int                   `json:"sort_order"`
+	IsPublished  *bool                 `json:"is_published"`
+	Questions    quizQuestionsByLocale `json:"questions"`
+	Translations []quizTranslationIn   `json:"translations"`
 }
 
 func (h *QuizHandler) AdminList(c *fiber.Ctx) error {

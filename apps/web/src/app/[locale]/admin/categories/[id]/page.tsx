@@ -4,10 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminCategoryForm } from "@/components/admin-category-form";
 import { ErrorState, LoadingState } from "@/components/ui";
-import {
-  clientGetAdminCategory,
-  type AdminCategory,
-} from "@/lib/client-api";
+import { clientGetAdminCategory, type AdminCategory } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 
 export default function AdminEditCategoryPage() {

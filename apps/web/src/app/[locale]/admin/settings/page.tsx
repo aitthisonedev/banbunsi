@@ -76,7 +76,9 @@ export default function AdminSettingsPage() {
             <input
               className="input"
               value={form[key] || ""}
-              onChange={(e) => setForm((f) => (f ? { ...f, [key]: e.target.value } : f))}
+              onChange={(e) =>
+                setForm((f) => (f ? { ...f, [key]: e.target.value } : f))
+              }
             />
           </FormField>
         ))}

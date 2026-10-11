@@ -4,11 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminQuizForm } from "@/components/admin-quiz-form";
 import { ErrorState, LoadingState } from "@/components/ui";
-import {
-  clientGetAdminQuiz,
-  clientMe,
-  type AdminQuiz,
-} from "@/lib/client-api";
+import { clientGetAdminQuiz, clientMe, type AdminQuiz } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 
 export default function AdminEditQuizPage() {

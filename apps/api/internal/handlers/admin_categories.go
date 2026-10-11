@@ -19,10 +19,10 @@ type categoryTranslationIn struct {
 }
 
 type categoryBody struct {
-	Code         string                   `json:"code"`
-	SortOrder    int                      `json:"sort_order"`
-	IsActive     *bool                    `json:"is_active"`
-	Translations []categoryTranslationIn  `json:"translations"`
+	Code         string                  `json:"code"`
+	SortOrder    int                     `json:"sort_order"`
+	IsActive     *bool                   `json:"is_active"`
+	Translations []categoryTranslationIn `json:"translations"`
 }
 
 func (h *CategoryHandler) AdminGet(c *fiber.Ctx) error {

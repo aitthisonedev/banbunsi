@@ -140,7 +140,9 @@ export function AdminQuizForm({
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-3xl space-y-5">
       {message ? <SuccessBanner>{message}</SuccessBanner> : null}
-      {error ? <p className="text-sm font-semibold text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="text-sm font-semibold text-red-600">{error}</p>
+      ) : null}
 
       <div className="admin-form-grid cols-2">
         <FormField label={t(locale, "quizCode")}>
@@ -185,7 +187,10 @@ export function AdminQuizForm({
             type="number"
             value={form.sort_order}
             onChange={(e) =>
-              setForm((f) => ({ ...f, sort_order: Number(e.target.value) || 0 }))
+              setForm((f) => ({
+                ...f,
+                sort_order: Number(e.target.value) || 0,
+              }))
             }
           />
         </FormField>

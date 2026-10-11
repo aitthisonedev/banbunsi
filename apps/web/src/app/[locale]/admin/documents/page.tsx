@@ -75,7 +75,9 @@ export default function AdminDocumentsPage() {
         onSubmit={(e) => {
           e.preventDefault();
           load(q).catch((err) =>
-            setError(err instanceof Error ? err.message : t(locale, "loadError")),
+            setError(
+              err instanceof Error ? err.message : t(locale, "loadError"),
+            ),
           );
         }}
       >

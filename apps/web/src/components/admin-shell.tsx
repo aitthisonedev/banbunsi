@@ -80,7 +80,8 @@ export function AdminShell({
     );
   }
 
-  const isAdminPlus = user.staff_role === "admin" || user.staff_role === "owner";
+  const isAdminPlus =
+    user.staff_role === "admin" || user.staff_role === "owner";
   const navItems: NavItem[] = [
     {
       href: `/${locale}/admin`,
@@ -176,7 +177,14 @@ export function AdminShell({
             aria-expanded={navOpen}
             onClick={() => setNavOpen((v) => !v)}
           >
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
             </svg>
           </button>
@@ -185,11 +193,7 @@ export function AdminShell({
             <h1>{title}</h1>
           </div>
           <div className="admin-topbar-actions">
-            <AdminProfileMenu
-              user={user}
-              locale={locale}
-              onLogout={onLogout}
-            />
+            <AdminProfileMenu user={user} locale={locale} onLogout={onLogout} />
           </div>
         </header>
         <main className="admin-main">{children}</main>

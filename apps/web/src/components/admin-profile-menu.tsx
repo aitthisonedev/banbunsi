@@ -92,7 +92,9 @@ export function AdminProfileMenu({
                   className="admin-profile-avatar-img"
                 />
               ) : (
-                <span className="admin-profile-avatar-initials">{initials}</span>
+                <span className="admin-profile-avatar-initials">
+                  {initials}
+                </span>
               )}
             </span>
             <div>

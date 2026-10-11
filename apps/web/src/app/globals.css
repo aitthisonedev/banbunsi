@@ -2720,7 +2720,11 @@ a.auth-footer-end {
   min-height: 100vh;
   grid-template-columns: 1fr;
   background:
-    radial-gradient(ellipse 80% 50% at 100% 0%, color-mix(in srgb, var(--bb-blue) 8%, transparent), transparent),
+    radial-gradient(
+      ellipse 80% 50% at 100% 0%,
+      color-mix(in srgb, var(--bb-blue) 8%, transparent),
+      transparent
+    ),
     var(--bb-bg-muted);
 }
 @media (min-width: 960px) {

@@ -68,10 +68,7 @@ export default function AdminMembersPage() {
     }
   }
 
-  async function patchVip(
-    id: string,
-    action: "approve" | "renew" | "cancel",
-  ) {
+  async function patchVip(id: string, action: "approve" | "renew" | "cancel") {
     setBusyId(id);
     setError("");
     try {
@@ -79,8 +76,7 @@ export default function AdminMembersPage() {
       ends.setFullYear(ends.getFullYear() + 1);
       await clientPatchAdminMemberVip(id, {
         action,
-        ends_at:
-          action === "cancel" ? undefined : ends.toISOString(),
+        ends_at: action === "cancel" ? undefined : ends.toISOString(),
       });
       await load();
     } catch (err) {
@@ -143,7 +139,9 @@ export default function AdminMembersPage() {
                 <tr key={row.id}>
                   <td>
                     <div className="font-semibold">{row.name}</div>
-                    <div className="text-xs text-bb-text-muted">{row.email}</div>
+                    <div className="text-xs text-bb-text-muted">
+                      {row.email}
+                    </div>
                   </td>
                   <td>
                     <select
@@ -165,7 +163,9 @@ export default function AdminMembersPage() {
                       </Badge>
                       {row.membership_ends_at ? (
                         <span className="text-xs text-bb-text-muted">
-                          {new Date(row.membership_ends_at).toLocaleDateString()}
+                          {new Date(
+                            row.membership_ends_at,
+                          ).toLocaleDateString()}
                         </span>
                       ) : null}
                     </div>
