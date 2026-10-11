@@ -164,7 +164,7 @@ export function AdminShell({
       <aside className="dash-sidebar">
         <div className="dash-sidebar-header">
           <div className="dash-sidebar-brand">
-            <BrandLogo locale={locale} />
+            <BrandLogo locale={locale} className="dash-brand-logo" />
           </div>
           <button
             type="button"
