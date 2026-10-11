@@ -21,6 +21,9 @@ chmod -R a+rX "$release"
 mkdir -p "$release/web/.next/cache"
 chgrp -R banbunsi "$release/web/.next/cache"
 chmod -R g+rwX "$release/web/.next/cache"
+# Inherit the shared group in runtime-created cache directories. The web service
+# uses UMask=0002 so the deployment user can prune them on a later deployment.
+find "$release/web/.next/cache" -type d -exec chmod g+s {} +
 previous=$(readlink -f "$app_dir/current" || true)
 
 switch_to() {
@@ -50,7 +53,7 @@ for attempt in {1..45}; do
   fi
   sleep 2
 done
-[[ "$healthy" == true ]]
+test "$healthy" = true
 trap - ERR
 
 if [[ -n "$previous" && -d "$previous" ]]; then
@@ -61,6 +64,10 @@ printf '%s\n' "$revision" > "$app_dir/deployed-revision"
 # Keep the newest five builds, always preserving current and previous targets.
 while IFS= read -r old; do
   [[ "$old" == "$release" || "$old" == "$previous" ]] && continue
-  rm -rf -- "$old"
+  # Cleanup runs after activation and health checks. A legacy cache permission
+  # error must not report a healthy deployment as failed.
+  if ! rm -rf -- "$old"; then
+    echo "Warning: could not remove old release $old; repair its cache permissions before the next cleanup." >&2
+  fi
 done < <(find "$app_dir/releases" -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +6)
 echo "Deployed $revision successfully."

@@ -109,6 +109,25 @@ it restores the preceding application release and restarts the services. Databas
 migrations run automatically on API startup and are **not** rolled back. Take a
 database backup before deploying schema changes.
 
+Release cleanup runs after health checks. If an old release cannot be deleted,
+the deployment succeeds with a warning and retries cleanup on a later deployment.
+The web service uses `UMask=0002`, and cache directories inherit the `banbunsi`
+group, so both the runtime and deployment users can manage cached images.
+The bundled Node launcher also enforces this umask for existing VPS installations,
+so updating the systemd unit is not required for future releases.
+
+To repair caches created before this fix, run the following once as root.
+The next deployment can then remove those old releases:
+
+```bash
+for cache in /opt/banbunsi/releases/*/web/.next/cache; do
+  [[ -d "$cache" && ! -L "$cache" ]] || continue
+  chgrp -R banbunsi "$cache"
+  chmod -R g+rwX "$cache"
+  find "$cache" -type d -exec chmod g+s {} +
+done
+```
+
 For manual application rollback as root:
 
 ```bash
