@@ -35,10 +35,12 @@ export function AdminAddPermissionModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<AdminMember[]>([]);
-  const [selectedMember, setSelectedMember] = useState<AdminMember | null>(null);
-  const [selectedRole, setSelectedRole] = useState<"editor" | "admin" | "owner">(
-    "editor",
+  const [selectedMember, setSelectedMember] = useState<AdminMember | null>(
+    null,
   );
+  const [selectedRole, setSelectedRole] = useState<
+    "editor" | "admin" | "owner"
+  >("editor");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -148,7 +150,12 @@ export function AdminAddPermissionModal({
         <div className="admin-modal-body">
           {error ? (
             <div className="admin-alert-error" role="alert">
-              <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+              <svg
+                viewBox="0 0 20 20"
+                width="16"
+                height="16"
+                fill="currentColor"
+              >
                 <path
                   fillRule="evenodd"
                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -297,9 +304,7 @@ export function AdminAddPermissionModal({
                     <span className="admin-role-tag">Editor</span>
                   </div>
                 </div>
-                <p className="admin-role-desc">
-                  {t(locale, "roleEditorDesc")}
-                </p>
+                <p className="admin-role-desc">{t(locale, "roleEditorDesc")}</p>
               </label>
 
               <label

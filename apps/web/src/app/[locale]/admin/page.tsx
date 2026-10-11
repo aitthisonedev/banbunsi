@@ -26,7 +26,14 @@ function memberInitials(name: string, email: string): string {
 }
 
 function getAvatarBgColor(name: string): string {
-  const colors = ["#798bff", "#09c2de", "#f4bd0e", "#e85347", "#854fff", "#1ee0ac"];
+  const colors = [
+    "#798bff",
+    "#09c2de",
+    "#f4bd0e",
+    "#e85347",
+    "#854fff",
+    "#1ee0ac",
+  ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
   return colors[hash % colors.length];
@@ -115,9 +122,7 @@ export default function AdminDashboardPage() {
       {/* 1. Dashboard Page Header (DashLite Style) */}
       <div className="dash-head">
         <div className="dash-head-content">
-          <h1 className="dash-title">
-            {t(locale, "dashboard")}
-          </h1>
+          <h1 className="dash-title">{t(locale, "dashboard")}</h1>
           <p className="dash-subtitle">
             {locale === "lo"
               ? "ຍິນດີຕ້ອນຮັບກັບຄືນ, ແຜງຄວບຄຸມລະບົບ BAN BUNSI"
@@ -128,7 +133,14 @@ export default function AdminDashboardPage() {
         <div className="dash-head-actions">
           {/* Time range dropdown pill */}
           <div className="dash-date-pill">
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              viewBox="0 0 20 20"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <rect x="3" y="4" width="14" height="13" rx="2" />
               <line x1="16" y1="2" x2="16" y2="6" strokeLinecap="round" />
               <line x1="8" y1="2" x2="8" y2="6" strokeLinecap="round" />
@@ -153,7 +165,12 @@ export default function AdminDashboardPage() {
               className="dash-btn-primary"
               onClick={() => setModalOpen(true)}
             >
-              <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+              <svg
+                viewBox="0 0 20 20"
+                width="16"
+                height="16"
+                fill="currentColor"
+              >
                 <path
                   fillRule="evenodd"
                   d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
@@ -366,16 +383,51 @@ export default function AdminDashboardPage() {
                 </defs>
 
                 {/* Grid guidelines */}
-                <line x1="30" y1="30" x2="520" y2="30" stroke="var(--dash-border)" strokeDasharray="3 3" />
-                <line x1="30" y1="75" x2="520" y2="75" stroke="var(--dash-border)" strokeDasharray="3 3" />
-                <line x1="30" y1="120" x2="520" y2="120" stroke="var(--dash-border)" strokeDasharray="3 3" />
-                <line x1="30" y1="165" x2="520" y2="165" stroke="var(--dash-border)" />
+                <line
+                  x1="30"
+                  y1="30"
+                  x2="520"
+                  y2="30"
+                  stroke="var(--dash-border)"
+                  strokeDasharray="3 3"
+                />
+                <line
+                  x1="30"
+                  y1="75"
+                  x2="520"
+                  y2="75"
+                  stroke="var(--dash-border)"
+                  strokeDasharray="3 3"
+                />
+                <line
+                  x1="30"
+                  y1="120"
+                  x2="520"
+                  y2="120"
+                  stroke="var(--dash-border)"
+                  strokeDasharray="3 3"
+                />
+                <line
+                  x1="30"
+                  y1="165"
+                  x2="520"
+                  y2="165"
+                  stroke="var(--dash-border)"
+                />
 
                 {/* Y-Axis labels */}
-                <text x="12" y="34" className="dash-svg-axis-label">120</text>
-                <text x="12" y="79" className="dash-svg-axis-label">80</text>
-                <text x="12" y="124" className="dash-svg-axis-label">40</text>
-                <text x="16" y="169" className="dash-svg-axis-label">0</text>
+                <text x="12" y="34" className="dash-svg-axis-label">
+                  120
+                </text>
+                <text x="12" y="79" className="dash-svg-axis-label">
+                  80
+                </text>
+                <text x="12" y="124" className="dash-svg-axis-label">
+                  40
+                </text>
+                <text x="16" y="169" className="dash-svg-axis-label">
+                  0
+                </text>
 
                 {/* Area Gradient Blue */}
                 <path
@@ -473,15 +525,24 @@ export default function AdminDashboardPage() {
 
             <div className="dash-donut-legend">
               <div className="dash-donut-legend-item">
-                <span className="dash-legend-bullet" style={{ background: "#798bff" }} />
+                <span
+                  className="dash-legend-bullet"
+                  style={{ background: "#798bff" }}
+                />
                 <span>Public (60%)</span>
               </div>
               <div className="dash-donut-legend-item">
-                <span className="dash-legend-bullet" style={{ background: "#09c2de" }} />
+                <span
+                  className="dash-legend-bullet"
+                  style={{ background: "#09c2de" }}
+                />
                 <span>Member (25%)</span>
               </div>
               <div className="dash-donut-legend-item">
-                <span className="dash-legend-bullet" style={{ background: "#f46363" }} />
+                <span
+                  className="dash-legend-bullet"
+                  style={{ background: "#f46363" }}
+                />
                 <span>VIP (15%)</span>
               </div>
             </div>
@@ -499,40 +560,66 @@ export default function AdminDashboardPage() {
           <div className="dash-summary-list">
             <div className="dash-summary-item">
               <div className="dash-summary-info">
-                <span className="dash-summary-name">{t(locale, "adminDocuments")}</span>
-                <strong className="dash-summary-value">{stats.documents ?? 14}</strong>
+                <span className="dash-summary-name">
+                  {t(locale, "adminDocuments")}
+                </span>
+                <strong className="dash-summary-value">
+                  {stats.documents ?? 14}
+                </strong>
               </div>
-              <span className="dash-summary-icon" style={{ background: "#f5f3ff", color: "#854fff" }}>
+              <span
+                className="dash-summary-icon"
+                style={{ background: "#f5f3ff", color: "#854fff" }}
+              >
                 📄
               </span>
             </div>
 
             <div className="dash-summary-item">
               <div className="dash-summary-info">
-                <span className="dash-summary-name">{t(locale, "allMembers")}</span>
-                <strong className="dash-summary-value">{stats.members ?? 7}</strong>
+                <span className="dash-summary-name">
+                  {t(locale, "allMembers")}
+                </span>
+                <strong className="dash-summary-value">
+                  {stats.members ?? 7}
+                </strong>
               </div>
-              <span className="dash-summary-icon" style={{ background: "#ecfeff", color: "#06b6d4" }}>
+              <span
+                className="dash-summary-icon"
+                style={{ background: "#ecfeff", color: "#06b6d4" }}
+              >
                 👥
               </span>
             </div>
 
             <div className="dash-summary-item">
               <div className="dash-summary-info">
-                <span className="dash-summary-name">{t(locale, "adminCategories")}</span>
-                <strong className="dash-summary-value">{stats.articles ?? 8}</strong>
+                <span className="dash-summary-name">
+                  {t(locale, "adminCategories")}
+                </span>
+                <strong className="dash-summary-value">
+                  {stats.articles ?? 8}
+                </strong>
               </div>
-              <span className="dash-summary-icon" style={{ background: "#fdf2f8", color: "#ec4899" }}>
+              <span
+                className="dash-summary-icon"
+                style={{ background: "#fdf2f8", color: "#ec4899" }}
+              >
                 📂
               </span>
             </div>
 
             <div className="dash-summary-item">
               <div className="dash-summary-info">
-                <span className="dash-summary-name">{t(locale, "adminQuizzes")}</span>
+                <span className="dash-summary-name">
+                  {t(locale, "adminQuizzes")}
+                </span>
                 <strong className="dash-summary-value">6</strong>
               </div>
-              <span className="dash-summary-icon" style={{ background: "#eff6ff", color: "#3b82f6" }}>
+              <span
+                className="dash-summary-icon"
+                style={{ background: "#eff6ff", color: "#3b82f6" }}
+              >
                 🏆
               </span>
             </div>
@@ -546,9 +633,7 @@ export default function AdminDashboardPage() {
         <div className="dash-card dash-card-table">
           <div className="dash-card-header">
             <div>
-              <h2 className="dash-card-title">
-                {t(locale, "backendStaff")}
-              </h2>
+              <h2 className="dash-card-title">{t(locale, "backendStaff")}</h2>
               <span className="dash-card-subtitle">
                 {locale === "lo"
                   ? "ຜູ້ທີ່ມີສິດທິເຂົ້າເຖິງ ແລະ ຈັດການຫຼັງບ້ານທັງໝົດ"
@@ -592,9 +677,7 @@ export default function AdminDashboardPage() {
                     const isSelf = row.id === currentUser.id;
                     const isRowOwner = row.staff_role === "owner";
                     const canModify =
-                      isAdminPlus &&
-                      !isSelf &&
-                      (!isRowOwner || isOwner);
+                      isAdminPlus && !isSelf && (!isRowOwner || isOwner);
 
                     return (
                       <tr key={row.id}>
@@ -604,7 +687,9 @@ export default function AdminDashboardPage() {
                             <span
                               className="dash-cell-avatar"
                               style={{
-                                background: photo ? "transparent" : getAvatarBgColor(row.name || row.email),
+                                background: photo
+                                  ? "transparent"
+                                  : getAvatarBgColor(row.name || row.email),
                               }}
                             >
                               {photo ? (
@@ -617,7 +702,9 @@ export default function AdminDashboardPage() {
                                   className="dash-cell-avatar-img"
                                 />
                               ) : (
-                                <span>{memberInitials(row.name, row.email)}</span>
+                                <span>
+                                  {memberInitials(row.name, row.email)}
+                                </span>
                               )}
                             </span>
                             <div className="dash-user-cell-meta">
@@ -636,7 +723,9 @@ export default function AdminDashboardPage() {
 
                         {/* Staff Role Badge */}
                         <td>
-                          <span className={`dash-role-chip dash-role-chip--${row.staff_role}`}>
+                          <span
+                            className={`dash-role-chip dash-role-chip--${row.staff_role}`}
+                          >
                             {row.staff_role === "owner" && "👑 "}
                             {row.staff_role === "admin" && "🛡️ "}
                             {row.staff_role === "editor" && "✏️ "}
@@ -663,12 +752,20 @@ export default function AdminDashboardPage() {
                               }
                               aria-label={t(locale, "backendPermission")}
                             >
-                              <option value="editor">{t(locale, "roleEditor")}</option>
-                              <option value="admin">{t(locale, "roleAdmin")}</option>
+                              <option value="editor">
+                                {t(locale, "roleEditor")}
+                              </option>
+                              <option value="admin">
+                                {t(locale, "roleAdmin")}
+                              </option>
                               {isOwner ? (
-                                <option value="owner">{t(locale, "roleOwner")}</option>
+                                <option value="owner">
+                                  {t(locale, "roleOwner")}
+                                </option>
                               ) : null}
-                              <option value="member">✕ {t(locale, "revokePermission")}</option>
+                              <option value="member">
+                                ✕ {t(locale, "revokePermission")}
+                              </option>
                             </select>
                           ) : (
                             <span className="dash-table-readonly">
@@ -697,13 +794,25 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="dash-category-list">
-            <Link href={`/${locale}/admin/documents?category=tax`} className="dash-category-item">
-              <span className="dash-cat-icon" style={{ background: "#fef2f2", color: "#ef4444" }}>
+            <Link
+              href={`/${locale}/admin/documents?category=tax`}
+              className="dash-category-item"
+            >
+              <span
+                className="dash-cat-icon"
+                style={{ background: "#fef2f2", color: "#ef4444" }}
+              >
                 📑
               </span>
               <div className="dash-cat-info">
-                <strong>{locale === "lo" ? "ພາສີ - ອາກອນ" : "Tax & Duties"}</strong>
-                <span>{locale === "lo" ? "ແບບຟອມ & ລະບຽບການ" : "Forms & Regulations"}</span>
+                <strong>
+                  {locale === "lo" ? "ພາສີ - ອາກອນ" : "Tax & Duties"}
+                </strong>
+                <span>
+                  {locale === "lo"
+                    ? "ແບບຟອມ & ລະບຽບການ"
+                    : "Forms & Regulations"}
+                </span>
               </div>
               <div className="dash-cat-stat">
                 <strong>4 Files</strong>
@@ -711,13 +820,21 @@ export default function AdminDashboardPage() {
               </div>
             </Link>
 
-            <Link href={`/${locale}/admin/documents?category=accounting`} className="dash-category-item">
-              <span className="dash-cat-icon" style={{ background: "#f5f3ff", color: "#8b5cf6" }}>
+            <Link
+              href={`/${locale}/admin/documents?category=accounting`}
+              className="dash-category-item"
+            >
+              <span
+                className="dash-cat-icon"
+                style={{ background: "#f5f3ff", color: "#8b5cf6" }}
+              >
                 📊
               </span>
               <div className="dash-cat-info">
                 <strong>{locale === "lo" ? "ການບັນຊີ" : "Accounting"}</strong>
-                <span>{locale === "lo" ? "ມາດຕະຖານ & ຄູ່ມື" : "Standards & Guides"}</span>
+                <span>
+                  {locale === "lo" ? "ມາດຕະຖານ & ຄູ່ມື" : "Standards & Guides"}
+                </span>
               </div>
               <div className="dash-cat-stat">
                 <strong>3 Files</strong>
@@ -725,13 +842,23 @@ export default function AdminDashboardPage() {
               </div>
             </Link>
 
-            <Link href={`/${locale}/admin/documents?category=law`} className="dash-category-item">
-              <span className="dash-cat-icon" style={{ background: "#eff6ff", color: "#3b82f6" }}>
+            <Link
+              href={`/${locale}/admin/documents?category=law`}
+              className="dash-category-item"
+            >
+              <span
+                className="dash-cat-icon"
+                style={{ background: "#eff6ff", color: "#3b82f6" }}
+              >
                 ⚖️
               </span>
               <div className="dash-cat-info">
-                <strong>{locale === "lo" ? "ກົດໝາຍ" : "Law & Regulations"}</strong>
-                <span>{locale === "lo" ? "ກົດໝາຍວິສາຫະກິດ" : "Commercial Law"}</span>
+                <strong>
+                  {locale === "lo" ? "ກົດໝາຍ" : "Law & Regulations"}
+                </strong>
+                <span>
+                  {locale === "lo" ? "ກົດໝາຍວິສາຫະກິດ" : "Commercial Law"}
+                </span>
               </div>
               <div className="dash-cat-stat">
                 <strong>3 Files</strong>
@@ -739,13 +866,23 @@ export default function AdminDashboardPage() {
               </div>
             </Link>
 
-            <Link href={`/${locale}/admin/documents?category=finance`} className="dash-category-item">
-              <span className="dash-cat-icon" style={{ background: "#ecfdf5", color: "#10b981" }}>
+            <Link
+              href={`/${locale}/admin/documents?category=finance`}
+              className="dash-category-item"
+            >
+              <span
+                className="dash-cat-icon"
+                style={{ background: "#ecfdf5", color: "#10b981" }}
+              >
                 💰
               </span>
               <div className="dash-cat-info">
                 <strong>{locale === "lo" ? "ການເງິນ" : "Finance"}</strong>
-                <span>{locale === "lo" ? "ບົດລາຍງານການເງິນ" : "Financial Statements"}</span>
+                <span>
+                  {locale === "lo"
+                    ? "ບົດລາຍງານການເງິນ"
+                    : "Financial Statements"}
+                </span>
               </div>
               <div className="dash-cat-stat">
                 <strong>2 Files</strong>

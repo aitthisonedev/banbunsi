@@ -79,10 +79,7 @@ export default function AdminMembersPage() {
     }
   }
 
-  async function patchVip(
-    id: string,
-    action: "approve" | "renew" | "cancel",
-  ) {
+  async function patchVip(id: string, action: "approve" | "renew" | "cancel") {
     setBusyId(id);
     setError("");
     try {
@@ -122,7 +119,10 @@ export default function AdminMembersPage() {
         </div>
       </div>
 
-      <section className="admin-perm-legend" aria-label={t(locale, "staffAccess")}>
+      <section
+        className="admin-perm-legend"
+        aria-label={t(locale, "staffAccess")}
+      >
         <h2>{t(locale, "staffAccess")}</h2>
         <p>{t(locale, "staffAccessLead")}</p>
         <ul className="admin-perm-grid">
