@@ -26,7 +26,7 @@ function memberInitials(name: string, email: string): string {
 }
 
 function getAvatarBgColor(name: string): string {
-  const colors = ["#798bff", "#09c2de", "#f4bd0e", "#e85347", "#854fff", "#1ee0ac"];
+  const colors = ["#6366f1", "#06b6d4", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981"];
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
   return colors[hash % colors.length];
@@ -111,23 +111,23 @@ export default function AdminDashboardPage() {
   const staffList = (members || []).filter((m) => m.staff_role !== "member");
 
   return (
-    <div className="dash-content">
-      {/* 1. Dashboard Page Header (DashLite Style) */}
-      <div className="dash-head">
-        <div className="dash-head-content">
-          <h1 className="dash-title">
+    <div className="w-full space-y-6">
+      {/* 1. Dashboard Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             {t(locale, "dashboard")}
           </h1>
-          <p className="dash-subtitle">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             {locale === "lo"
               ? "ຍິນດີຕ້ອນຮັບກັບຄືນ, ແຜງຄວບຄຸມລະບົບ BAN BUNSI"
               : "Welcome back, BAN BUNSI Admin Overview."}
           </p>
         </div>
 
-        <div className="dash-head-actions">
+        <div className="flex items-center gap-2.5">
           {/* Time range dropdown pill */}
-          <div className="dash-date-pill">
+          <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#152038] px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300 shadow-xs">
             <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="4" width="14" height="13" rx="2" />
               <line x1="16" y1="2" x2="16" y2="6" strokeLinecap="round" />
@@ -138,6 +138,7 @@ export default function AdminDashboardPage() {
               value={timeFilter}
               onChange={(e) => setTimeFilter(e.target.value)}
               aria-label="Filter time range"
+              className="bg-transparent border-0 outline-none text-xs font-semibold text-slate-800 dark:text-slate-200 cursor-pointer"
             >
               <option value="7days">Last 7 Days</option>
               <option value="30days">Last 30 Days</option>
@@ -150,7 +151,7 @@ export default function AdminDashboardPage() {
           {isAdminPlus ? (
             <button
               type="button"
-              className="dash-btn-primary"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 text-xs font-semibold shadow-xs transition cursor-pointer"
               onClick={() => setModalOpen(true)}
             >
               <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
@@ -168,18 +169,18 @@ export default function AdminDashboardPage() {
 
       {/* Notifications */}
       {successMsg ? (
-        <div className="dash-alert dash-alert--success">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+        <div className="flex items-center gap-2.5 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
+          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" className="shrink-0">
             <path
               fillRule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
               clipRule="evenodd"
             />
           </svg>
-          <span>{successMsg}</span>
+          <span className="flex-1">{successMsg}</span>
           <button
             type="button"
-            className="dash-alert-close"
+            className="text-base leading-none text-emerald-700 dark:text-emerald-400 hover:opacity-100 opacity-70 cursor-pointer"
             onClick={() => setSuccessMsg("")}
           >
             ×
@@ -188,18 +189,18 @@ export default function AdminDashboardPage() {
       ) : null}
 
       {error ? (
-        <div className="dash-alert dash-alert--danger">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+        <div className="flex items-center gap-2.5 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-300 text-xs font-medium">
+          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" className="shrink-0">
             <path
               fillRule="evenodd"
               d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
               clipRule="evenodd"
             />
           </svg>
-          <span>{error}</span>
+          <span className="flex-1">{error}</span>
           <button
             type="button"
-            className="dash-alert-close"
+            className="text-base leading-none text-rose-700 dark:text-rose-400 hover:opacity-100 opacity-70 cursor-pointer"
             onClick={() => setError("")}
           >
             ×
@@ -207,23 +208,25 @@ export default function AdminDashboardPage() {
         </div>
       ) : null}
 
-      {/* 2. Top 4 Metric Cards with Sparklines (DashLite Signature) */}
-      <div className="dash-metric-row">
+      {/* 2. Top 4 Metric Cards with Sparklines */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
         {/* Card 1: Today Documents */}
-        <div className="dash-card dash-card-metric">
-          <div className="dash-metric-top">
-            <span className="dash-metric-label">
+        <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] p-4 sm:p-5 shadow-xs flex flex-col justify-between gap-1 hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div>
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {locale === "lo" ? "ເອກະສານທັງໝົດ" : "Total Documents"}
             </span>
           </div>
-          <div className="dash-metric-middle">
-            <h3 className="dash-metric-amount">{stats.documents ?? 14}</h3>
+          <div className="flex items-center justify-between gap-3 mt-1">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              {stats.documents ?? 14}
+            </h3>
             {/* Sparkline curve (blue) */}
-            <div className="dash-sparkline">
-              <svg viewBox="0 0 80 28" fill="none" className="dash-spark-svg">
+            <div className="w-20 h-7 shrink-0">
+              <svg viewBox="0 0 80 28" fill="none" className="w-full h-full">
                 <path
                   d="M2 18 C15 8, 25 24, 38 12 C50 3, 62 16, 78 8"
-                  stroke="#798bff"
+                  stroke="#6366f1"
                   strokeWidth="2.4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -231,30 +234,29 @@ export default function AdminDashboardPage() {
               </svg>
             </div>
           </div>
-          <div className="dash-metric-bottom">
-            <span className="dash-trend dash-trend--up">
-              ↑ 4.63% <span className="dash-trend-sub">vs last week</span>
-            </span>
+          <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <span>↑ 4.63%</span>
+            <span className="text-slate-400 dark:text-slate-500 font-normal">vs last week</span>
           </div>
         </div>
 
         {/* Card 2: Today Downloads / Requests */}
-        <div className="dash-card dash-card-metric">
-          <div className="dash-metric-top">
-            <span className="dash-metric-label">
+        <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] p-4 sm:p-5 shadow-xs flex flex-col justify-between gap-1 hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div>
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {locale === "lo" ? "ດາວໂຫຼດ & ຮ້ອງຂໍ" : "Total Downloads"}
             </span>
           </div>
-          <div className="dash-metric-middle">
-            <h3 className="dash-metric-amount">
+          <div className="flex items-center justify-between gap-3 mt-1">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
               {stats.download_requests ? stats.download_requests : 248}
             </h3>
             {/* Sparkline curve (green) */}
-            <div className="dash-sparkline">
-              <svg viewBox="0 0 80 28" fill="none" className="dash-spark-svg">
+            <div className="w-20 h-7 shrink-0">
+              <svg viewBox="0 0 80 28" fill="none" className="w-full h-full">
                 <path
                   d="M2 22 C14 14, 28 4, 40 18 C52 26, 65 6, 78 12"
-                  stroke="#1ee0ac"
+                  stroke="#10b981"
                   strokeWidth="2.4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -262,28 +264,29 @@ export default function AdminDashboardPage() {
               </svg>
             </div>
           </div>
-          <div className="dash-metric-bottom">
-            <span className="dash-trend dash-trend--up">
-              ↑ 2.34% <span className="dash-trend-sub">vs last week</span>
-            </span>
+          <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <span>↑ 2.34%</span>
+            <span className="text-slate-400 dark:text-slate-500 font-normal">vs last week</span>
           </div>
         </div>
 
         {/* Card 3: Today Members */}
-        <div className="dash-card dash-card-metric">
-          <div className="dash-metric-top">
-            <span className="dash-metric-label">
+        <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] p-4 sm:p-5 shadow-xs flex flex-col justify-between gap-1 hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div>
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {locale === "lo" ? "ສະມາຊິກທັງໝົດ" : "Total Members"}
             </span>
           </div>
-          <div className="dash-metric-middle">
-            <h3 className="dash-metric-amount">{stats.members ?? 7}</h3>
+          <div className="flex items-center justify-between gap-3 mt-1">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              {stats.members ?? 7}
+            </h3>
             {/* Sparkline curve (pink/rose) */}
-            <div className="dash-sparkline">
-              <svg viewBox="0 0 80 28" fill="none" className="dash-spark-svg">
+            <div className="w-20 h-7 shrink-0">
+              <svg viewBox="0 0 80 28" fill="none" className="w-full h-full">
                 <path
                   d="M2 12 C16 22, 28 8, 42 16 C54 24, 66 10, 78 14"
-                  stroke="#f46363"
+                  stroke="#f43f5e"
                   strokeWidth="2.4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -291,28 +294,29 @@ export default function AdminDashboardPage() {
               </svg>
             </div>
           </div>
-          <div className="dash-metric-bottom">
-            <span className="dash-trend dash-trend--up">
-              ↑ 4.63% <span className="dash-trend-sub">vs last week</span>
-            </span>
+          <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <span>↑ 4.63%</span>
+            <span className="text-slate-400 dark:text-slate-500 font-normal">vs last week</span>
           </div>
         </div>
 
         {/* Card 4: Active VIP */}
-        <div className="dash-card dash-card-metric">
-          <div className="dash-metric-top">
-            <span className="dash-metric-label">
+        <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] p-4 sm:p-5 shadow-xs flex flex-col justify-between gap-1 hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div>
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {locale === "lo" ? "ສະມາຊິກ VIP" : "Active VIP"}
             </span>
           </div>
-          <div className="dash-metric-middle">
-            <h3 className="dash-metric-amount">{stats.active_vip ?? 2}</h3>
+          <div className="flex items-center justify-between gap-3 mt-1">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              {stats.active_vip ?? 2}
+            </h3>
             {/* Sparkline curve (cyan) */}
-            <div className="dash-sparkline">
-              <svg viewBox="0 0 80 28" fill="none" className="dash-spark-svg">
+            <div className="w-20 h-7 shrink-0">
+              <svg viewBox="0 0 80 28" fill="none" className="w-full h-full">
                 <path
                   d="M2 16 C14 8, 26 22, 40 10 C52 2, 64 14, 78 6"
-                  stroke="#09c2de"
+                  stroke="#06b6d4"
                   strokeWidth="2.4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -320,62 +324,61 @@ export default function AdminDashboardPage() {
               </svg>
             </div>
           </div>
-          <div className="dash-metric-bottom">
-            <span className="dash-trend dash-trend--up">
-              ↑ 1.85% <span className="dash-trend-sub">vs last week</span>
-            </span>
+          <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <span>↑ 1.85%</span>
+            <span className="text-slate-400 dark:text-slate-500 font-normal">vs last week</span>
           </div>
         </div>
       </div>
 
-      {/* 3. Middle Section: Activity Area Chart (Left) + Donut (Middle) + Store Stats (Right) */}
-      <div className="dash-charts-grid">
-        {/* Main Activity Area Chart */}
-        <div className="dash-card dash-card-chart">
-          <div className="dash-card-header">
-            <div>
-              <h2 className="dash-card-title">
-                {locale === "lo"
-                  ? "ສະຖິຕິການເຄື່ອນໄຫວລະບົບ"
-                  : "Platform Activity & Content Growth"}
-              </h2>
-            </div>
-            <div className="dash-chart-legend-wrap">
-              <span className="dash-legend-dot dash-legend-dot--primary">
+      {/* 3. Middle Section: Activity Area Chart + Donut + Store Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Main Activity Area Chart (6 cols) */}
+        <div className="lg:col-span-6 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-xs flex flex-col justify-between overflow-hidden">
+          <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800/80">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              {locale === "lo"
+                ? "ສະຖິຕິການເຄື່ອນໄຫວລະບົບ"
+                : "Platform Activity & Content Growth"}
+            </h2>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400">
                 ● Documents
               </span>
-              <span className="dash-legend-dot dash-legend-dot--secondary">
+              <span className="inline-flex items-center gap-1 font-semibold text-rose-500">
                 ● Downloads
               </span>
-              <span className="dash-sub-select">Weekly ⌄</span>
+              <span className="text-slate-400 dark:text-slate-500 font-medium cursor-pointer">
+                Weekly ⌄
+              </span>
             </div>
           </div>
 
-          <div className="dash-chart-body">
-            <div className="dash-svg-chart-container">
+          <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
+            <div className="w-full h-44">
               <svg
                 viewBox="0 0 540 190"
-                className="dash-area-chart-svg"
+                className="w-full h-full overflow-visible"
                 preserveAspectRatio="none"
               >
                 <defs>
                   <linearGradient id="areaGradBlue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#798bff" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#798bff" stopOpacity="0.0" />
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
 
                 {/* Grid guidelines */}
-                <line x1="30" y1="30" x2="520" y2="30" stroke="var(--dash-border)" strokeDasharray="3 3" />
-                <line x1="30" y1="75" x2="520" y2="75" stroke="var(--dash-border)" strokeDasharray="3 3" />
-                <line x1="30" y1="120" x2="520" y2="120" stroke="var(--dash-border)" strokeDasharray="3 3" />
-                <line x1="30" y1="165" x2="520" y2="165" stroke="var(--dash-border)" />
+                <line x1="30" y1="30" x2="520" y2="30" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeDasharray="3 3" />
+                <line x1="30" y1="75" x2="520" y2="75" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeDasharray="3 3" />
+                <line x1="30" y1="120" x2="520" y2="120" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeDasharray="3 3" />
+                <line x1="30" y1="165" x2="520" y2="165" stroke="currentColor" className="text-slate-200 dark:text-slate-800" />
 
                 {/* Y-Axis labels */}
-                <text x="12" y="34" className="dash-svg-axis-label">120</text>
-                <text x="12" y="79" className="dash-svg-axis-label">80</text>
-                <text x="12" y="124" className="dash-svg-axis-label">40</text>
-                <text x="16" y="169" className="dash-svg-axis-label">0</text>
+                <text x="12" y="34" className="text-[10px] fill-slate-400">120</text>
+                <text x="12" y="79" className="text-[10px] fill-slate-400">80</text>
+                <text x="12" y="124" className="text-[10px] fill-slate-400">40</text>
+                <text x="16" y="169" className="text-[10px] fill-slate-400">0</text>
 
                 {/* Area Gradient Blue */}
                 <path
@@ -387,7 +390,7 @@ export default function AdminDashboardPage() {
                 <path
                   d="M40 135 C80 120, 110 95, 150 110 C190 125, 230 65, 270 95 C310 125, 340 50, 390 60 C440 70, 480 90, 520 80"
                   fill="none"
-                  stroke="#798bff"
+                  stroke="#6366f1"
                   strokeWidth="2.8"
                   strokeLinecap="round"
                 />
@@ -396,13 +399,13 @@ export default function AdminDashboardPage() {
                 <path
                   d="M40 155 C90 150, 140 160, 190 152 C240 145, 290 158, 340 150 C390 142, 450 155, 520 148"
                   fill="none"
-                  stroke="#f46363"
+                  stroke="#f43f5e"
                   strokeWidth="2.2"
                   strokeDasharray="4 4"
                 />
               </svg>
             </div>
-            <div className="dash-chart-x-labels">
+            <div className="flex justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 font-medium">
               <span>01 Oct</span>
               <span>08 Oct</span>
               <span>15 Oct</span>
@@ -412,32 +415,33 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Content Distribution Donut Chart */}
-        <div className="dash-card dash-card-donut">
-          <div className="dash-card-header">
-            <h2 className="dash-card-title">
+        {/* Content Distribution Donut Chart (3 cols) */}
+        <div className="lg:col-span-3 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-xs flex flex-col justify-between overflow-hidden">
+          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800/80">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
               {locale === "lo" ? "ສັດສ່ວນການເຂົ້າເຖິງ" : "Access Distribution"}
             </h2>
           </div>
 
-          <div className="dash-donut-body">
-            <div className="dash-donut-container">
-              <svg viewBox="0 0 120 120" className="dash-donut-svg">
+          <div className="p-4 sm:p-5 flex-1 flex flex-col items-center justify-center">
+            <div className="relative w-32 h-32 my-auto">
+              <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
                 <circle
                   cx="60"
                   cy="60"
                   r="45"
                   fill="none"
-                  stroke="#e5e9f2"
+                  stroke="currentColor"
+                  className="text-slate-100 dark:text-slate-800"
                   strokeWidth="14"
                 />
-                {/* Segment 1: Public (Purple/Blue ~ 60%) */}
+                {/* Segment 1: Public (Purple ~ 60%) */}
                 <circle
                   cx="60"
                   cy="60"
                   r="45"
                   fill="none"
-                  stroke="#798bff"
+                  stroke="#6366f1"
                   strokeWidth="14"
                   strokeDasharray="170 282"
                   strokeDashoffset="0"
@@ -448,7 +452,7 @@ export default function AdminDashboardPage() {
                   cy="60"
                   r="45"
                   fill="none"
-                  stroke="#09c2de"
+                  stroke="#06b6d4"
                   strokeWidth="14"
                   strokeDasharray="70 282"
                   strokeDashoffset="-170"
@@ -459,80 +463,100 @@ export default function AdminDashboardPage() {
                   cy="60"
                   r="45"
                   fill="none"
-                  stroke="#f46363"
+                  stroke="#f43f5e"
                   strokeWidth="14"
                   strokeDasharray="42 282"
                   strokeDashoffset="-240"
                 />
               </svg>
-              <div className="dash-donut-center">
-                <span className="dash-donut-number">100%</span>
-                <span className="dash-donut-label">Total</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-lg font-bold text-slate-900 dark:text-white leading-none">
+                  100%
+                </span>
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
+                  Total
+                </span>
               </div>
             </div>
 
-            <div className="dash-donut-legend">
-              <div className="dash-donut-legend-item">
-                <span className="dash-legend-bullet" style={{ background: "#798bff" }} />
+            <div className="flex flex-wrap justify-center gap-2.5 mt-4 text-[11px] text-slate-500 dark:text-slate-400">
+              <div className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-indigo-500" />
                 <span>Public (60%)</span>
               </div>
-              <div className="dash-donut-legend-item">
-                <span className="dash-legend-bullet" style={{ background: "#09c2de" }} />
+              <div className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-cyan-500" />
                 <span>Member (25%)</span>
               </div>
-              <div className="dash-donut-legend-item">
-                <span className="dash-legend-bullet" style={{ background: "#f46363" }} />
+              <div className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
                 <span>VIP (15%)</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Platform Quick Summary Column (DashLite Store Statistics) */}
-        <div className="dash-card dash-card-summary">
-          <div className="dash-card-header">
-            <h2 className="dash-card-title">
+        {/* Platform Quick Summary Column (3 cols) */}
+        <div className="lg:col-span-3 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-xs flex flex-col justify-between overflow-hidden">
+          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800/80">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
               {locale === "lo" ? "ຊັບພະຍາກອນລະບົບ" : "Resource Statistics"}
             </h2>
           </div>
 
-          <div className="dash-summary-list">
-            <div className="dash-summary-item">
-              <div className="dash-summary-info">
-                <span className="dash-summary-name">{t(locale, "adminDocuments")}</span>
-                <strong className="dash-summary-value">{stats.documents ?? 14}</strong>
+          <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between divide-y divide-slate-100 dark:divide-slate-800/60">
+            <div className="flex items-center justify-between py-2.5 first:pt-0">
+              <div>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">
+                  {t(locale, "adminDocuments")}
+                </span>
+                <strong className="text-base font-bold text-slate-900 dark:text-white">
+                  {stats.documents ?? 14}
+                </strong>
               </div>
-              <span className="dash-summary-icon" style={{ background: "#f5f3ff", color: "#854fff" }}>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300">
                 📄
               </span>
             </div>
 
-            <div className="dash-summary-item">
-              <div className="dash-summary-info">
-                <span className="dash-summary-name">{t(locale, "allMembers")}</span>
-                <strong className="dash-summary-value">{stats.members ?? 7}</strong>
+            <div className="flex items-center justify-between py-2.5">
+              <div>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">
+                  {t(locale, "allMembers")}
+                </span>
+                <strong className="text-base font-bold text-slate-900 dark:text-white">
+                  {stats.members ?? 7}
+                </strong>
               </div>
-              <span className="dash-summary-icon" style={{ background: "#ecfeff", color: "#06b6d4" }}>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-300">
                 👥
               </span>
             </div>
 
-            <div className="dash-summary-item">
-              <div className="dash-summary-info">
-                <span className="dash-summary-name">{t(locale, "adminCategories")}</span>
-                <strong className="dash-summary-value">{stats.articles ?? 8}</strong>
+            <div className="flex items-center justify-between py-2.5">
+              <div>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">
+                  {t(locale, "adminCategories")}
+                </span>
+                <strong className="text-base font-bold text-slate-900 dark:text-white">
+                  {stats.articles ?? 8}
+                </strong>
               </div>
-              <span className="dash-summary-icon" style={{ background: "#fdf2f8", color: "#ec4899" }}>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-pink-50 dark:bg-pink-950/60 text-pink-600 dark:text-pink-300">
                 📂
               </span>
             </div>
 
-            <div className="dash-summary-item">
-              <div className="dash-summary-info">
-                <span className="dash-summary-name">{t(locale, "adminQuizzes")}</span>
-                <strong className="dash-summary-value">6</strong>
+            <div className="flex items-center justify-between py-2.5 last:pb-0">
+              <div>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">
+                  {t(locale, "adminQuizzes")}
+                </span>
+                <strong className="text-base font-bold text-slate-900 dark:text-white">
+                  6
+                </strong>
               </div>
-              <span className="dash-summary-icon" style={{ background: "#eff6ff", color: "#3b82f6" }}>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300">
                 🏆
               </span>
             </div>
@@ -541,15 +565,15 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 4. Bottom Row: Recent Backend Staff & Permissions Table (Left) + Top Categories (Right) */}
-      <div className="dash-bottom-grid">
-        {/* Backend Staff & Permissions Table (DashLite Recent Orders style) */}
-        <div className="dash-card dash-card-table">
-          <div className="dash-card-header">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Backend Staff & Permissions Table (8 cols) */}
+        <div className="lg:col-span-8 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800/80">
             <div>
-              <h2 className="dash-card-title">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                 {t(locale, "backendStaff")}
               </h2>
-              <span className="dash-card-subtitle">
+              <span className="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">
                 {locale === "lo"
                   ? "ຜູ້ທີ່ມີສິດທິເຂົ້າເຖິງ ແລະ ຈັດການຫຼັງບ້ານທັງໝົດ"
                   : "Members with staff access to manage backend CMS"}
@@ -559,7 +583,7 @@ export default function AdminDashboardPage() {
             {isAdminPlus ? (
               <button
                 type="button"
-                className="dash-btn-sm"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-600 hover:text-white text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition cursor-pointer"
                 onClick={() => setModalOpen(true)}
               >
                 + {t(locale, "addBackendPermission")}
@@ -567,22 +591,28 @@ export default function AdminDashboardPage() {
             ) : null}
           </div>
 
-          <div className="dash-table-wrap">
-            <table className="dash-table">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
               <thead>
-                <tr>
-                  <th>{locale === "lo" ? "ສະມາຊິກ" : "Member"}</th>
-                  <th>{t(locale, "backendPermission")}</th>
-                  <th>{locale === "lo" ? "ສະຖານະ" : "Status"}</th>
-                  <th className="text-right">
+                <tr className="bg-slate-50/70 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-800">
+                  <th className="px-4 sm:px-5 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px]">
+                    {locale === "lo" ? "ສະມາຊິກ" : "Member"}
+                  </th>
+                  <th className="px-4 sm:px-5 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px]">
+                    {t(locale, "backendPermission")}
+                  </th>
+                  <th className="px-4 sm:px-5 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px]">
+                    {locale === "lo" ? "ສະຖານະ" : "Status"}
+                  </th>
+                  <th className="px-4 sm:px-5 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px] text-right">
                     {locale === "lo" ? "ຈັດການສິດທິ" : "Action"}
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {staffList.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center py-6 text-muted">
+                    <td colSpan={4} className="text-center py-8 text-slate-400">
                       {t(locale, "noMembers")}
                     </td>
                   </tr>
@@ -597,12 +627,12 @@ export default function AdminDashboardPage() {
                       (!isRowOwner || isOwner);
 
                     return (
-                      <tr key={row.id}>
+                      <tr key={row.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition">
                         {/* Member Identity */}
-                        <td>
-                          <div className="dash-user-cell">
+                        <td className="px-4 sm:px-5 py-3">
+                          <div className="flex items-center gap-2.5">
                             <span
-                              className="dash-cell-avatar"
+                              className="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden shadow-xs"
                               style={{
                                 background: photo ? "transparent" : getAvatarBgColor(row.name || row.email),
                               }}
@@ -614,20 +644,22 @@ export default function AdminDashboardPage() {
                                   alt=""
                                   width={32}
                                   height={32}
-                                  className="dash-cell-avatar-img"
+                                  className="w-full h-full object-cover"
                                 />
                               ) : (
                                 <span>{memberInitials(row.name, row.email)}</span>
                               )}
                             </span>
-                            <div className="dash-user-cell-meta">
-                              <strong className="dash-user-cell-name">
+                            <div className="flex flex-col min-w-0">
+                              <strong className="text-xs font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-1.5 truncate">
                                 {row.name || row.email}
                                 {isSelf ? (
-                                  <span className="dash-tag-self">You</span>
+                                  <span className="text-[10px] font-bold uppercase px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+                                    You
+                                  </span>
                                 ) : null}
                               </strong>
-                              <span className="dash-user-cell-email">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                                 {row.email}
                               </span>
                             </div>
@@ -635,8 +667,16 @@ export default function AdminDashboardPage() {
                         </td>
 
                         {/* Staff Role Badge */}
-                        <td>
-                          <span className={`dash-role-chip dash-role-chip--${row.staff_role}`}>
+                        <td className="px-4 sm:px-5 py-3">
+                          <span
+                            className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded capitalize ${
+                              row.staff_role === "owner"
+                                ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                                : row.staff_role === "admin"
+                                  ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
+                                  : "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300"
+                            }`}
+                          >
                             {row.staff_role === "owner" && "👑 "}
                             {row.staff_role === "admin" && "🛡️ "}
                             {row.staff_role === "editor" && "✏️ "}
@@ -645,17 +685,17 @@ export default function AdminDashboardPage() {
                         </td>
 
                         {/* Status Dot */}
-                        <td>
-                          <span className="dash-status-dot dash-status-dot--paid">
+                        <td className="px-4 sm:px-5 py-3">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                             ● Active
                           </span>
                         </td>
 
                         {/* Action / Change Role */}
-                        <td className="text-right">
+                        <td className="px-4 sm:px-5 py-3 text-right">
                           {canModify ? (
                             <select
-                              className="dash-table-select"
+                              className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
                               disabled={busyMemberId === row.id}
                               value={row.staff_role}
                               onChange={(e) =>
@@ -671,7 +711,7 @@ export default function AdminDashboardPage() {
                               <option value="member">✕ {t(locale, "revokePermission")}</option>
                             </select>
                           ) : (
-                            <span className="dash-table-readonly">
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">
                               {isSelf ? "Current user" : "Protected"}
                             </span>
                           )}
@@ -685,71 +725,107 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Top Categories Card (Right column matching DashLite Top Products) */}
-        <div className="dash-card dash-card-categories">
-          <div className="dash-card-header">
-            <div>
-              <h2 className="dash-card-title">
-                {locale === "lo" ? "ໝວດໝູ່ຄວາມຮູ້ຫຼັກ" : "Top Categories"}
-              </h2>
-            </div>
-            <span className="dash-sub-select">Weekly ⌄</span>
+        {/* Top Categories Card (4 cols) */}
+        <div className="lg:col-span-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800/80">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              {locale === "lo" ? "ໝວດໝູ່ຄວາມຮູ້ຫຼັກ" : "Top Categories"}
+            </h2>
+            <span className="text-xs text-slate-400 dark:text-slate-500 font-medium cursor-pointer">
+              Weekly ⌄
+            </span>
           </div>
 
-          <div className="dash-category-list">
-            <Link href={`/${locale}/admin/documents?category=tax`} className="dash-category-item">
-              <span className="dash-cat-icon" style={{ background: "#fef2f2", color: "#ef4444" }}>
+          <div className="p-4 sm:p-5 space-y-3">
+            <Link
+              href={`/${locale}/admin/documents?category=tax`}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40 transition"
+            >
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-300">
                 📑
               </span>
-              <div className="dash-cat-info">
-                <strong>{locale === "lo" ? "ພາສີ - ອາກອນ" : "Tax & Duties"}</strong>
-                <span>{locale === "lo" ? "ແບບຟອມ & ລະບຽບການ" : "Forms & Regulations"}</span>
+              <div className="flex flex-col min-w-0 flex-1">
+                <strong className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                  {locale === "lo" ? "ພາສີ - ອາກອນ" : "Tax & Duties"}
+                </strong>
+                <span className="text-[11px] text-slate-400 truncate">
+                  {locale === "lo" ? "ແບບຟອມ & ລະບຽບການ" : "Forms & Regulations"}
+                </span>
               </div>
-              <div className="dash-cat-stat">
-                <strong>4 Files</strong>
-                <span className="dash-cat-sold">Published</span>
+              <div className="text-right shrink-0">
+                <strong className="text-xs font-bold text-slate-800 dark:text-slate-100 block">
+                  4 Files
+                </strong>
+                <span className="text-[10px] text-slate-400">Published</span>
               </div>
             </Link>
 
-            <Link href={`/${locale}/admin/documents?category=accounting`} className="dash-category-item">
-              <span className="dash-cat-icon" style={{ background: "#f5f3ff", color: "#8b5cf6" }}>
+            <Link
+              href={`/${locale}/admin/documents?category=accounting`}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40 transition"
+            >
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300">
                 📊
               </span>
-              <div className="dash-cat-info">
-                <strong>{locale === "lo" ? "ການບັນຊີ" : "Accounting"}</strong>
-                <span>{locale === "lo" ? "ມາດຕະຖານ & ຄູ່ມື" : "Standards & Guides"}</span>
+              <div className="flex flex-col min-w-0 flex-1">
+                <strong className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                  {locale === "lo" ? "ການບັນຊີ" : "Accounting"}
+                </strong>
+                <span className="text-[11px] text-slate-400 truncate">
+                  {locale === "lo" ? "ມາດຕະຖານ & ຄູ່ມື" : "Standards & Guides"}
+                </span>
               </div>
-              <div className="dash-cat-stat">
-                <strong>3 Files</strong>
-                <span className="dash-cat-sold">Published</span>
+              <div className="text-right shrink-0">
+                <strong className="text-xs font-bold text-slate-800 dark:text-slate-100 block">
+                  3 Files
+                </strong>
+                <span className="text-[10px] text-slate-400">Published</span>
               </div>
             </Link>
 
-            <Link href={`/${locale}/admin/documents?category=law`} className="dash-category-item">
-              <span className="dash-cat-icon" style={{ background: "#eff6ff", color: "#3b82f6" }}>
+            <Link
+              href={`/${locale}/admin/documents?category=law`}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40 transition"
+            >
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300">
                 ⚖️
               </span>
-              <div className="dash-cat-info">
-                <strong>{locale === "lo" ? "ກົດໝາຍ" : "Law & Regulations"}</strong>
-                <span>{locale === "lo" ? "ກົດໝາຍວິສາຫະກິດ" : "Commercial Law"}</span>
+              <div className="flex flex-col min-w-0 flex-1">
+                <strong className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                  {locale === "lo" ? "ກົດໝາຍ" : "Law & Regulations"}
+                </strong>
+                <span className="text-[11px] text-slate-400 truncate">
+                  {locale === "lo" ? "ກົດໝາຍວິສາຫະກິດ" : "Commercial Law"}
+                </span>
               </div>
-              <div className="dash-cat-stat">
-                <strong>3 Files</strong>
-                <span className="dash-cat-sold">Published</span>
+              <div className="text-right shrink-0">
+                <strong className="text-xs font-bold text-slate-800 dark:text-slate-100 block">
+                  3 Files
+                </strong>
+                <span className="text-[10px] text-slate-400">Published</span>
               </div>
             </Link>
 
-            <Link href={`/${locale}/admin/documents?category=finance`} className="dash-category-item">
-              <span className="dash-cat-icon" style={{ background: "#ecfdf5", color: "#10b981" }}>
+            <Link
+              href={`/${locale}/admin/documents?category=finance`}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40 transition"
+            >
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300">
                 💰
               </span>
-              <div className="dash-cat-info">
-                <strong>{locale === "lo" ? "ການເງິນ" : "Finance"}</strong>
-                <span>{locale === "lo" ? "ບົດລາຍງານການເງິນ" : "Financial Statements"}</span>
+              <div className="flex flex-col min-w-0 flex-1">
+                <strong className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                  {locale === "lo" ? "ການເງິນ" : "Finance"}
+                </strong>
+                <span className="text-[11px] text-slate-400 truncate">
+                  {locale === "lo" ? "ບົດລາຍງານການເງິນ" : "Financial Statements"}
+                </span>
               </div>
-              <div className="dash-cat-stat">
-                <strong>2 Files</strong>
-                <span className="dash-cat-sold">Published</span>
+              <div className="text-right shrink-0">
+                <strong className="text-xs font-bold text-slate-800 dark:text-slate-100 block">
+                  2 Files
+                </strong>
+                <span className="text-[10px] text-slate-400">Published</span>
               </div>
             </Link>
           </div>
