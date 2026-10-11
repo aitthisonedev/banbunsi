@@ -67,11 +67,11 @@ func (h *AuthHandler) GoogleAuth(c *fiber.Ctx) error {
 		// Check session
 		raw := c.Cookies(h.Cfg.SessionCookieName)
 		if raw == "" {
-			return c.Redirect(fmt.Sprintf("/%s/auth/login?next=%s", locale, url.QueryEscape(next)))
+			return c.Redirect(safeRedirectURL(fmt.Sprintf("/%s/auth/login?next=%s", locale, url.QueryEscape(next)), locale, h.Cfg.AppPublicURL))
 		}
 		u, session, err := h.Sessions.Resolve(raw)
 		if err != nil || session == nil || u == nil {
-			return c.Redirect(fmt.Sprintf("/%s/auth/login?next=%s", locale, url.QueryEscape(next)))
+			return c.Redirect(safeRedirectURL(fmt.Sprintf("/%s/auth/login?next=%s", locale, url.QueryEscape(next)), locale, h.Cfg.AppPublicURL))
 		}
 		userID = u.ID.String()
 	}
@@ -277,7 +277,7 @@ func (h *AuthHandler) processGoogleUser(c *fiber.Ctx, state *OAuthState, gUser *
 			}
 		}
 		if currentUser == nil {
-			return c.Redirect(fmt.Sprintf("/%s/auth/login?error=unauthorized&next=%s", locale, url.QueryEscape(nextURL)))
+			return c.Redirect(safeRedirectURL(fmt.Sprintf("/%s/auth/login?error=unauthorized&next=%s", locale, url.QueryEscape(nextURL)), locale, h.Cfg.AppPublicURL))
 		}
 
 		// Check if another account already has this Google ID
@@ -304,7 +304,7 @@ func (h *AuthHandler) processGoogleUser(c *fiber.Ctx, state *OAuthState, gUser *
 	err := h.DB.Where("google_id = ?", sub).First(&user).Error
 	if err == nil {
 		if user.AccountStatus == models.StatusSuspended {
-			return c.Redirect(fmt.Sprintf("/%s/auth/login?error=account_suspended", locale))
+			return c.Redirect(safeRedirectURL(fmt.Sprintf("/%s/auth/login?error=account_suspended", locale), locale, h.Cfg.AppPublicURL))
 		}
 		raw, _, err := h.Sessions.Create(user.ID, c.Get("User-Agent"), c.IP())
 		if err != nil {
@@ -319,7 +319,7 @@ func (h *AuthHandler) processGoogleUser(c *fiber.Ctx, state *OAuthState, gUser *
 	err = h.DB.Where("email = ?", email).First(&user).Error
 	if err == nil {
 		if user.AccountStatus == models.StatusSuspended {
-			return c.Redirect(fmt.Sprintf("/%s/auth/login?error=account_suspended", locale))
+			return c.Redirect(safeRedirectURL(fmt.Sprintf("/%s/auth/login?error=account_suspended", locale), locale, h.Cfg.AppPublicURL))
 		}
 		user.GoogleID = sub
 		user.GoogleEmail = email
@@ -385,17 +385,25 @@ func (h *AuthHandler) processGoogleUser(c *fiber.Ctx, state *OAuthState, gUser *
 }
 
 func safeRedirectURL(next, locale, appPublicURL string) string {
+	defaultPath := fmt.Sprintf("/%s/account", locale)
+	base, err := url.Parse(appPublicURL)
+	if err != nil || (base.Scheme != "http" && base.Scheme != "https") || base.Host == "" || base.User != nil {
+		return defaultPath
+	}
+	fallback := base.ResolveReference(&url.URL{Path: defaultPath}).String()
 	next = strings.TrimSpace(next)
-	if next == "" {
-		return fmt.Sprintf("/%s/account", locale)
+	target, err := url.Parse(next)
+	if err != nil || next == "" || strings.Contains(next, "\\") || target.User != nil {
+		return fallback
 	}
-	if strings.HasPrefix(next, "/") && !strings.HasPrefix(next, "//") && !strings.Contains(next, "://") {
-		return next
+	if strings.HasPrefix(next, "/") && !strings.HasPrefix(next, "//") && !target.IsAbs() && target.Host == "" {
+		// The callback runs on the API origin; frontend paths need an absolute URL.
+		return base.ResolveReference(target).String()
 	}
-	if appPublicURL != "" && strings.HasPrefix(next, appPublicURL) {
-		return next
+	if target.Scheme == base.Scheme && strings.EqualFold(target.Host, base.Host) {
+		return target.String()
 	}
-	return fmt.Sprintf("/%s/account", locale)
+	return fallback
 }
 
 func withParam(targetURL, key, val string) string {
