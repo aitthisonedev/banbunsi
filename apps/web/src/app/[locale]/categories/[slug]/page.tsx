@@ -85,7 +85,8 @@ export default async function CategoryDetailPage({
           <h1 className="detail-hero-title">{cat.name}</h1>
 
           {cat.description &&
-          cat.description.trim().toLowerCase() !== cat.name.trim().toLowerCase() ? (
+          cat.description.trim().toLowerCase() !==
+            cat.name.trim().toLowerCase() ? (
             <p className="detail-hero-lead">{cat.description}</p>
           ) : null}
         </Reveal>

@@ -4,10 +4,7 @@ import { QuizPlayer } from "@/components/quiz-player";
 import { Reveal } from "@/components/reveal";
 import { getQuiz as getQuizApi } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
-import {
-  getQuiz as getQuizDemo,
-  type QuizDifficulty,
-} from "@/lib/quizzes";
+import { getQuiz as getQuizDemo, type QuizDifficulty } from "@/lib/quizzes";
 
 export default async function QuizDetailPage({
   params,
@@ -104,7 +101,11 @@ export default async function QuizDetailPage({
           </div>
         </Reveal>
 
-        <Reveal as="section" className="detail-panel detail-panel--quiz" delay={50}>
+        <Reveal
+          as="section"
+          className="detail-panel detail-panel--quiz"
+          delay={50}
+        >
           <QuizPlayer locale={raw} quiz={quiz} />
         </Reveal>
       </div>
