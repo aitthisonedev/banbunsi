@@ -147,6 +147,7 @@ export type AdminDocumentPayload = {
   effective_date?: string | null;
   year: number;
   tags: string;
+  cover_image?: string;
   translations: Array<{
     locale: string;
     title: string;
@@ -168,6 +169,60 @@ export type AdminDocumentPayload = {
     sort_order: number;
   }>;
 };
+
+export type AdminUploadResult = {
+  kind: string;
+  path: string;
+  url: string;
+  file_name: string;
+  mime: string;
+  size_bytes: number;
+};
+
+export type AdminLibraryItem = {
+  path: string;
+  url: string;
+  kind: string;
+  source?: string;
+  file_name?: string;
+  mime?: string;
+  size_bytes?: number;
+};
+
+export async function clientAdminUpload(kind: "cover" | "document", file: File) {
+  const form = new FormData();
+  form.append("kind", kind);
+  form.append("file", file);
+  const res = await fetch(`${API_URL}/api/v1/admin/uploads`, {
+    method: "POST",
+    body: form,
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { error?: string }).error || `Upload failed (${res.status})`,
+    );
+  }
+  return data as AdminUploadResult;
+}
+
+export function clientAdminLibrary(kind: "cover" | "document") {
+  return clientFetch<{ items: AdminLibraryItem[] }>(
+    `/admin/uploads/library?kind=${kind}`,
+  );
+}
+
+export function mediaSrc(pathOrUrl: string | undefined | null) {
+  if (!pathOrUrl) return "";
+  if (pathOrUrl.startsWith("http") || pathOrUrl.startsWith("/brand") || pathOrUrl.startsWith("/images")) {
+    return pathOrUrl;
+  }
+  if (pathOrUrl.startsWith("/uploads/")) return `${API_URL}${pathOrUrl}`;
+  if (pathOrUrl.startsWith("uploads/")) return `${API_URL}/${pathOrUrl}`;
+  // stored relative upload path e.g. covers/uuid.jpg
+  return `${API_URL}/uploads/${pathOrUrl.replace(/^\//, "")}`;
+}
 
 export function clientListAdminDocuments(locale: string, q = "") {
   const params = new URLSearchParams({ locale, per_page: "100" });

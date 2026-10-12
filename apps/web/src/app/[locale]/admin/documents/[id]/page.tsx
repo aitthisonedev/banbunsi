@@ -71,7 +71,7 @@ export default function AdminEditDocumentPage() {
   const readAccess = String(initial.read_access || "public");
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* 1. Header with Breadcrumb & Quick Actions */}
       <div>
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
@@ -202,6 +202,7 @@ export default function AdminEditDocumentPage() {
           status: String(initial.status || "draft"),
           year: Number(initial.year || new Date().getFullYear()),
           tags: String(initial.tags || ""),
+          cover_image: String(initial.cover_image || ""),
           effective_date: initial.effective_date
             ? String(initial.effective_date).slice(0, 10)
             : "",

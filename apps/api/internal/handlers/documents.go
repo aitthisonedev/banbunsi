@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -48,6 +50,7 @@ type documentWriteIn struct {
 	EffectiveDate  *string         `json:"effective_date"`
 	Year           int             `json:"year"`
 	Tags           string          `json:"tags"`
+	CoverImage     string          `json:"cover_image"`
 	Translations   []translationIn `json:"translations"`
 	Files          []fileIn        `json:"files"`
 }
@@ -94,6 +97,23 @@ func canReadBody(access models.ReadAccess, user *models.User, tier models.Member
 	}
 }
 
+func canDownload(access models.DownloadAccess, user *models.User, tier models.MembershipTier) bool {
+	if user == nil || user.AccountStatus != models.StatusActive {
+		return false
+	}
+	if user.IsStaff() {
+		return true
+	}
+	switch access {
+	case models.DownloadMember:
+		return true
+	case models.DownloadVIP:
+		return tier == models.TierVIP
+	default:
+		return false
+	}
+}
+
 func pickDocTranslation(trs []models.DocumentTranslation, locale string) *models.DocumentTranslation {
 	var fallback *models.DocumentTranslation
 	for i := range trs {
@@ -113,7 +133,7 @@ func pickDocTranslation(trs []models.DocumentTranslation, locale string) *models
 	return nil
 }
 
-func filePayload(f models.DocumentFile) fiber.Map {
+func filePayload(f models.DocumentFile, canDL bool) fiber.Map {
 	return fiber.Map{
 		"id":              f.ID.String(),
 		"label":           f.Label,
@@ -124,6 +144,7 @@ func filePayload(f models.DocumentFile) fiber.Map {
 		"version":         f.Version,
 		"download_access": f.DownloadAccess,
 		"sort_order":      f.SortOrder,
+		"can_download":    canDL,
 	}
 }
 
@@ -148,6 +169,7 @@ func (h *DocumentHandler) listItem(doc models.Document, locale string, includeBo
 		"status":          doc.Status,
 		"year":            doc.Year,
 		"tags":            doc.Tags,
+		"cover_image":     doc.CoverImage,
 		"published_at":    doc.PublishedAt,
 		"effective_date":  doc.EffectiveDate,
 		"updated_at":      doc.UpdatedAt,
@@ -170,7 +192,7 @@ func (h *DocumentHandler) listItem(doc models.Document, locale string, includeBo
 	}
 	files := make([]fiber.Map, 0, len(doc.Files))
 	for _, f := range doc.Files {
-		files = append(files, filePayload(f))
+		files = append(files, filePayload(f, canDownload(f.DownloadAccess, user, tier)))
 	}
 	item["files"] = files
 	return item
@@ -274,6 +296,97 @@ func (h *DocumentHandler) PublicGet(c *fiber.Ctx) error {
 	user := h.optionalUser(c)
 	tier := h.currentMembershipTier(user)
 	return c.JSON(h.listItem(doc, locale, true, user, tier))
+}
+
+func (h *DocumentHandler) PublicDownload(c *fiber.Ctx) error {
+	slug := strings.TrimSpace(c.Params("slug"))
+	fileID, err := parseUUID(c.Params("fileId"))
+	if err != nil || slug == "" {
+		return errJSON(c, fiber.StatusBadRequest, "Invalid download request")
+	}
+
+	var tr models.DocumentTranslation
+	if err := h.DB.Where("slug = ?", slug).First(&tr).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "Document not found")
+	}
+
+	var doc models.Document
+	if err := h.DB.Where("id = ? AND status = ?", tr.DocumentID, models.DocPublished).
+		First(&doc).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "Document not found")
+	}
+
+	var file models.DocumentFile
+	if err := h.DB.Where("id = ? AND document_id = ?", fileID, doc.ID).First(&file).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "File not found")
+	}
+
+	user := h.optionalUser(c)
+	tier := h.currentMembershipTier(user)
+	if !canDownload(file.DownloadAccess, user, tier) {
+		if user == nil {
+			return errJSON(c, fiber.StatusUnauthorized, "Sign in to download")
+		}
+		return errJSON(c, fiber.StatusForbidden, "VIP membership required")
+	}
+
+	abs, downloadName, ok := h.resolveStoredFile(file.FileName)
+	if !ok {
+		return errJSON(c, fiber.StatusNotFound, "File is not available on the server")
+	}
+
+	c.Attachment(downloadName)
+	if file.Mime != "" {
+		c.Set("Content-Type", file.Mime)
+	}
+	return c.SendFile(abs, false)
+}
+
+func (h *DocumentHandler) resolveStoredFile(fileName string) (absPath, downloadName string, ok bool) {
+	if h.Cfg == nil {
+		return "", "", false
+	}
+	raw := strings.TrimSpace(fileName)
+	if raw == "" {
+		return "", "", false
+	}
+	raw = strings.ReplaceAll(raw, `\`, `/`)
+	raw = strings.TrimPrefix(raw, "/uploads/")
+	raw = strings.TrimPrefix(raw, "uploads/")
+	raw = strings.TrimPrefix(raw, "/")
+
+	candidates := []string{}
+	if strings.Contains(raw, "/") {
+		candidates = append(candidates, raw)
+	} else {
+		candidates = append(candidates, filepath.ToSlash(filepath.Join("documents", raw)), raw)
+	}
+
+	root, err := filepath.Abs(h.Cfg.UploadDir)
+	if err != nil {
+		return "", "", false
+	}
+
+	for _, rel := range candidates {
+		clean := filepath.Clean(filepath.FromSlash(rel))
+		if clean == "." || strings.HasPrefix(clean, "..") {
+			continue
+		}
+		abs := filepath.Join(root, clean)
+		absClean, err := filepath.Abs(abs)
+		if err != nil {
+			continue
+		}
+		if !strings.HasPrefix(absClean, root+string(os.PathSeparator)) && absClean != root {
+			continue
+		}
+		st, err := os.Stat(absClean)
+		if err != nil || st.IsDir() {
+			continue
+		}
+		return absClean, filepath.Base(clean), true
+	}
+	return "", "", false
 }
 
 func (h *DocumentHandler) AdminList(c *fiber.Ctx) error {
@@ -513,6 +626,7 @@ func (h *DocumentHandler) AdminCreate(c *fiber.Ctx) error {
 		EffectiveDate:  eff,
 		Year:           year,
 		Tags:           strings.TrimSpace(in.Tags),
+		CoverImage:     strings.TrimSpace(in.CoverImage),
 	}
 	if status == models.DocPublished {
 		now := time.Now().UTC()
@@ -583,6 +697,7 @@ func (h *DocumentHandler) AdminUpdate(c *fiber.Ctx) error {
 		doc.ReadAccess = normalizeReadAccess(in.ReadAccess)
 		doc.Status = status
 		doc.Tags = strings.TrimSpace(in.Tags)
+		doc.CoverImage = strings.TrimSpace(in.CoverImage)
 		doc.Year = year
 		if in.EffectiveDate != nil {
 			doc.EffectiveDate = eff

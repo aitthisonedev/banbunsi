@@ -40,6 +40,7 @@ type Document struct {
 	EffectiveDate  *time.Time     `gorm:"type:date" json:"effective_date,omitempty"`
 	Year           int            `gorm:"index" json:"year"`
 	Tags           string         `gorm:"size:500" json:"tags"`
+	CoverImage     string         `gorm:"size:500;not null;default:''" json:"cover_image"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
 	DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`

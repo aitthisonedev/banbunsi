@@ -2,12 +2,16 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { CategoryNode, Locale } from "@/lib/api";
 import {
+  clientAdminLibrary,
+  clientAdminUpload,
   clientCreateAdminDocument,
   clientUpdateAdminDocument,
+  mediaSrc,
   type AdminDocumentPayload,
+  type AdminLibraryItem,
 } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
 
@@ -50,6 +54,8 @@ export function AdminDocumentForm({
   const [activeLang, setActiveLang] = useState<"lo" | "en">("lo");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   // Controlled slug states for auto-generation helper
   const [loTitle, setLoTitle] = useState(lo?.title || "");
@@ -57,12 +63,77 @@ export function AdminDocumentForm({
   const [enTitle, setEnTitle] = useState(en?.title || "");
   const [enSlug, setEnSlug] = useState(en?.slug || "");
 
+  const [coverImage, setCoverImage] = useState(initial?.cover_image || "");
+  const [showCoverLibrary, setShowCoverLibrary] = useState(false);
+  const [showDocLibrary, setShowDocLibrary] = useState(false);
+  const [coverLibrary, setCoverLibrary] = useState<AdminLibraryItem[]>([]);
+  const [docLibrary, setDocLibrary] = useState<AdminLibraryItem[]>([]);
+
+  const [fileLabel, setFileLabel] = useState(file0?.label || "");
+  const [fileName, setFileName] = useState(file0?.file_name || "");
+  const [fileMime, setFileMime] = useState(file0?.mime || "application/pdf");
+  const [fileSize, setFileSize] = useState(Number(file0?.size_bytes || 0));
+  const [fileVersion, setFileVersion] = useState(file0?.version || "1.0");
+  const [downloadAccess, setDownloadAccess] = useState(
+    file0?.download_access || "member",
+  );
+
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!showCoverLibrary) return;
+    clientAdminLibrary("cover")
+      .then((res) => setCoverLibrary(res.items || []))
+      .catch(() => setCoverLibrary([]));
+  }, [showCoverLibrary]);
+
+  useEffect(() => {
+    if (!showDocLibrary) return;
+    clientAdminLibrary("document")
+      .then((res) => setDocLibrary(res.items || []))
+      .catch(() => setDocLibrary([]));
+  }, [showDocLibrary]);
+
   function generateLoSlug() {
     setLoSlug(slugify(loTitle));
   }
 
   function generateEnSlug() {
     setEnSlug(slugify(enTitle));
+  }
+
+  async function onCoverDevice(file: File | null) {
+    if (!file) return;
+    setUploadingCover(true);
+    setError("");
+    try {
+      const res = await clientAdminUpload("cover", file);
+      setCoverImage(res.path || res.url);
+      setShowCoverLibrary(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Cover upload failed");
+    } finally {
+      setUploadingCover(false);
+    }
+  }
+
+  async function onDocDevice(file: File | null) {
+    if (!file) return;
+    setUploadingFile(true);
+    setError("");
+    try {
+      const res = await clientAdminUpload("document", file);
+      setFileName(res.path || res.file_name);
+      setFileMime(res.mime || file.type || "application/pdf");
+      setFileSize(res.size_bytes || file.size || 0);
+      if (!fileLabel) setFileLabel(res.file_name || file.name);
+      setShowDocLibrary(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "File upload failed");
+    } finally {
+      setUploadingFile(false);
+    }
   }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -78,7 +149,7 @@ export function AdminDocumentForm({
     const resolvedEnSlug = String(
       fd.get("en_slug") || enSlug || slugify(resolvedEnTitle),
     );
-    const fileName = String(fd.get("file_name") || "").trim();
+    const resolvedFileName = fileName.trim();
 
     const body: AdminDocumentPayload = {
       document_number: String(fd.get("document_number") || ""),
@@ -88,6 +159,7 @@ export function AdminDocumentForm({
       effective_date: String(fd.get("effective_date") || "") || null,
       year: Number(fd.get("year") || new Date().getFullYear()),
       tags: String(fd.get("tags") || ""),
+      cover_image: coverImage.trim(),
       translations: [
         {
           locale: "lo",
@@ -109,16 +181,16 @@ export function AdminDocumentForm({
     };
 
     // Omit files on update when empty so API does not wipe existing rows.
-    if (fileName) {
+    if (resolvedFileName) {
       body.files = [
         {
-          label: String(fd.get("file_label") || fileName),
-          file_name: fileName,
-          mime: String(fd.get("file_mime") || "application/pdf"),
-          size_bytes: Number(fd.get("file_size") || 0),
+          label: fileLabel || resolvedFileName,
+          file_name: resolvedFileName,
+          mime: fileMime || "application/pdf",
+          size_bytes: Number(fileSize || 0),
           language: "lo",
-          version: String(fd.get("file_version") || "1.0"),
-          download_access: String(fd.get("download_access") || "member"),
+          version: fileVersion || "1.0",
+          download_access: downloadAccess || "member",
           sort_order: 0,
         },
       ];
@@ -544,119 +616,356 @@ export function AdminDocumentForm({
         </div>
       </div>
 
-      {/* 3. File Attachment & Download Metadata Card */}
+      {/* 3. Cover image */}
       <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-xs overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shadow-xs">
               03
             </span>
             <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-              {locale === "lo"
-                ? "ໄຟລ໌ດາວໂຫຼດ (File Attachment)"
-                : "Attached File Metadata"}
+              {locale === "lo" ? "ຮູບໜ້າປົກ (Cover Image)" : "Cover Image"}
             </h2>
           </div>
-          <span className="text-[11px] text-slate-400">
-            {locale === "lo" ? "PDF, Word, Excel" : "Optional attachment"}
+          <span className="text-[11px] text-slate-400 shrink-0">
+            {locale === "lo"
+              ? "Upload or pick from library"
+              : "Upload or pick from library"}
           </span>
         </div>
 
         <div className="p-5 sm:p-6 space-y-4">
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0] || null;
+              e.target.value = "";
+              void onCoverDevice(f);
+            }}
+          />
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="w-full sm:w-44 shrink-0">
+              <div className="aspect-[4/3] rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 overflow-hidden flex items-center justify-center">
+                {coverImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={mediaSrc(coverImage)}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-[11px] text-slate-400 px-3 text-center">
+                    {locale === "lo" ? "No cover yet" : "No cover yet"}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 space-y-3 min-w-0">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={uploadingCover}
+                  onClick={() => coverInputRef.current?.click()}
+                  className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition cursor-pointer disabled:opacity-60"
+                >
+                  {uploadingCover
+                    ? t(locale, "loading")
+                    : locale === "lo"
+                      ? "Upload from device"
+                      : "Upload from device"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCoverLibrary((v) => !v);
+                    setShowDocLibrary(false);
+                  }}
+                  className="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer shadow-xs"
+                >
+                  {locale === "lo"
+                    ? "Choose from library"
+                    : "Choose from library"}
+                </button>
+                {coverImage ? (
+                  <button
+                    type="button"
+                    onClick={() => setCoverImage("")}
+                    className="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
+                  >
+                    {locale === "lo" ? "Remove" : "Remove"}
+                  </button>
+                ) : null}
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 break-all">
+                {coverImage ||
+                  (locale === "lo"
+                    ? "JPEG, PNG, WebP · max 5MB"
+                    : "JPEG, PNG, WebP · max 5MB")}
+              </p>
+            </div>
+          </div>
+
+          {showCoverLibrary ? (
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2">
+              <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                {locale === "lo" ? "Image library" : "Image library"}
+              </div>
+              {coverLibrary.length === 0 ? (
+                <p className="text-[11px] text-slate-400">
+                  {locale === "lo"
+                    ? "No images yet"
+                    : "No images yet"}
+                </p>
+              ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                  {coverLibrary.map((item) => {
+                    const selected =
+                      coverImage === item.path || coverImage === item.url;
+                    return (
+                      <button
+                        key={item.path}
+                        type="button"
+                        onClick={() => {
+                          setCoverImage(item.path);
+                          setShowCoverLibrary(false);
+                        }}
+                        className={`relative aspect-[4/3] rounded-md overflow-hidden border-2 transition cursor-pointer ${
+                          selected
+                            ? "border-indigo-500 ring-2 ring-indigo-500/30"
+                            : "border-transparent hover:border-slate-300 dark:hover:border-slate-600"
+                        }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={mediaSrc(item.url || item.path)}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* 4. File Attachment */}
+      <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-xs overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shadow-xs">
+              04
+            </span>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              {locale === "lo"
+                ? "ໄຟລ໌ດາວໂຫຼດ (File Attachment)"
+                : "Attached File"}
+            </h2>
+          </div>
+          <span className="text-[11px] text-slate-400 shrink-0">
+            {locale === "lo" ? "PDF, Word, Excel" : "Upload or reuse a file"}
+          </span>
+        </div>
+
+        <div className="p-5 sm:p-6 space-y-4">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.rtf,.odt,application/pdf"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0] || null;
+              e.target.value = "";
+              void onDocDevice(f);
+            }}
+          />
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={uploadingFile}
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition cursor-pointer disabled:opacity-60"
+            >
+              {uploadingFile
+                ? t(locale, "loading")
+                : locale === "lo"
+                  ? "Upload from device"
+                  : "Upload from device"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDocLibrary((v) => !v);
+                setShowCoverLibrary(false);
+              }}
+              className="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer shadow-xs"
+            >
+              {locale === "lo"
+                ? "Choose from uploaded files"
+                : "Choose from uploaded files"}
+            </button>
+            {fileName ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setFileName("");
+                  setFileLabel("");
+                  setFileMime("application/pdf");
+                  setFileSize(0);
+                }}
+                className="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
+              >
+                {locale === "lo" ? "Clear file" : "Clear file"}
+              </button>
+            ) : null}
+          </div>
+
+          {showDocLibrary ? (
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2 max-h-56 overflow-y-auto">
+              <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                {locale === "lo"
+                  ? "Previously uploaded files"
+                  : "Previously uploaded files"}
+              </div>
+              {docLibrary.length === 0 ? (
+                <p className="text-[11px] text-slate-400">
+                  {locale === "lo"
+                    ? "No uploads yet — upload from device first"
+                    : "No uploads yet — upload from device first"}
+                </p>
+              ) : (
+                <ul className="space-y-1">
+                  {docLibrary.map((item) => {
+                    const selected = fileName === item.path;
+                    return (
+                      <li key={item.path}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFileName(item.path);
+                            setFileMime(item.mime || "application/pdf");
+                            setFileSize(Number(item.size_bytes || 0));
+                            if (!fileLabel) {
+                              setFileLabel(item.file_name || item.path);
+                            }
+                            setShowDocLibrary(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 rounded-md text-xs transition cursor-pointer ${
+                            selected
+                              ? "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300"
+                              : "hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300"
+                          }`}
+                        >
+                          <span className="font-medium block truncate">
+                            {item.file_name || item.path}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {item.mime || "file"}
+                            {item.size_bytes
+                              ? ` · ${(Number(item.size_bytes) / 1024).toFixed(0)} KB`
+                              : ""}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          ) : null}
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {/* File Label */}
             <div className="sm:col-span-1">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 {locale === "lo" ? "ຊື່ສະແດງຂອງໄຟລ໌" : "File Label"}
               </label>
               <input
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition shadow-xs"
-                name="file_label"
+                value={fileLabel}
+                onChange={(e) => setFileLabel(e.target.value)}
                 placeholder={
                   locale === "lo"
-                    ? "ດາວໂຫຼດເອກະສານ PDF"
+                    ? "Download PDF Document"
                     : "Download PDF Document"
                 }
-                defaultValue={file0?.label || ""}
               />
             </div>
 
-            {/* File Name */}
             <div className="sm:col-span-1">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {locale === "lo" ? "ຊື່ໄຟລ໌ ຫຼື Path" : "File Name / Key"}
+                {locale === "lo" ? "ຊື່ໄຟລ໌ ຫຼື Path" : "File Name / Path"}
               </label>
               <input
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition shadow-xs"
-                name="file_name"
-                placeholder="document-2024.pdf"
-                defaultValue={file0?.file_name || ""}
+                value={fileName}
+                onChange={(e) => setFileName(e.target.value)}
+                placeholder="documents/file.pdf"
               />
             </div>
 
-            {/* Download Access */}
             <div className="sm:col-span-1">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 {locale === "lo" ? "ສິດດາວໂຫຼດໄຟລ໌" : "Download Access"}
               </label>
               <select
-                name="download_access"
-                defaultValue={file0?.download_access || "member"}
+                value={downloadAccess}
+                onChange={(e) => setDownloadAccess(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition shadow-xs cursor-pointer"
               >
-                <option value="member">
-                  👤 Member ({locale === "lo" ? "ສະມາຊິກດາວໂຫຼດໄດ້" : "Member"})
-                </option>
-                <option value="vip">
-                  👑 VIP ({locale === "lo" ? "ສະເພາະ VIP" : "VIP only"})
-                </option>
+                <option value="member">Member</option>
+                <option value="vip">VIP only</option>
               </select>
             </div>
 
-            {/* File MIME */}
             <div className="sm:col-span-1">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 MIME Type
               </label>
               <input
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition shadow-xs"
-                name="file_mime"
+                value={fileMime}
+                onChange={(e) => setFileMime(e.target.value)}
                 placeholder="application/pdf"
-                defaultValue={file0?.mime || "application/pdf"}
               />
             </div>
 
-            {/* File Size */}
             <div className="sm:col-span-1">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 {locale === "lo" ? "ຂະໜາດ (Bytes)" : "Size in Bytes"}
               </label>
               <input
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition shadow-xs"
-                name="file_size"
                 type="number"
+                value={fileSize}
+                onChange={(e) => setFileSize(Number(e.target.value || 0))}
                 placeholder="0"
-                defaultValue={file0?.size_bytes || 0}
               />
             </div>
 
-            {/* Version */}
             <div className="sm:col-span-1">
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 {locale === "lo" ? "ເວີຊັນ" : "Version"}
               </label>
               <input
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition shadow-xs"
-                name="file_version"
+                value={fileVersion}
+                onChange={(e) => setFileVersion(e.target.value)}
                 placeholder="1.0"
-                defaultValue={file0?.version || "1.0"}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* 4. Action Buttons Toolbar */}
+      {/* 5. Action Buttons Toolbar */}
       <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-xs p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="text-[11px] text-slate-400">
           {locale === "lo"

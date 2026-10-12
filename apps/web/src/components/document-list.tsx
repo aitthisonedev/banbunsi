@@ -25,6 +25,15 @@ const COVER_FALLBACKS = [
 ];
 
 function coverFor(doc: DocumentListItem, index: number) {
+  if (doc.cover_image) {
+    const cover = doc.cover_image;
+    if (cover.startsWith("http")) return cover;
+    if (cover.startsWith("/brand") || cover.startsWith("/images")) return cover;
+    const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+    if (cover.startsWith("/uploads/")) return `${api}${cover}`;
+    if (cover.startsWith("uploads/")) return `${api}/${cover}`;
+    return `${api}/uploads/${cover.replace(/^\//, "")}`;
+  }
   const slug = (doc.category_slug || "").toLowerCase();
   const name = (doc.category_name || "").toLowerCase();
   for (const [code, src] of Object.entries(COVER_BY_CATEGORY)) {

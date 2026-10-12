@@ -2,6 +2,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/reveal";
+import { DocumentFileDownload } from "@/components/document-file-download";
 import { getDocument } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/sanitize-html";
@@ -55,27 +56,6 @@ function FileTextIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function DownloadIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line x1="12" x2="12" y1="15" y2="3" />
-    </svg>
-  );
-}
-
 export default async function DocumentDetailPage({
   params,
 }: {
@@ -96,6 +76,7 @@ export default async function DocumentDetailPage({
 
   const next = encodeURIComponent(`/${raw}/documents/${doc.slug}`);
   const loginHref = `/${raw}/auth/login?next=${next}`;
+  const vipHref = `/${raw}/vip`;
   const safeBody = doc.body_html ? sanitizeHtml(doc.body_html) : "";
   const categoryHref = doc.category_slug
     ? `/${raw}/categories/${doc.category_slug}`
@@ -220,10 +201,14 @@ export default async function DocumentDetailPage({
                     </div>
                   </div>
 
-                  <Link href={loginHref} className="doc-file-btn">
-                    <DownloadIcon />
-                    <span>{t(raw, "downloadLogin")}</span>
-                  </Link>
+                  <DocumentFileDownload
+                    locale={raw}
+                    slug={doc.slug}
+                    file={file}
+                    loginHref={loginHref}
+                    vipHref={vipHref}
+                    initialCanDownload={Boolean(file.can_download)}
+                  />
                 </li>
               ))}
             </ul>

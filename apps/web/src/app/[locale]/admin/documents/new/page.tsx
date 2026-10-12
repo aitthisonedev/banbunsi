@@ -42,7 +42,7 @@ export default function AdminNewDocumentPage() {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* 1. Header with Breadcrumb & Back button */}
       <div>
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
