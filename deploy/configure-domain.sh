@@ -2,7 +2,7 @@
 # Run as root after bootstrap-vps.sh. --prepare configures HTTP before DNS is ready.
 set -euo pipefail
 [[ "$(id -u)" == 0 ]] || { echo 'Run as root'; exit 1; }
-domain=${1:-banbunsi.aitthisone.com}
+domain=${1:-banbunsi.com}
 expected_ip=${2:-129.121.128.135}
 mode=${3:-activate}
 [[ "$domain" =~ ^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$ ]] || exit 1

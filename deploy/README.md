@@ -1,6 +1,6 @@
 # VPS deployment
 
-Production URL: **https://banbunsi.aitthisone.com/lo** (English: `/en`).
+Production URL: **https://banbunsi.com/lo** (English: `/en`).
 
 `.github/workflows/deploy.yml` runs on pushes and pull requests to `main` and
 `prod`, plus manual dispatch.
@@ -147,7 +147,7 @@ domain and the same-origin API.
 After the first VPS bootstrap, run as root from this repository's `deploy` directory:
 
 ```bash
-bash configure-domain.sh banbunsi.aitthisone.com 129.121.128.135
+bash configure-domain.sh banbunsi.com 129.121.128.135
 ```
 
 The script prepares the HTTP virtual host, checks DNS, issues a Let's Encrypt
@@ -162,7 +162,7 @@ The existing `certbot.timer` renews the certificate; a dedicated deploy hook
 validates and reloads Nginx after this domain's certificate renews. Verify renewal:
 
 ```bash
-certbot renew --cert-name banbunsi.aitthisone.com --dry-run --run-deploy-hooks
+certbot renew --cert-name banbunsi.com --dry-run --run-deploy-hooks
 ```
 
 Email delivery needs a trusted SMTP relay configured with `SMTP_HOST`, `SMTP_PORT`,
