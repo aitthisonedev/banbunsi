@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CategoryNode, Locale } from "@/lib/api";
 import { demoCategories } from "@/lib/demo-categories";
 import { t } from "@/lib/i18n";
+import "./category-cards.css";
 
 const COVER_LIST = [
   "/brand/categories/cat-accounting.jpg",
@@ -48,14 +49,14 @@ export function CategoryCards({
   if (!items.length) return null;
 
   return (
-    <ul className="category-card-grid">
+    <ul className="category-card-grid bb-stagger-root">
       {items.map((cat, index) => {
         const title = titleFor(locale, cat);
         const cover = coverFor(cat.code, index);
         const count = counts?.[cat.slug] ?? counts?.[cat.code];
 
         return (
-          <li key={cat.id || `${cat.code}-${index}`}>
+          <li key={cat.id || `${cat.code}-${index}`} className="bb-stagger-item">
             <Link
               href={`/${locale}/categories/${cat.slug}`}
               className="category-card category-card--image"
@@ -73,13 +74,17 @@ export function CategoryCards({
                 <span className="category-card-title-on-image">{title}</span>
               </span>
               <span className="category-card-body">
-                {cat.description ? (
-                  <span className="category-card-desc">{cat.description}</span>
-                ) : null}
-                <span className="category-card-meta">
-                  {typeof count === "number"
-                    ? `${count} ${t(locale, "documents")}`
-                    : t(locale, "browseCategory")}
+                <span className="category-card-desc-slot">
+                  <span className="category-card-desc">
+                    {cat.description || "\u00a0"}
+                  </span>
+                </span>
+                <span className="category-card-footer">
+                  <span className="category-card-footer-label">
+                    {typeof count === "number"
+                      ? `${count} ${t(locale, "documents")}`
+                      : t(locale, "browseCategory")}
+                  </span>
                   <span className="category-card-arrow" aria-hidden>
                     →
                   </span>

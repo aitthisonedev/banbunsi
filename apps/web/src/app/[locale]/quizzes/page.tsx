@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Reveal } from "@/components/reveal";
 import { getQuizzes } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import { listQuizzes, type QuizDifficulty } from "@/lib/quizzes";
@@ -72,9 +73,10 @@ export default async function QuizzesPage({
         {quizzes.length === 0 ? (
           <p className="page-listing-meta">{t(raw, "noQuizzes")}</p>
         ) : (
-          <ul className="quiz-card-grid">
+          <Reveal stagger>
+          <ul className="quiz-card-grid bb-stagger-root">
             {quizzes.map((quiz, index) => (
-              <li key={quiz.slug}>
+              <li key={quiz.slug} className="bb-stagger-item">
                 <Link
                   href={`/${raw}/quizzes/${quiz.slug}`}
                   className="category-card category-card--image"
@@ -114,6 +116,7 @@ export default async function QuizzesPage({
               </li>
             ))}
           </ul>
+          </Reveal>
         )}
       </div>
     </div>

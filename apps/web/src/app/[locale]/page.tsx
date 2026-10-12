@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategoryCards } from "@/components/category-cards";
 import { DocumentList } from "@/components/document-list";
+import { Reveal } from "@/components/reveal";
 import { getCategories, getDocuments } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
@@ -229,9 +230,9 @@ export default async function HomePage({
         </section>
       </div>
 
-      <section className="band-after-hero home-section">
+      <Reveal as="section" className="band-after-hero home-section" stagger>
         <div className="home-section-inner">
-          <div className="home-section-head">
+          <div className="home-section-head bb-stagger-item">
             <div className="home-section-head-title">
               <span className="home-section-dot" aria-hidden="true" />
               <h2 className="section-title">{t(raw, "latestDocuments")}</h2>
@@ -248,11 +249,16 @@ export default async function HomePage({
             variant="cards"
           />
         </div>
-      </section>
+      </Reveal>
 
-      <section className="band-plain home-section home-section--categories">
+      <Reveal
+        as="section"
+        className="band-plain home-section home-section--categories"
+        stagger
+        delay={40}
+      >
         <div className="home-section-inner">
-          <div className="home-section-head">
+          <div className="home-section-head bb-stagger-item">
             <div className="home-section-head-title">
               <span className="home-section-dot" aria-hidden="true" />
               <h2 className="section-title">{t(raw, "categories")}</h2>
@@ -264,9 +270,9 @@ export default async function HomePage({
           </div>
           <CategoryCards locale={raw} items={preview} counts={counts} />
         </div>
-      </section>
+      </Reveal>
 
-      <section className="home-promo">
+      <Reveal as="section" className="home-promo" delay={60}>
         <div className="home-promo-inner">
           <div className="home-promo-copy">
             <div className="home-promo-badge">
@@ -285,7 +291,7 @@ export default async function HomePage({
             </Link>
           </div>
         </div>
-      </section>
+      </Reveal>
     </div>
   );
 }

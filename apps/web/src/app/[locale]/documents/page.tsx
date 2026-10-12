@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DocumentList } from "@/components/document-list";
+import { Reveal } from "@/components/reveal";
 import { EmptyState, ErrorState, Pagination, Select } from "@/components/ui";
 import { getCategories, getDocuments } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
@@ -134,12 +135,14 @@ export default async function DocumentsPage({
           ) : docsResult.data.items.length === 0 ? (
             <EmptyState title={t(raw, "noDocuments")} />
           ) : (
-            <DocumentList
-              locale={raw}
-              items={docsResult.data.items}
-              emptyText={t(raw, "noDocuments")}
-              variant="cards"
-            />
+            <Reveal stagger>
+              <DocumentList
+                locale={raw}
+                items={docsResult.data.items}
+                emptyText={t(raw, "noDocuments")}
+                variant="cards"
+              />
+            </Reveal>
           )}
         </div>
 

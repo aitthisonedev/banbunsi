@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans, Noto_Sans_Lao } from "next/font/google";
 import { ThemeScript } from "@/components/theme-script";
 import "./globals.css";
+import "./motion.css";
 
 const noto = Noto_Sans({
   subsets: ["latin"],

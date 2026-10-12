@@ -63,9 +63,9 @@ export function DocumentList({
 
   if (variant === "list") {
     return (
-      <ul className="doc-list">
+      <ul className="doc-list bb-stagger-root">
         {items.map((doc, index) => (
-          <li key={doc.id}>
+          <li key={doc.id} className="bb-stagger-item">
             <Link href={`/${locale}/documents/${doc.slug}`} className="doc-card">
               <span className="doc-card-thumb" aria-hidden>
                 <Image
@@ -97,9 +97,9 @@ export function DocumentList({
   }
 
   return (
-    <ul className="doc-card-grid">
+    <ul className="doc-card-grid bb-stagger-root">
       {items.map((doc, index) => (
-        <li key={doc.id}>
+        <li key={doc.id} className="bb-stagger-item">
           <Link
             href={`/${locale}/documents/${doc.slug}`}
             className="doc-card doc-card--tile"
@@ -114,21 +114,21 @@ export function DocumentList({
                 className="doc-card-media-img"
               />
               <span className="doc-card-media-shade" aria-hidden />
-              <span className="doc-card-media-badge">
-                <span className={`doc-badge doc-badge--${doc.read_access}`}>
-                  {accessLabel(locale, doc.read_access)}
-                </span>
-              </span>
             </span>
 
             <span className="doc-card-body">
               <span className="doc-card-meta">
-                {doc.category_name ? (
-                  <span className="doc-card-cat">{doc.category_name}</span>
-                ) : null}
-                {doc.year ? (
-                  <span className="doc-card-year">· {doc.year}</span>
-                ) : null}
+                <span className="doc-card-meta-main">
+                  {doc.category_name ? (
+                    <span className="doc-card-cat">{doc.category_name}</span>
+                  ) : null}
+                  {doc.year ? (
+                    <span className="doc-card-year">· {doc.year}</span>
+                  ) : null}
+                </span>
+                <span className={`doc-card-access doc-card-access--${doc.read_access}`}>
+                  {accessLabel(locale, doc.read_access)}
+                </span>
               </span>
 
               <h3 className="doc-card-title">{doc.title}</h3>
