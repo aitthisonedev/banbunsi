@@ -61,8 +61,11 @@ export default function AdminEditDocumentPage() {
     download_access: string;
   }>;
 
-  const currentTr = translations.find((x) => x.locale === locale) || translations[0];
-  const docTitle = currentTr?.title || String(initial.document_number || t(locale, "editDocument"));
+  const currentTr =
+    translations.find((x) => x.locale === locale) || translations[0];
+  const docTitle =
+    currentTr?.title ||
+    String(initial.document_number || t(locale, "editDocument"));
   const docSlug = currentTr?.slug;
   const isPublished = initial.status === "published";
   const readAccess = String(initial.read_access || "public");
@@ -144,9 +147,7 @@ export default function AdminEditDocumentPage() {
                     #{String(initial.document_number)}
                   </span>
                   <span className="text-slate-300 dark:text-slate-700">•</span>
-                  <span className="text-xs text-slate-400">
-                    ID: {id}
-                  </span>
+                  <span className="text-xs text-slate-400">ID: {id}</span>
                 </div>
               ) : null}
             </div>
@@ -159,7 +160,12 @@ export default function AdminEditDocumentPage() {
                 target="_blank"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition shadow-xs cursor-pointer"
               >
-                <svg viewBox="0 0 20 20" width="13" height="13" fill="currentColor">
+                <svg
+                  viewBox="0 0 20 20"
+                  width="13"
+                  height="13"
+                  fill="currentColor"
+                >
                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                   <path
                     fillRule="evenodd"
@@ -167,7 +173,9 @@ export default function AdminEditDocumentPage() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span>{locale === "lo" ? "ເບິ່ງໜ້າສາທາລະນະ" : "View Public"}</span>
+                <span>
+                  {locale === "lo" ? "ເບິ່ງໜ້າສາທາລະນະ" : "View Public"}
+                </span>
               </Link>
             )}
 
