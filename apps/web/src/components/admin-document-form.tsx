@@ -717,9 +717,7 @@ export function AdminDocumentForm({
               </div>
               {coverLibrary.length === 0 ? (
                 <p className="text-[11px] text-slate-400">
-                  {locale === "lo"
-                    ? "No images yet"
-                    : "No images yet"}
+                  {locale === "lo" ? "No images yet" : "No images yet"}
                 </p>
               ) : (
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">

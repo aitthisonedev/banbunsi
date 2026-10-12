@@ -189,7 +189,10 @@ export type AdminLibraryItem = {
   size_bytes?: number;
 };
 
-export async function clientAdminUpload(kind: "cover" | "document", file: File) {
+export async function clientAdminUpload(
+  kind: "cover" | "document",
+  file: File,
+) {
   const form = new FormData();
   form.append("kind", kind);
   form.append("file", file);
@@ -215,7 +218,11 @@ export function clientAdminLibrary(kind: "cover" | "document") {
 
 export function mediaSrc(pathOrUrl: string | undefined | null) {
   if (!pathOrUrl) return "";
-  if (pathOrUrl.startsWith("http") || pathOrUrl.startsWith("/brand") || pathOrUrl.startsWith("/images")) {
+  if (
+    pathOrUrl.startsWith("http") ||
+    pathOrUrl.startsWith("/brand") ||
+    pathOrUrl.startsWith("/images")
+  ) {
     return pathOrUrl;
   }
   if (pathOrUrl.startsWith("/uploads/")) return `${API_URL}${pathOrUrl}`;

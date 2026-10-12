@@ -144,9 +144,9 @@ func (h *AdminUploadHandler) ListLibrary(c *fiber.Ctx) error {
 		}
 		for _, p := range brand {
 			items = append(items, fiber.Map{
-				"path": p,
-				"url":  p,
-				"kind": "cover",
+				"path":   p,
+				"url":    p,
+				"kind":   "cover",
 				"source": "brand",
 			})
 		}

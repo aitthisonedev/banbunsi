@@ -33,7 +33,11 @@ function DownloadIcon(props: React.SVGProps<SVGSVGElement>) {
 
 function canDownloadClient(
   access: DocumentFileMeta["download_access"],
-  user: { staff_role: string; membership_tier: string; account_status: string } | null,
+  user: {
+    staff_role: string;
+    membership_tier: string;
+    account_status: string;
+  } | null,
 ) {
   if (!user || user.account_status !== "active") return false;
   if (["editor", "admin", "owner"].includes(user.staff_role)) return true;
@@ -57,8 +61,12 @@ export function DocumentFileDownload({
   vipHref: string;
   initialCanDownload?: boolean;
 }) {
-  const [canDL, setCanDL] = useState(Boolean(file.can_download || initialCanDownload));
-  const [authed, setAuthed] = useState(Boolean(file.can_download || initialCanDownload));
+  const [canDL, setCanDL] = useState(
+    Boolean(file.can_download || initialCanDownload),
+  );
+  const [authed, setAuthed] = useState(
+    Boolean(file.can_download || initialCanDownload),
+  );
 
   useEffect(() => {
     let cancelled = false;
