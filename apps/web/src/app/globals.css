@@ -1582,7 +1582,7 @@ html.dark .doc-badge--vip {
   padding: 2rem 0 3.5rem;
 }
 .doc-detail-shell {
-  width: min(56rem, calc(100% - 2 * var(--bb-content-gutter)));
+  width: var(--bb-content-width);
   margin: 0 auto;
 }
 .doc-breadcrumbs {

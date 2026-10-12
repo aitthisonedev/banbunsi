@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QuizPlayer } from "@/components/quiz-player";
+import { Reveal } from "@/components/reveal";
 import { getQuiz as getQuizApi } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import {
@@ -44,32 +45,68 @@ export default async function QuizDetailPage({
       };
 
   return (
-    <div className="page-listing page-quiz-detail">
-      <div className="page-listing-inner page-quiz-detail-inner">
-        <div className="page-listing-head">
-          <div>
-            <p className="quiz-detail-cat">{quiz.category}</p>
-            <h1 className="page-listing-title">{quiz.title}</h1>
-          </div>
-          <Link href={`/${raw}/quizzes`} className="section-link">
-            {t(raw, "backToQuizzes")}
+    <div className="detail-page">
+      <div className="detail-shell detail-shell--quiz">
+        <nav className="detail-breadcrumbs" aria-label="Breadcrumb">
+          <Link href={`/${raw}`} className="detail-breadcrumb-link">
+            {t(raw, "home")}
           </Link>
-        </div>
-        {quiz.description ? (
-          <p className="quiz-detail-lead">{quiz.description}</p>
-        ) : null}
-        <p className="quiz-detail-meta">
-          <span>
-            {quiz.questions.length} {t(raw, "questions")}
+          <span className="detail-breadcrumb-sep" aria-hidden>
+            /
           </span>
-          <span>
-            {t(raw, "difficulty")}: {t(raw, quiz.difficulty)}
-          </span>
-          <span>
-            {t(raw, "passScore")} {quiz.passPercent}%
-          </span>
-        </p>
-        <QuizPlayer locale={raw} quiz={quiz} />
+          <Link href={`/${raw}/quizzes`} className="detail-breadcrumb-link">
+            {t(raw, "quizzes")}
+          </Link>
+          {quiz.category ? (
+            <>
+              <span className="detail-breadcrumb-sep" aria-hidden>
+                /
+              </span>
+              <span className="detail-breadcrumb-current">{quiz.category}</span>
+            </>
+          ) : null}
+        </nav>
+
+        <Reveal as="section" className="detail-hero">
+          <div className="detail-hero-meta">
+            <div className="detail-hero-meta-main">
+              {quiz.category ? (
+                <span className="detail-hero-cat">{quiz.category}</span>
+              ) : null}
+              <span className="detail-hero-year">
+                · {quiz.questions.length} {t(raw, "questions")}
+              </span>
+            </div>
+            <Link href={`/${raw}/quizzes`} className="detail-back-link">
+              {t(raw, "backToQuizzes")} →
+            </Link>
+          </div>
+
+          <h1 className="detail-hero-title">{quiz.title}</h1>
+
+          {quiz.description ? (
+            <p className="detail-hero-lead">{quiz.description}</p>
+          ) : null}
+
+          <div className="detail-stat-row">
+            <span className="detail-stat">
+              <strong>{quiz.questions.length}</strong>
+              <span>{t(raw, "questions")}</span>
+            </span>
+            <span className="detail-stat">
+              <strong>{t(raw, quiz.difficulty)}</strong>
+              <span>{t(raw, "difficulty")}</span>
+            </span>
+            <span className="detail-stat">
+              <strong>{quiz.passPercent}%</strong>
+              <span>{t(raw, "passScore")}</span>
+            </span>
+          </div>
+        </Reveal>
+
+        <Reveal as="section" className="detail-panel detail-panel--quiz" delay={50}>
+          <QuizPlayer locale={raw} quiz={quiz} />
+        </Reveal>
       </div>
     </div>
   );
