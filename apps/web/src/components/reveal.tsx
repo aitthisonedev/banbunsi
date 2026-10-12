@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type ReactNode,
 } from "react";
@@ -18,6 +19,28 @@ type RevealProps = {
   stagger?: boolean;
 };
 
+function subscribeReducedMotion(onChange: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
+}
+
 export function Reveal({
   children,
   className = "",
@@ -25,22 +48,21 @@ export function Reveal({
   as = "div",
   stagger = false,
 }: RevealProps) {
-  const ref = useRef<HTMLDivElement | HTMLElement | null>(null);
-  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
+  const visible = reduceMotion || inView;
 
   useEffect(() => {
+    if (reduceMotion) return;
+
     const el = ref.current;
     if (!el) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(true);
-      return;
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;
-        setVisible(true);
+        setInView(true);
         observer.disconnect();
       },
       { threshold: 0.14, rootMargin: "0px 0px -6% 0px" },
@@ -48,7 +70,7 @@ export function Reveal({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [reduceMotion]);
 
   const style = {
     "--bb-reveal-delay": `${delay}ms`,
@@ -63,17 +85,11 @@ export function Reveal({
     .filter(Boolean)
     .join(" ");
 
-  if (as === "section") {
-    return (
-      <section ref={ref} className={mergedClassName} style={style}>
-        {children}
-      </section>
-    );
-  }
+  const Tag = as === "section" ? "section" : "div";
 
   return (
-    <div ref={ref} className={mergedClassName} style={style}>
+    <Tag ref={ref} className={mergedClassName} style={style}>
       {children}
-    </div>
+    </Tag>
   );
 }
