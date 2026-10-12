@@ -26,7 +26,14 @@ function memberInitials(name: string, email: string): string {
 }
 
 function getAvatarBgColor(name: string): string {
-  const colors = ["#6366f1", "#06b6d4", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981"];
+  const colors = [
+    "#6366f1",
+    "#06b6d4",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#10b981",
+  ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
   return colors[hash % colors.length];
@@ -128,7 +135,14 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-2.5">
           {/* Time range dropdown pill */}
           <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#152038] px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300 shadow-xs">
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              viewBox="0 0 20 20"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <rect x="3" y="4" width="14" height="13" rx="2" />
               <line x1="16" y1="2" x2="16" y2="6" strokeLinecap="round" />
               <line x1="8" y1="2" x2="8" y2="6" strokeLinecap="round" />
@@ -154,7 +168,12 @@ export default function AdminDashboardPage() {
               className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 text-xs font-semibold shadow-xs transition cursor-pointer"
               onClick={() => setModalOpen(true)}
             >
-              <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+              <svg
+                viewBox="0 0 20 20"
+                width="16"
+                height="16"
+                fill="currentColor"
+              >
                 <path
                   fillRule="evenodd"
                   d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
@@ -170,7 +189,13 @@ export default function AdminDashboardPage() {
       {/* Notifications */}
       {successMsg ? (
         <div className="flex items-center gap-2.5 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" className="shrink-0">
+          <svg
+            viewBox="0 0 20 20"
+            width="16"
+            height="16"
+            fill="currentColor"
+            className="shrink-0"
+          >
             <path
               fillRule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -190,7 +215,13 @@ export default function AdminDashboardPage() {
 
       {error ? (
         <div className="flex items-center gap-2.5 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-300 text-xs font-medium">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" className="shrink-0">
+          <svg
+            viewBox="0 0 20 20"
+            width="16"
+            height="16"
+            fill="currentColor"
+            className="shrink-0"
+          >
             <path
               fillRule="evenodd"
               d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -236,7 +267,9 @@ export default function AdminDashboardPage() {
           </div>
           <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
             <span>↑ 4.63%</span>
-            <span className="text-slate-400 dark:text-slate-500 font-normal">vs last week</span>
+            <span className="text-slate-400 dark:text-slate-500 font-normal">
+              vs last week
+            </span>
           </div>
         </div>
 
@@ -266,7 +299,9 @@ export default function AdminDashboardPage() {
           </div>
           <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
             <span>↑ 2.34%</span>
-            <span className="text-slate-400 dark:text-slate-500 font-normal">vs last week</span>
+            <span className="text-slate-400 dark:text-slate-500 font-normal">
+              vs last week
+            </span>
           </div>
         </div>
 
@@ -296,7 +331,9 @@ export default function AdminDashboardPage() {
           </div>
           <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
             <span>↑ 4.63%</span>
-            <span className="text-slate-400 dark:text-slate-500 font-normal">vs last week</span>
+            <span className="text-slate-400 dark:text-slate-500 font-normal">
+              vs last week
+            </span>
           </div>
         </div>
 
@@ -326,7 +363,9 @@ export default function AdminDashboardPage() {
           </div>
           <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
             <span>↑ 1.85%</span>
-            <span className="text-slate-400 dark:text-slate-500 font-normal">vs last week</span>
+            <span className="text-slate-400 dark:text-slate-500 font-normal">
+              vs last week
+            </span>
           </div>
         </div>
       </div>
@@ -369,16 +408,55 @@ export default function AdminDashboardPage() {
                 </defs>
 
                 {/* Grid guidelines */}
-                <line x1="30" y1="30" x2="520" y2="30" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeDasharray="3 3" />
-                <line x1="30" y1="75" x2="520" y2="75" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeDasharray="3 3" />
-                <line x1="30" y1="120" x2="520" y2="120" stroke="currentColor" className="text-slate-200 dark:text-slate-800" strokeDasharray="3 3" />
-                <line x1="30" y1="165" x2="520" y2="165" stroke="currentColor" className="text-slate-200 dark:text-slate-800" />
+                <line
+                  x1="30"
+                  y1="30"
+                  x2="520"
+                  y2="30"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                  strokeDasharray="3 3"
+                />
+                <line
+                  x1="30"
+                  y1="75"
+                  x2="520"
+                  y2="75"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                  strokeDasharray="3 3"
+                />
+                <line
+                  x1="30"
+                  y1="120"
+                  x2="520"
+                  y2="120"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                  strokeDasharray="3 3"
+                />
+                <line
+                  x1="30"
+                  y1="165"
+                  x2="520"
+                  y2="165"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                />
 
                 {/* Y-Axis labels */}
-                <text x="12" y="34" className="text-[10px] fill-slate-400">120</text>
-                <text x="12" y="79" className="text-[10px] fill-slate-400">80</text>
-                <text x="12" y="124" className="text-[10px] fill-slate-400">40</text>
-                <text x="16" y="169" className="text-[10px] fill-slate-400">0</text>
+                <text x="12" y="34" className="text-[10px] fill-slate-400">
+                  120
+                </text>
+                <text x="12" y="79" className="text-[10px] fill-slate-400">
+                  80
+                </text>
+                <text x="12" y="124" className="text-[10px] fill-slate-400">
+                  40
+                </text>
+                <text x="16" y="169" className="text-[10px] fill-slate-400">
+                  0
+                </text>
 
                 {/* Area Gradient Blue */}
                 <path
@@ -622,19 +700,22 @@ export default function AdminDashboardPage() {
                     const isSelf = row.id === currentUser.id;
                     const isRowOwner = row.staff_role === "owner";
                     const canModify =
-                      isAdminPlus &&
-                      !isSelf &&
-                      (!isRowOwner || isOwner);
+                      isAdminPlus && !isSelf && (!isRowOwner || isOwner);
 
                     return (
-                      <tr key={row.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition">
+                      <tr
+                        key={row.id}
+                        className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition"
+                      >
                         {/* Member Identity */}
                         <td className="px-4 sm:px-5 py-3">
                           <div className="flex items-center gap-2.5">
                             <span
                               className="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden shadow-xs"
                               style={{
-                                background: photo ? "transparent" : getAvatarBgColor(row.name || row.email),
+                                background: photo
+                                  ? "transparent"
+                                  : getAvatarBgColor(row.name || row.email),
                               }}
                             >
                               {photo ? (
@@ -647,7 +728,9 @@ export default function AdminDashboardPage() {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <span>{memberInitials(row.name, row.email)}</span>
+                                <span>
+                                  {memberInitials(row.name, row.email)}
+                                </span>
                               )}
                             </span>
                             <div className="flex flex-col min-w-0">
@@ -703,12 +786,20 @@ export default function AdminDashboardPage() {
                               }
                               aria-label={t(locale, "backendPermission")}
                             >
-                              <option value="editor">{t(locale, "roleEditor")}</option>
-                              <option value="admin">{t(locale, "roleAdmin")}</option>
+                              <option value="editor">
+                                {t(locale, "roleEditor")}
+                              </option>
+                              <option value="admin">
+                                {t(locale, "roleAdmin")}
+                              </option>
                               {isOwner ? (
-                                <option value="owner">{t(locale, "roleOwner")}</option>
+                                <option value="owner">
+                                  {t(locale, "roleOwner")}
+                                </option>
                               ) : null}
-                              <option value="member">✕ {t(locale, "revokePermission")}</option>
+                              <option value="member">
+                                ✕ {t(locale, "revokePermission")}
+                              </option>
                             </select>
                           ) : (
                             <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">
@@ -749,7 +840,9 @@ export default function AdminDashboardPage() {
                   {locale === "lo" ? "ພາສີ - ອາກອນ" : "Tax & Duties"}
                 </strong>
                 <span className="text-[11px] text-slate-400 truncate">
-                  {locale === "lo" ? "ແບບຟອມ & ລະບຽບການ" : "Forms & Regulations"}
+                  {locale === "lo"
+                    ? "ແບບຟອມ & ລະບຽບການ"
+                    : "Forms & Regulations"}
                 </span>
               </div>
               <div className="text-right shrink-0">
@@ -818,7 +911,9 @@ export default function AdminDashboardPage() {
                   {locale === "lo" ? "ການເງິນ" : "Finance"}
                 </strong>
                 <span className="text-[11px] text-slate-400 truncate">
-                  {locale === "lo" ? "ບົດລາຍງານການເງິນ" : "Financial Statements"}
+                  {locale === "lo"
+                    ? "ບົດລາຍງານການເງິນ"
+                    : "Financial Statements"}
                 </span>
               </div>
               <div className="text-right shrink-0">

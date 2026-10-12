@@ -5,12 +5,12 @@ Production URL: **https://banbunsi.com/lo** (English: `/en`).
 `.github/workflows/deploy.yml` runs on pushes and pull requests to `main` and
 `prod`, plus manual dispatch.
 
-| Branch/event | Behavior |
-| --- | --- |
-| Push to `main` | Auto-commit formatting changes, test/vet API, lint/build frontend; no deployment |
-| Push to `prod` | Test/vet API, lint/build frontend, deploy that exact commit to the VPS |
-| Pull request to either branch | Run checks only; no formatting commits or deployment |
-| Manual dispatch | Run CI on `main`; check and deploy on `prod` |
+| Branch/event                  | Behavior                                                                         |
+| ----------------------------- | -------------------------------------------------------------------------------- |
+| Push to `main`                | Auto-commit formatting changes, test/vet API, lint/build frontend; no deployment |
+| Push to `prod`                | Test/vet API, lint/build frontend, deploy that exact commit to the VPS           |
+| Pull request to either branch | Run checks only; no formatting commits or deployment                             |
+| Manual dispatch               | Run CI on `main`; check and deploy on `prod`                                     |
 
 On `main`, changed Go files are formatted with `gofmt` and changed frontend files
 with the pinned Prettier version, then committed as `github-actions[bot]`.
@@ -60,9 +60,9 @@ The bootstrap supports standard Ubuntu and this VPS's aaPanel Nginx directories.
 
 3. Set GitHub Actions repository secrets with `gh secret set`:
 
-   | Secret | Value |
-   | --- | --- |
-   | `VPS_SSH_KEY` | Dedicated deployment private key |
+   | Secret            | Value                                     |
+   | ----------------- | ----------------------------------------- |
+   | `VPS_SSH_KEY`     | Dedicated deployment private key          |
    | `VPS_KNOWN_HOSTS` | Verified SSH host-key entries for the VPS |
 
    ```bash
@@ -88,8 +88,23 @@ git merge --ff-only origin/main
 git push origin prod
 ```
 
-You can also merge a reviewed pull request from `main` into `prod` on GitHub.
-An open pull request runs checks; merging it triggers the production deployment.
+Make all application and deployment changes on `main`, then promote the checked
+commit to `prod` with `--ff-only`. Do not rebase commits already shared with
+`prod`: rebasing gives them new IDs, which can cause conflicts when the same
+changes meet again. Fetch the formatting bot's commit before promoting.
+
+If `--ff-only` refuses because `prod` contains its own commits, first merge
+`origin/prod` into `main`, resolve and test the changes, and push `main`. After its
+CI run passes, repeat the promotion commands above. This brings production fixes
+back into development and keeps subsequent promotions as fast-forward updates.
+Squash merges and separate merge commits on `prod` require the same synchronization.
+
+For this local checkout, prevent an ordinary merge into `prod` from starting a
+conflicting merge when the branches diverge:
+
+```bash
+git config --local branch.prod.mergeoptions --ff-only
+```
 
 The dedicated deployment account can restart only the two BAN BUNSI services via
 sudo. Builds and secrets are never shared with pull request deployments.

@@ -35,10 +35,12 @@ export function AdminAddPermissionModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<AdminMember[]>([]);
-  const [selectedMember, setSelectedMember] = useState<AdminMember | null>(null);
-  const [selectedRole, setSelectedRole] = useState<"editor" | "admin" | "owner">(
-    "editor",
+  const [selectedMember, setSelectedMember] = useState<AdminMember | null>(
+    null,
   );
+  const [selectedRole, setSelectedRole] = useState<
+    "editor" | "admin" | "owner"
+  >("editor");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -97,7 +99,11 @@ export function AdminAddPermissionModal({
   const filteredMembers = members.filter((m) => m.id !== currentUser.id);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs animate-in fade-in" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs animate-in fade-in"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#152038] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         <div className="flex items-start justify-between p-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
@@ -147,8 +153,16 @@ export function AdminAddPermissionModal({
 
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 text-xs">
           {error ? (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 font-medium" role="alert">
-              <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+            <div
+              className="flex items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 font-medium"
+              role="alert"
+            >
+              <svg
+                viewBox="0 0 20 20"
+                width="16"
+                height="16"
+                fill="currentColor"
+              >
                 <path
                   fillRule="evenodd"
                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -161,7 +175,10 @@ export function AdminAddPermissionModal({
 
           {/* Step 1: Member Search and Picker */}
           <div>
-            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-2" htmlFor="perm-user-search">
+            <label
+              className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-2"
+              htmlFor="perm-user-search"
+            >
               1. {t(locale, "searchMemberToAdd")}
             </label>
             <div className="relative flex items-center">
@@ -224,7 +241,9 @@ export function AdminAddPermissionModal({
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className="uppercase">{memberInitials(m.name, m.email)}</span>
+                            <span className="uppercase">
+                              {memberInitials(m.name, m.email)}
+                            </span>
                           )}
                         </span>
                         <div className="flex flex-col min-w-0">
