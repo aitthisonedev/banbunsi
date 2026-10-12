@@ -56,7 +56,10 @@ export function CategoryCards({
         const count = counts?.[cat.slug] ?? counts?.[cat.code];
 
         return (
-          <li key={cat.id || `${cat.code}-${index}`} className="bb-stagger-item">
+          <li
+            key={cat.id || `${cat.code}-${index}`}
+            className="bb-stagger-item"
+          >
             <Link
               href={`/${locale}/categories/${cat.slug}`}
               className="category-card category-card--image"

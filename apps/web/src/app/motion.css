@@ -76,39 +76,57 @@
 }
 
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(1),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(1) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(1) {
   transition-delay: 40ms;
 }
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(2),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(2) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(2) {
   transition-delay: 90ms;
 }
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(3),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(3) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(3) {
   transition-delay: 140ms;
 }
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(4),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(4) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(4) {
   transition-delay: 190ms;
 }
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(5),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(5) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(5) {
   transition-delay: 240ms;
 }
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(6),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(6) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(6) {
   transition-delay: 290ms;
 }
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(7),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(7) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(7) {
   transition-delay: 340ms;
 }
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(8),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(8) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(8) {
   transition-delay: 390ms;
 }
 .bb-reveal--stagger.bb-reveal--in > .bb-stagger-item:nth-child(n + 9),
-.bb-reveal--stagger.bb-reveal--in .bb-stagger-root > .bb-stagger-item:nth-child(n + 9) {
+.bb-reveal--stagger.bb-reveal--in
+  .bb-stagger-root
+  > .bb-stagger-item:nth-child(n + 9) {
   transition-delay: 420ms;
 }
 

@@ -31,12 +31,18 @@ function coverFor(doc: DocumentListItem, index: number) {
     if (slug.includes(code) || name.includes(code)) return src;
   }
   // Lao slug heuristics from seed
-  if (slug.includes("phasi") || slug.includes("tax")) return COVER_BY_CATEGORY.tax;
-  if (slug.includes("banchi") || slug.includes("account")) return COVER_BY_CATEGORY.accounting;
-  if (slug.includes("ngen") || slug.includes("financ")) return COVER_BY_CATEGORY.finance;
-  if (slug.includes("kotmai") || slug.includes("law")) return COVER_BY_CATEGORY.law;
-  if (slug.includes("kuat") || slug.includes("audit")) return COVER_BY_CATEGORY.audit;
-  if (slug.includes("akon") || slug.includes("dut")) return COVER_BY_CATEGORY.duties;
+  if (slug.includes("phasi") || slug.includes("tax"))
+    return COVER_BY_CATEGORY.tax;
+  if (slug.includes("banchi") || slug.includes("account"))
+    return COVER_BY_CATEGORY.accounting;
+  if (slug.includes("ngen") || slug.includes("financ"))
+    return COVER_BY_CATEGORY.finance;
+  if (slug.includes("kotmai") || slug.includes("law"))
+    return COVER_BY_CATEGORY.law;
+  if (slug.includes("kuat") || slug.includes("audit"))
+    return COVER_BY_CATEGORY.audit;
+  if (slug.includes("akon") || slug.includes("dut"))
+    return COVER_BY_CATEGORY.duties;
   return COVER_FALLBACKS[index % COVER_FALLBACKS.length];
 }
 
@@ -66,7 +72,10 @@ export function DocumentList({
       <ul className="doc-list bb-stagger-root">
         {items.map((doc, index) => (
           <li key={doc.id} className="bb-stagger-item">
-            <Link href={`/${locale}/documents/${doc.slug}`} className="doc-card">
+            <Link
+              href={`/${locale}/documents/${doc.slug}`}
+              className="doc-card"
+            >
               <span className="doc-card-thumb" aria-hidden>
                 <Image
                   src={coverFor(doc, index)}
@@ -79,9 +88,13 @@ export function DocumentList({
               <span className="doc-card-body">
                 <span className="doc-card-title">{doc.title}</span>
                 <span className="doc-card-meta">
-                  {doc.category_name ? <span className="doc-card-cat">{doc.category_name}</span> : null}
+                  {doc.category_name ? (
+                    <span className="doc-card-cat">{doc.category_name}</span>
+                  ) : null}
                   {doc.year ? <span>· {doc.year}</span> : null}
-                  {doc.document_number ? <span>· {doc.document_number}</span> : null}
+                  {doc.document_number ? (
+                    <span>· {doc.document_number}</span>
+                  ) : null}
                 </span>
               </span>
               <span className="doc-card-badges">
@@ -126,7 +139,9 @@ export function DocumentList({
                     <span className="doc-card-year">· {doc.year}</span>
                   ) : null}
                 </span>
-                <span className={`doc-card-access doc-card-access--${doc.read_access}`}>
+                <span
+                  className={`doc-card-access doc-card-access--${doc.read_access}`}
+                >
                   {accessLabel(locale, doc.read_access)}
                 </span>
               </span>

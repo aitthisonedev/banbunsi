@@ -61,7 +61,10 @@ export default async function CategoriesPage({
           </Link>
         </div>
         {!catResult.ok && items.length === 0 ? (
-          <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+          <ErrorState
+            title={t(raw, "loadError")}
+            description={t(raw, "tryAgain")}
+          />
         ) : items.length === 0 ? (
           <EmptyState title={t(raw, "noCategories")} />
         ) : (

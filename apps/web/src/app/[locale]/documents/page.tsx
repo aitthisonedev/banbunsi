@@ -131,7 +131,10 @@ export default async function DocumentsPage({
 
         <div className="page-listing-body">
           {!docsResult.ok ? (
-            <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+            <ErrorState
+              title={t(raw, "loadError")}
+              description={t(raw, "tryAgain")}
+            />
           ) : docsResult.data.items.length === 0 ? (
             <EmptyState title={t(raw, "noDocuments")} />
           ) : (

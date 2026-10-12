@@ -40,24 +40,23 @@ export default async function QuizzesPage({
   if (!isLocale(raw)) notFound();
 
   const api = await getQuizzes(raw).catch(() => null);
-  const quizzes =
-    api?.items?.length
-      ? api.items.map((q) => ({
-          slug: q.slug,
-          title: q.title,
-          description: q.description,
-          category: q.category,
-          difficulty: q.difficulty as QuizDifficulty,
-          questionCount: q.question_count,
-        }))
-      : listQuizzes(raw).map((q) => ({
-          slug: q.slug,
-          title: q.title,
-          description: q.description,
-          category: q.category,
-          difficulty: q.difficulty,
-          questionCount: q.questions.length,
-        }));
+  const quizzes = api?.items?.length
+    ? api.items.map((q) => ({
+        slug: q.slug,
+        title: q.title,
+        description: q.description,
+        category: q.category,
+        difficulty: q.difficulty as QuizDifficulty,
+        questionCount: q.question_count,
+      }))
+    : listQuizzes(raw).map((q) => ({
+        slug: q.slug,
+        title: q.title,
+        description: q.description,
+        category: q.category,
+        difficulty: q.difficulty,
+        questionCount: q.questions.length,
+      }));
 
   return (
     <div className="page-listing page-quizzes">
@@ -74,48 +73,48 @@ export default async function QuizzesPage({
           <p className="page-listing-meta">{t(raw, "noQuizzes")}</p>
         ) : (
           <Reveal stagger>
-          <ul className="quiz-card-grid bb-stagger-root">
-            {quizzes.map((quiz, index) => (
-              <li key={quiz.slug} className="bb-stagger-item">
-                <Link
-                  href={`/${raw}/quizzes/${quiz.slug}`}
-                  className="category-card category-card--image"
-                >
-                  <span className="category-card-media">
-                    <Image
-                      src={coverFor(quiz.slug, quiz.category, index)}
-                      alt={quiz.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="category-card-img"
-                      priority={index < 3}
-                    />
-                    <span className="category-card-media-shade" aria-hidden />
-                    <span className="category-card-title-on-image">
-                      {quiz.title}
-                    </span>
-                  </span>
-                  <span className="category-card-body">
-                    <span className="quiz-card-cat">{quiz.category}</span>
-                    {quiz.description ? (
-                      <span className="category-card-desc">
-                        {quiz.description}
-                      </span>
-                    ) : null}
-                    <span className="category-card-meta">
-                      <span>
-                        {quiz.questionCount} {t(raw, "questions")} ·{" "}
-                        {t(raw, quiz.difficulty)}
-                      </span>
-                      <span className="category-card-arrow" aria-hidden>
-                        →
+            <ul className="quiz-card-grid bb-stagger-root">
+              {quizzes.map((quiz, index) => (
+                <li key={quiz.slug} className="bb-stagger-item">
+                  <Link
+                    href={`/${raw}/quizzes/${quiz.slug}`}
+                    className="category-card category-card--image"
+                  >
+                    <span className="category-card-media">
+                      <Image
+                        src={coverFor(quiz.slug, quiz.category, index)}
+                        alt={quiz.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="category-card-img"
+                        priority={index < 3}
+                      />
+                      <span className="category-card-media-shade" aria-hidden />
+                      <span className="category-card-title-on-image">
+                        {quiz.title}
                       </span>
                     </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+                    <span className="category-card-body">
+                      <span className="quiz-card-cat">{quiz.category}</span>
+                      {quiz.description ? (
+                        <span className="category-card-desc">
+                          {quiz.description}
+                        </span>
+                      ) : null}
+                      <span className="category-card-meta">
+                        <span>
+                          {quiz.questionCount} {t(raw, "questions")} ·{" "}
+                          {t(raw, quiz.difficulty)}
+                        </span>
+                        <span className="category-card-arrow" aria-hidden>
+                          →
+                        </span>
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </Reveal>
         )}
       </div>
