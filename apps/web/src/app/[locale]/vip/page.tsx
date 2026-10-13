@@ -66,7 +66,10 @@ export default async function VipPage({
               >
                 {t(raw, "whatsapp")}
               </a>
-              <a className="btn-secondary" href={`mailto:${settings.contact_email}`}>
+              <a
+                className="btn-secondary"
+                href={`mailto:${settings.contact_email}`}
+              >
                 {t(raw, "email")}
               </a>
             </>
