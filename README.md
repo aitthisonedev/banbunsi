@@ -18,7 +18,7 @@ Production deployment and GitHub Actions: [VPS guide](deploy/README.md).
 - Go 1.22+
 - PostgreSQL 16 (`brew services start postgresql@16`)
 
-Optional: Docker for `postgres` + Mailpit (`docker compose up -d`).
+Optional: Docker for `postgres` + Mailpit (`docker compose up -d`). The containerized Postgres listens on port `5433` to avoid conflicts with other local PostgreSQL instances.
 
 ## Quick start (all-in-one)
 

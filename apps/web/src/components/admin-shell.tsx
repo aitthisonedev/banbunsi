@@ -49,12 +49,6 @@ export function AdminShell({
       });
   }, [locale, router]);
 
-  const [prevPathname, setPrevPathname] = useState(pathname);
-  if (prevPathname !== pathname) {
-    setPrevPathname(pathname);
-    setNavOpen(false);
-  }
-
   async function onLogout() {
     await clientLogout().catch(() => undefined);
     router.push(`/${locale}`);
@@ -63,8 +57,8 @@ export function AdminShell({
 
   if (error) {
     return (
-      <div className="min-h-screen w-full bg-slate-50 dark:bg-[#0b1224] flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
+      <div className="dash-shell">
+        <div className="dash-workspace">
           <ErrorState title={error} />
         </div>
       </div>
@@ -72,8 +66,10 @@ export function AdminShell({
   }
   if (!user) {
     return (
-      <div className="min-h-screen w-full bg-slate-50 dark:bg-[#0b1224] flex items-center justify-center p-6">
-        <LoadingState label={t(locale, "loading")} />
+      <div className="dash-shell">
+        <div className="dash-workspace">
+          <LoadingState label={t(locale, "loading")} />
+        </div>
       </div>
     );
   }
@@ -200,20 +196,16 @@ export function AdminShell({
   ];
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#0b1224] text-slate-800 dark:text-slate-100 flex relative text-[13px]">
-      {/* 1. Left Sidebar */}
-      <aside
-        className={`fixed lg:sticky top-0 left-0 z-40 h-screen w-64 shrink-0 flex flex-col bg-white dark:bg-[#111a31] border-r border-slate-200 dark:border-slate-800 transition-transform duration-200 ease-in-out ${
-          navOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
-      >
-        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-200 dark:border-slate-800 shrink-0">
-          <div className="flex items-center gap-2">
-            <BrandLogo locale={locale} />
+    <div className={`dash-shell${navOpen ? " is-nav-open" : ""}`}>
+      {/* 1. Left Sidebar (DashLite Clean Light Aesthetic) */}
+      <aside className="dash-sidebar">
+        <div className="dash-sidebar-header">
+          <div className="dash-sidebar-brand">
+            <BrandLogo locale={locale} className="dash-brand-logo" />
           </div>
           <button
             type="button"
-            className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            className="dash-sidebar-close"
             onClick={() => setNavOpen(false)}
             aria-label="Close menu"
           >
@@ -230,9 +222,9 @@ export function AdminShell({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3.5">
-          <nav aria-label="Admin Navigation">
-            <ul className="space-y-1">
+        <div className="dash-sidebar-body">
+          <nav className="dash-nav" aria-label="Admin Navigation">
+            <ul className="dash-nav-list">
               {navItems
                 .filter((item) => !item.adminPlus || isAdminPlus)
                 .map((item) => {
@@ -241,22 +233,13 @@ export function AdminShell({
                     <li key={item.href}>
                       <Link
                         href={item.href}
-                        className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
-                          isActive
-                            ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold shadow-xs"
-                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white"
-                        }`}
+                        className={`dash-nav-link${isActive ? " is-active" : ""}`}
+                        onClick={() => setNavOpen(false)}
                       >
-                        <span
-                          className={`shrink-0 flex items-center justify-center w-5 h-5 ${
-                            isActive
-                              ? "text-indigo-600 dark:text-indigo-400"
-                              : "text-slate-400 dark:text-slate-500"
-                          }`}
-                        >
+                        <span className="dash-nav-icon">
                           {item.icon(isActive)}
                         </span>
-                        <span className="truncate">{item.label}</span>
+                        <span className="dash-nav-text">{item.label}</span>
                       </Link>
                     </li>
                   );
@@ -265,11 +248,8 @@ export function AdminShell({
           </nav>
         </div>
 
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
-          <Link
-            href={`/${locale}`}
-            className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
-          >
+        <div className="dash-sidebar-footer">
+          <Link href={`/${locale}`} className="dash-sidebar-site-link">
             <svg
               viewBox="0 0 24 24"
               width="16"
@@ -288,13 +268,13 @@ export function AdminShell({
       </aside>
 
       {/* 2. Workspace: Topbar + Main Body */}
-      <div className="flex-1 min-w-0 flex flex-col w-full">
+      <div className="dash-workspace">
         {/* Topbar Header */}
-        <header className="sticky top-0 z-30 h-16 w-full bg-white/95 dark:bg-[#111a31]/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-3">
+        <header className="dash-topbar">
+          <div className="dash-topbar-left">
             <button
               type="button"
-              className="lg:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition"
+              className="dash-menu-toggle"
               aria-label={t(locale, "menu")}
               aria-expanded={navOpen}
               onClick={() => setNavOpen((v) => !v)}
@@ -312,11 +292,11 @@ export function AdminShell({
             </button>
 
             {/* DashLite search bar */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100/80 dark:bg-[#152038] border border-slate-200 dark:border-slate-800 text-slate-400 w-64 md:w-80 transition focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
+            <div className="dash-topbar-search">
               <svg
                 viewBox="0 0 20 20"
-                width="15"
-                height="15"
+                width="16"
+                height="16"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -333,16 +313,15 @@ export function AdminShell({
                 }
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                className="bg-transparent border-0 outline-none text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 w-full"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="dash-topbar-right">
             {/* Quick Site Link */}
             <Link
               href={`/${locale}`}
-              className="hidden sm:inline-flex p-2 rounded-full text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="dash-icon-btn hidden sm:inline-flex"
               title={t(locale, "backToSite")}
             >
               <svg
@@ -359,10 +338,10 @@ export function AdminShell({
               </svg>
             </Link>
 
-            {/* Notification Bell */}
+            {/* Notification Bell (DashLite aesthetic) */}
             <button
               type="button"
-              className="relative p-2 rounded-full text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              className="dash-icon-btn"
               title="Notifications"
               aria-label="Notifications"
             >
@@ -377,7 +356,7 @@ export function AdminShell({
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-white dark:ring-[#111a31]" />
+              <span className="dash-bell-dot" />
             </button>
 
             {/* Theme Toggle */}
@@ -389,24 +368,22 @@ export function AdminShell({
             {/* Language Switch */}
             <LanguageSwitch locale={locale} />
 
-            <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 my-auto" />
+            <div className="dash-topbar-divider" />
 
-            {/* Profile Menu */}
+            {/* DashLite Profile Menu (Right side) */}
             <AdminProfileMenu user={user} locale={locale} onLogout={onLogout} />
           </div>
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 w-full p-4 sm:p-6 lg:p-7 box-border">
-          {children}
-        </main>
+        <main className="dash-main">{children}</main>
       </div>
 
       {/* Mobile Backdrop */}
       {navOpen ? (
         <button
           type="button"
-          className="fixed inset-0 z-30 bg-slate-950/40 backdrop-blur-xs lg:hidden cursor-pointer"
+          className="dash-backdrop"
           aria-label={t(locale, "cancel")}
           onClick={() => setNavOpen(false)}
         />

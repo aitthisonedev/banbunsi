@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { Reveal } from "@/components/reveal";
-import { DocumentFileDownload } from "@/components/document-file-download";
 import { getDocument } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/sanitize-html";
@@ -56,6 +54,27 @@ function FileTextIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function DownloadIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
+    </svg>
+  );
+}
+
 export default async function DocumentDetailPage({
   params,
 }: {
@@ -76,69 +95,65 @@ export default async function DocumentDetailPage({
 
   const next = encodeURIComponent(`/${raw}/documents/${doc.slug}`);
   const loginHref = `/${raw}/auth/login?next=${next}`;
-  const vipHref = `/${raw}/vip`;
   const safeBody = doc.body_html ? sanitizeHtml(doc.body_html) : "";
-  const categoryHref = doc.category_slug
-    ? `/${raw}/categories/${doc.category_slug}`
-    : `/${raw}/categories`;
 
   return (
-    <div className="detail-page">
-      <div className="detail-shell">
-        <nav className="detail-breadcrumbs" aria-label="Breadcrumb">
-          <Link href={`/${raw}`} className="detail-breadcrumb-link">
+    <div className="doc-detail-page">
+      <div className="doc-detail-shell">
+        <nav className="doc-breadcrumbs" aria-label="Breadcrumb">
+          <Link href={`/${raw}`} className="doc-breadcrumb-link">
             {t(raw, "home")}
           </Link>
-          <span className="detail-breadcrumb-sep" aria-hidden>
+          <span className="doc-breadcrumb-sep" aria-hidden="true">
             /
           </span>
-          <Link href={`/${raw}/documents`} className="detail-breadcrumb-link">
+          <Link href={`/${raw}/documents`} className="doc-breadcrumb-link">
             {t(raw, "documents")}
           </Link>
           {doc.category_name ? (
             <>
-              <span className="detail-breadcrumb-sep" aria-hidden>
+              <span className="doc-breadcrumb-sep" aria-hidden="true">
                 /
               </span>
-              <Link href={categoryHref} className="detail-breadcrumb-link">
+              <span className="doc-breadcrumb-current">
                 {doc.category_name}
-              </Link>
+              </span>
             </>
           ) : null}
         </nav>
 
-        <Reveal as="section" className="detail-hero">
-          <div className="detail-hero-meta">
-            <div className="detail-hero-meta-main">
-              {doc.category_name ? (
-                <Link href={categoryHref} className="detail-hero-cat">
-                  {doc.category_name}
-                </Link>
-              ) : null}
-              {doc.year ? (
-                <span className="detail-hero-year">· {doc.year}</span>
-              ) : null}
-              {doc.document_number ? (
-                <span className="detail-hero-docnum">
-                  · {doc.document_number}
-                </span>
-              ) : null}
-            </div>
-            <span
-              className={`doc-card-access doc-card-access--${doc.read_access}`}
-            >
+        <header className="doc-detail-header">
+          <div className="doc-detail-meta-pills">
+            <span className={`doc-badge doc-badge--${doc.read_access}`}>
               {accessLabel(raw, doc.read_access)}
             </span>
+            {doc.document_number ? (
+              <span className="doc-meta-pill">
+                <span>{t(raw, "documentNumber")}:</span>
+                <strong>{doc.document_number}</strong>
+              </span>
+            ) : null}
+            {doc.year ? (
+              <span className="doc-meta-pill">
+                <span>{t(raw, "year")}:</span>
+                <strong>{doc.year}</strong>
+              </span>
+            ) : null}
           </div>
 
-          <h1 className="detail-hero-title">{doc.title}</h1>
+          <h1 className="doc-detail-title">{doc.title}</h1>
 
           {doc.summary ? (
-            <p className="detail-hero-lead">{doc.summary}</p>
+            <div className="doc-detail-summary-card">
+              <span className="doc-summary-label">
+                {raw === "lo" ? "ເນື້ອໃນຫຍໍ້:" : "Summary:"}
+              </span>
+              <p className="doc-summary-text">{doc.summary}</p>
+            </div>
           ) : null}
-        </Reveal>
+        </header>
 
-        <Reveal as="section" className="detail-panel" delay={40}>
+        <main className="doc-detail-content">
           {safeBody ? (
             <div
               className="doc-body"
@@ -167,55 +182,54 @@ export default async function DocumentDetailPage({
               </div>
             </div>
           )}
-        </Reveal>
+        </main>
 
-        <Reveal as="section" className="detail-panel detail-files" delay={80}>
-          <div className="detail-panel-head">
-            <span className="detail-panel-icon" aria-hidden>
-              <FileTextIcon />
-            </span>
-            <h2 className="detail-panel-title">{t(raw, "files")}</h2>
+        <section className="doc-files-section">
+          <div className="doc-files-head">
+            <FileTextIcon className="text-bb-blue" />
+            <h2 className="section-title">{t(raw, "files")}</h2>
           </div>
 
-          {(doc.files || []).length ? (
-            <ul className="doc-files-list">
-              {(doc.files || []).map((file) => (
-                <li key={file.id} className="doc-file-card">
-                  <div className="doc-file-card-info">
-                    <div className="doc-file-icon-wrap" aria-hidden>
-                      <FileTextIcon />
-                    </div>
-                    <div className="doc-file-copy">
-                      <h3 className="doc-file-name">
-                        {file.label || file.file_name}
-                      </h3>
-                      <p className="doc-file-meta">
-                        <span>{file.file_name}</span>
-                        {file.version ? <span>· v{file.version}</span> : null}
-                        <span
-                          className={`doc-card-access doc-card-access--${file.download_access}`}
-                        >
-                          · {accessLabel(raw, file.download_access)}
-                        </span>
-                      </p>
-                    </div>
+          <ul className="doc-files-list">
+            {(doc.files || []).map((file) => (
+              <li key={file.id} className="doc-file-card">
+                <div className="doc-file-card-info">
+                  <div className="doc-file-icon-wrap">
+                    <FileTextIcon />
                   </div>
+                  <div>
+                    <h3 className="doc-file-name">
+                      {file.label || file.file_name}
+                    </h3>
+                    <p className="doc-file-meta">
+                      <span>{file.file_name}</span>
+                      {file.version ? <span>· v{file.version}</span> : null}
+                      <span>·</span>
+                      <span className={`doc-badge doc-badge--${file.download_access}`}>
+                        {accessLabel(raw, file.download_access)}
+                      </span>
+                    </p>
+                  </div>
+                </div>
 
-                  <DocumentFileDownload
-                    locale={raw}
-                    slug={doc.slug}
-                    file={file}
-                    loginHref={loginHref}
-                    vipHref={vipHref}
-                    initialCanDownload={Boolean(file.can_download)}
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="detail-empty">{t(raw, "noFiles")}</p>
-          )}
-        </Reveal>
+                {file.file_url ? (
+                  <a href={file.file_url} className="doc-file-btn" target="_blank" rel="noreferrer">
+                    <DownloadIcon />
+                    <span>{t(raw, "download") || "Download"}</span>
+                  </a>
+                ) : (
+                  <Link href={loginHref} className="doc-file-btn">
+                    <DownloadIcon />
+                    <span>{t(raw, "downloadLogin")}</span>
+                  </Link>
+                )}
+              </li>
+            ))}
+            {!doc.files?.length ? (
+              <li className="text-muted py-3">{t(raw, "noFiles")}</li>
+            ) : null}
+          </ul>
+        </section>
       </div>
     </div>
   );

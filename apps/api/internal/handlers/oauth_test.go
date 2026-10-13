@@ -13,7 +13,7 @@ import (
 
 func TestSafeRedirectURL(t *testing.T) {
 	const local = "http://localhost:3000"
-	const production = "https://banbunsi.com"
+	const production = "https://banbunsi.aitthisone.com"
 	tests := []struct {
 		name, next, locale, origin, want string
 	}{

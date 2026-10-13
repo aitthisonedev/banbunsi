@@ -51,16 +51,16 @@ export function AdminProfileMenu({
   }, [open]);
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="dash-user-menu" ref={menuRef}>
       <button
         type="button"
-        className="flex items-center gap-2.5 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer text-left"
+        className={`dash-user-trigger${open ? " is-open" : ""}`}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={displayName}
       >
-        <span className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden shadow-xs">
+        <span className="dash-user-avatar">
           {photo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -68,30 +68,28 @@ export function AdminProfileMenu({
               alt=""
               width={34}
               height={34}
-              className="w-full h-full object-cover"
+              className="dash-user-avatar-img"
             />
           ) : (
-            <span className="uppercase">{initials}</span>
+            <span className="dash-user-avatar-initials">{initials}</span>
           )}
         </span>
 
-        <span className="flex flex-col text-left leading-tight">
-          <span className="text-[10px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wider">
+        <span className="dash-user-meta">
+          <span className="dash-user-role-label">
             {user.staff_role === "owner"
               ? "Owner"
               : user.staff_role === "admin"
                 ? "Admin"
                 : "Editor"}
           </span>
-          <span className="flex items-center gap-1">
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-100 max-w-[120px] truncate">
-              {displayName}
-            </span>
+          <span className="dash-user-name-line">
+            <span className="dash-user-name">{displayName}</span>
             <svg
-              className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+              className={`dash-user-chevron ${open ? "is-open" : ""}`}
               viewBox="0 0 20 20"
-              width="14"
-              height="14"
+              width="12"
+              height="12"
               fill="currentColor"
               aria-hidden="true"
             >
@@ -106,57 +104,42 @@ export function AdminProfileMenu({
       </button>
 
       {open ? (
-        <div
-          className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-white dark:bg-[#152038] border border-slate-200 dark:border-slate-800 shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-1"
-          role="menu"
-        >
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-            <span className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden shadow-xs">
+        <div className="dash-dropdown" role="menu">
+          <div className="dash-dropdown-header">
+            <span className="dash-user-avatar dash-user-avatar--lg">
               {photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={photo}
                   alt=""
-                  width={40}
-                  height={40}
-                  className="w-full h-full object-cover"
+                  width={42}
+                  height={42}
+                  className="dash-user-avatar-img"
                 />
               ) : (
-                <span className="uppercase">{initials}</span>
+                <span className="dash-user-avatar-initials">{initials}</span>
               )}
             </span>
-            <div className="flex flex-col min-w-0 overflow-hidden">
-              <strong className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                {displayName}
-              </strong>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                {user.email}
-              </span>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span
-                  className={`inline-block text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
-                    user.staff_role === "owner"
-                      ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-                      : user.staff_role === "admin"
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
-                        : "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300"
-                  }`}
-                >
+            <div className="dash-dropdown-user-info">
+              <strong className="dash-dropdown-name">{displayName}</strong>
+              <span className="dash-dropdown-email">{user.email}</span>
+              <div className="dash-dropdown-badges">
+                <span className={`dash-badge dash-badge--${user.staff_role}`}>
                   {user.staff_role}
                 </span>
                 {user.membership_tier === "vip" ? (
-                  <span className="inline-block text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-950/60 dark:text-yellow-300">
-                    VIP
-                  </span>
+                  <span className="dash-badge dash-badge--vip">VIP</span>
                 ) : null}
               </div>
             </div>
           </div>
 
-          <div className="py-1">
+          <div className="dash-dropdown-divider" />
+
+          <div className="dash-dropdown-links">
             <Link
               href={`/${locale}/account`}
-              className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              className="dash-dropdown-item"
               role="menuitem"
               onClick={() => setOpen(false)}
             >
@@ -177,7 +160,7 @@ export function AdminProfileMenu({
             {isAdminPlus ? (
               <Link
                 href={`/${locale}/admin/members`}
-                className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                className="dash-dropdown-item"
                 role="menuitem"
                 onClick={() => setOpen(false)}
               >
@@ -197,7 +180,7 @@ export function AdminProfileMenu({
 
             <Link
               href={`/${locale}`}
-              className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              className="dash-dropdown-item"
               role="menuitem"
               onClick={() => setOpen(false)}
             >
@@ -217,10 +200,12 @@ export function AdminProfileMenu({
             </Link>
           </div>
 
-          <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
+          <div className="dash-dropdown-divider" />
+
+          <div className="dash-dropdown-footer">
             <button
               type="button"
-              className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer text-left"
+              className="dash-dropdown-item dash-dropdown-item--danger"
               role="menuitem"
               onClick={() => {
                 setOpen(false);

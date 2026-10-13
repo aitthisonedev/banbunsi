@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: banbunsi
       POSTGRES_DB: banbunsi
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - banbunsi_pg:/var/lib/postgresql/data
     healthcheck:

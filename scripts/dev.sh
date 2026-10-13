@@ -8,7 +8,7 @@ PID_DIR="$ROOT/.run"
 API_LOG="$PID_DIR/api.log"
 WEB_LOG="$PID_DIR/web.log"
 
-export PATH="/opt/homebrew/bin:/opt/homebrew/opt/postgresql@16/bin:${PATH:-}"
+export PATH="/opt/homebrew/bin:/opt/homebrew/opt/postgresql@16/bin:/usr/local/bin:/usr/local/opt/postgresql@16/bin:${PATH:-}"
 
 mkdir -p "$PID_DIR"
 

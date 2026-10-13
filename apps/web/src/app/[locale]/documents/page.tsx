@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DocumentList } from "@/components/document-list";
-import { Reveal } from "@/components/reveal";
 import { EmptyState, ErrorState, Pagination, Select } from "@/components/ui";
 import { getCategories, getDocuments } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
@@ -131,21 +130,16 @@ export default async function DocumentsPage({
 
         <div className="page-listing-body">
           {!docsResult.ok ? (
-            <ErrorState
-              title={t(raw, "loadError")}
-              description={t(raw, "tryAgain")}
-            />
+            <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
           ) : docsResult.data.items.length === 0 ? (
             <EmptyState title={t(raw, "noDocuments")} />
           ) : (
-            <Reveal stagger>
-              <DocumentList
-                locale={raw}
-                items={docsResult.data.items}
-                emptyText={t(raw, "noDocuments")}
-                variant="cards"
-              />
-            </Reveal>
+            <DocumentList
+              locale={raw}
+              items={docsResult.data.items}
+              emptyText={t(raw, "noDocuments")}
+              variant="cards"
+            />
           )}
         </div>
 

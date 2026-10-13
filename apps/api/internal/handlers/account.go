@@ -222,10 +222,11 @@ func avatarExt(filename, contentType string) (string, bool) {
 
 // EnsureUploadDir creates the upload root (called from server boot).
 func EnsureUploadDir(cfg *config.Config) error {
-	for _, sub := range []string{"avatars", "covers", "documents"} {
-		if err := os.MkdirAll(filepath.Join(cfg.UploadDir, sub), 0o755); err != nil {
-			return fmt.Errorf("upload dir %s: %w", sub, err)
-		}
+	if err := os.MkdirAll(filepath.Join(cfg.UploadDir, "avatars"), 0o755); err != nil {
+		return fmt.Errorf("upload dir: %w", err)
+	}
+	if err := os.MkdirAll(filepath.Join(cfg.UploadDir, "documents"), 0o755); err != nil {
+		return fmt.Errorf("upload dir: %w", err)
 	}
 	return nil
 }

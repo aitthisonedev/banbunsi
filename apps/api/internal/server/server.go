@@ -70,7 +70,6 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	v1.Get("/categories", catH.PublicList)
 	v1.Get("/settings/public", setH.PublicGet)
 	v1.Get("/documents", docH.PublicList)
-	v1.Get("/documents/:slug/files/:fileId/download", docH.PublicDownload)
 	v1.Get("/documents/:slug", docH.PublicGet)
 	v1.Get("/quizzes", quizH.PublicList)
 	v1.Get("/quizzes/:slug", quizH.PublicGet)
@@ -90,9 +89,6 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	admin.Post("/documents", docH.AdminCreate)
 	admin.Patch("/documents/:id", docH.AdminUpdate)
 	admin.Delete("/documents/:id", docH.AdminDelete)
-	uploadH := &handlers.AdminUploadHandler{DB: db, Cfg: cfg}
-	admin.Post("/uploads", uploadH.Upload)
-	admin.Get("/uploads/library", uploadH.ListLibrary)
 	admin.Get("/quizzes", quizH.AdminList)
 	admin.Get("/quizzes/:id", quizH.AdminGet)
 	admin.Post("/quizzes", quizH.AdminCreate)

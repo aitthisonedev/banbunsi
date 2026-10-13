@@ -25,33 +25,18 @@ const COVER_FALLBACKS = [
 ];
 
 function coverFor(doc: DocumentListItem, index: number) {
-  if (doc.cover_image) {
-    const cover = doc.cover_image;
-    if (cover.startsWith("http")) return cover;
-    if (cover.startsWith("/brand") || cover.startsWith("/images")) return cover;
-    const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-    if (cover.startsWith("/uploads/")) return `${api}${cover}`;
-    if (cover.startsWith("uploads/")) return `${api}/${cover}`;
-    return `${api}/uploads/${cover.replace(/^\//, "")}`;
-  }
   const slug = (doc.category_slug || "").toLowerCase();
   const name = (doc.category_name || "").toLowerCase();
   for (const [code, src] of Object.entries(COVER_BY_CATEGORY)) {
     if (slug.includes(code) || name.includes(code)) return src;
   }
   // Lao slug heuristics from seed
-  if (slug.includes("phasi") || slug.includes("tax"))
-    return COVER_BY_CATEGORY.tax;
-  if (slug.includes("banchi") || slug.includes("account"))
-    return COVER_BY_CATEGORY.accounting;
-  if (slug.includes("ngen") || slug.includes("financ"))
-    return COVER_BY_CATEGORY.finance;
-  if (slug.includes("kotmai") || slug.includes("law"))
-    return COVER_BY_CATEGORY.law;
-  if (slug.includes("kuat") || slug.includes("audit"))
-    return COVER_BY_CATEGORY.audit;
-  if (slug.includes("akon") || slug.includes("dut"))
-    return COVER_BY_CATEGORY.duties;
+  if (slug.includes("phasi") || slug.includes("tax")) return COVER_BY_CATEGORY.tax;
+  if (slug.includes("banchi") || slug.includes("account")) return COVER_BY_CATEGORY.accounting;
+  if (slug.includes("ngen") || slug.includes("financ")) return COVER_BY_CATEGORY.finance;
+  if (slug.includes("kotmai") || slug.includes("law")) return COVER_BY_CATEGORY.law;
+  if (slug.includes("kuat") || slug.includes("audit")) return COVER_BY_CATEGORY.audit;
+  if (slug.includes("akon") || slug.includes("dut")) return COVER_BY_CATEGORY.duties;
   return COVER_FALLBACKS[index % COVER_FALLBACKS.length];
 }
 
@@ -78,13 +63,10 @@ export function DocumentList({
 
   if (variant === "list") {
     return (
-      <ul className="doc-list bb-stagger-root">
+      <ul className="doc-list">
         {items.map((doc, index) => (
-          <li key={doc.id} className="bb-stagger-item">
-            <Link
-              href={`/${locale}/documents/${doc.slug}`}
-              className="doc-card"
-            >
+          <li key={doc.id}>
+            <Link href={`/${locale}/documents/${doc.slug}`} className="doc-card">
               <span className="doc-card-thumb" aria-hidden>
                 <Image
                   src={coverFor(doc, index)}
@@ -97,13 +79,9 @@ export function DocumentList({
               <span className="doc-card-body">
                 <span className="doc-card-title">{doc.title}</span>
                 <span className="doc-card-meta">
-                  {doc.category_name ? (
-                    <span className="doc-card-cat">{doc.category_name}</span>
-                  ) : null}
+                  {doc.category_name ? <span className="doc-card-cat">{doc.category_name}</span> : null}
                   {doc.year ? <span>· {doc.year}</span> : null}
-                  {doc.document_number ? (
-                    <span>· {doc.document_number}</span>
-                  ) : null}
+                  {doc.document_number ? <span>· {doc.document_number}</span> : null}
                 </span>
               </span>
               <span className="doc-card-badges">
@@ -119,9 +97,9 @@ export function DocumentList({
   }
 
   return (
-    <ul className="doc-card-grid bb-stagger-root">
+    <ul className="doc-card-grid">
       {items.map((doc, index) => (
-        <li key={doc.id} className="bb-stagger-item">
+        <li key={doc.id}>
           <Link
             href={`/${locale}/documents/${doc.slug}`}
             className="doc-card doc-card--tile"
@@ -136,23 +114,21 @@ export function DocumentList({
                 className="doc-card-media-img"
               />
               <span className="doc-card-media-shade" aria-hidden />
+              <span className="doc-card-media-badge">
+                <span className={`doc-badge doc-badge--${doc.read_access}`}>
+                  {accessLabel(locale, doc.read_access)}
+                </span>
+              </span>
             </span>
 
             <span className="doc-card-body">
               <span className="doc-card-meta">
-                <span className="doc-card-meta-main">
-                  {doc.category_name ? (
-                    <span className="doc-card-cat">{doc.category_name}</span>
-                  ) : null}
-                  {doc.year ? (
-                    <span className="doc-card-year">· {doc.year}</span>
-                  ) : null}
-                </span>
-                <span
-                  className={`doc-card-access doc-card-access--${doc.read_access}`}
-                >
-                  {accessLabel(locale, doc.read_access)}
-                </span>
+                {doc.category_name ? (
+                  <span className="doc-card-cat">{doc.category_name}</span>
+                ) : null}
+                {doc.year ? (
+                  <span className="doc-card-year">· {doc.year}</span>
+                ) : null}
               </span>
 
               <h3 className="doc-card-title">{doc.title}</h3>

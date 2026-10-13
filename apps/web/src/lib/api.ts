@@ -102,8 +102,8 @@ export function logout() {
   return apiFetch<{ message: string }>("/auth/logout", { method: "POST" });
 }
 
-export function me(opts?: { cookie?: string }) {
-  return apiFetch<User>("/auth/me", { cookie: opts?.cookie });
+export function me() {
+  return apiFetch<User>("/auth/me");
 }
 
 export function verifyEmail(token: string) {
@@ -164,18 +164,15 @@ export type DocumentFileMeta = {
   id: string;
   label: string;
   file_name: string;
+  storage_path?: string;
+  file_url?: string;
   mime: string;
   size_bytes: number;
   language: string;
   version: string;
   download_access: "member" | "vip";
   sort_order: number;
-  can_download?: boolean;
 };
-
-export function documentFileDownloadURL(slug: string, fileId: string) {
-  return `${API_URL}/api/v1/documents/${encodeURIComponent(slug)}/files/${encodeURIComponent(fileId)}/download`;
-}
 
 export type DocumentListItem = {
   id: string;
@@ -187,7 +184,6 @@ export type DocumentListItem = {
   status: "draft" | "published" | "archived";
   year: number;
   tags: string;
-  cover_image?: string;
   published_at?: string | null;
   effective_date?: string | null;
   updated_at?: string;

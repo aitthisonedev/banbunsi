@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategoryCards } from "@/components/category-cards";
-import { Reveal } from "@/components/reveal";
 import { EmptyState, ErrorState, Pagination } from "@/components/ui";
 import { getCategories, getDocuments } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
@@ -61,17 +60,12 @@ export default async function CategoriesPage({
           </Link>
         </div>
         {!catResult.ok && items.length === 0 ? (
-          <ErrorState
-            title={t(raw, "loadError")}
-            description={t(raw, "tryAgain")}
-          />
+          <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
         ) : items.length === 0 ? (
           <EmptyState title={t(raw, "noCategories")} />
         ) : (
           <>
-            <Reveal stagger>
-              <CategoryCards locale={raw} items={pageItems} counts={counts} />
-            </Reveal>
+            <CategoryCards locale={raw} items={pageItems} counts={counts} />
             <Pagination
               page={safePage}
               perPage={perPage}

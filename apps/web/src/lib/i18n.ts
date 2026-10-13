@@ -98,9 +98,6 @@ const lo: Dict = {
   files: "\u0EC4\u0E9F\u0EA5\u0ECC",
   downloadLogin:
     "\u0ec0\u0e82\u0ebb\u0ec9\u0eb2\u0eaa\u0eb9\u0ec8\u0ea5\u0eb0\u0e9a\u0ebb\u0e9a\u0ec0\u0e9e\u0eb7\u0ec8\u0ead\u0e94\u0eb2\u0ea7\u0ec2\u0eab\u0ebc\u0e94",
-  download: "\u0e94\u0eb2\u0ea7\u0ec2\u0eab\u0ebc\u0e94",
-  downloadVip:
-    "\u0ead\u0eb1\u0e9a\u0ec0\u0e81\u0eae\u0e94 VIP \u0ec0\u0e9e\u0eb7\u0ec8\u0ead\u0e94\u0eb2\u0ea7\u0ec2\u0eab\u0ebc\u0e94",
   noFiles: "\u0E9A\u0ECD\u0EC8\u0EA1\u0EB5\u0EC4\u0E9F\u0EA5\u0ECC",
   searchHint:
     "\u0e9e\u0eb4\u0ea1\u0e84\u0eb3\u0e84\u0ebb\u0ec9\u0e99\u0eab\u0eb2\u0ec0\u0e9e\u0eb7\u0ec8\u0ead\u0ec0\u0ea5\u0eb5\u0ec8\u0ea1\u0e95\u0ebb\u0ec9\u0e99.",
@@ -484,8 +481,6 @@ const en: Dict = {
   bodyGated: "Sign in to read the full content.",
   files: "Files",
   downloadLogin: "Sign in to download",
-  download: "Download",
-  downloadVip: "Upgrade to VIP to download",
   noFiles: "No files",
   searchHint: "Enter a search term to begin.",
   adminDocuments: "Manage documents",

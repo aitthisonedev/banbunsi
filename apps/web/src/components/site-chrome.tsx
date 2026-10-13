@@ -24,9 +24,7 @@ export function SiteChrome({
   return (
     <>
       <SiteHeader locale={locale} />
-      <main key={pathname} className="bb-page-enter flex flex-1 flex-col">
-        {children}
-      </main>
+      <main className="flex flex-1 flex-col">{children}</main>
       <SiteFooter locale={locale} settings={settings} />
     </>
   );

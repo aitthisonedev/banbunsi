@@ -92,11 +92,6 @@ jobs:
           go-version-file: apps/api/go.mod
           cache-dependency-path: apps/api/go.sum
 
-      - name: Test deployment scripts
-        run: |
-          for script in deploy/*.sh; do bash -n "$script"; done
-          python3 -B -m unittest discover -s deploy/tests -v
-
       - name: Test and build API
         working-directory: apps/api
         run: |
@@ -122,8 +117,7 @@ jobs:
           cp -a apps/web/.next/standalone/. dist/web/
           cp -a apps/web/.next/static dist/web/.next/static
           cp -a apps/web/public dist/web/public
-          cp "$(command -v node)" dist/runtime/node-bin
-          install -m 755 deploy/node-runtime.sh dist/runtime/node
+          cp "$(command -v node)" dist/runtime/node
           cp deploy/activate-release.sh dist/activate-release.sh
           printf '%s\n' "$RELEASE_SHA" > dist/REVISION
           tar -czf release.tar.gz -C dist .

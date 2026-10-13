@@ -6,7 +6,6 @@ After=network.target banbunsi-api.service
 Type=simple
 User=banbunsi
 Group=banbunsi
-UMask=0002
 WorkingDirectory=/opt/banbunsi/current/web
 Environment=NODE_ENV=production
 Environment=NEXT_TELEMETRY_DISABLED=1

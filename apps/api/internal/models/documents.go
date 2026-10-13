@@ -40,7 +40,6 @@ type Document struct {
 	EffectiveDate  *time.Time     `gorm:"type:date" json:"effective_date,omitempty"`
 	Year           int            `gorm:"index" json:"year"`
 	Tags           string         `gorm:"size:500" json:"tags"`
-	CoverImage     string         `gorm:"size:500;not null;default:''" json:"cover_image"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
 	DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`
@@ -83,6 +82,7 @@ type DocumentFile struct {
 	DocumentID     uuid.UUID      `gorm:"type:uuid;index;not null" json:"document_id"`
 	Label          string         `gorm:"size:200;not null" json:"label"`
 	FileName       string         `gorm:"size:255;not null" json:"file_name"`
+	StoragePath    string         `gorm:"size:500" json:"storage_path,omitempty"`
 	Mime           string         `gorm:"size:120;not null" json:"mime"`
 	SizeBytes      int64          `gorm:"not null;default:0" json:"size_bytes"`
 	Language       string         `gorm:"size:8" json:"language"`

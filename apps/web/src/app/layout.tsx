@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Noto_Sans, Noto_Sans_Lao } from "next/font/google";
 import { ThemeScript } from "@/components/theme-script";
 import "./globals.css";
-import "./motion.css";
-import "./detail.css";
 
 const noto = Noto_Sans({
   subsets: ["latin"],
@@ -35,9 +33,7 @@ export const metadata: Metadata = {
       { url: "/favicon-192.png", sizes: "192x192", type: "image/png" },
     ],
     shortcut: ["/favicon.ico"],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   manifest: undefined,
 };
@@ -53,16 +49,6 @@ export default function RootLayout({
     >
       <head>
         <ThemeScript />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Phetsarath:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body className="min-h-full flex flex-col antialiased">{children}</body>
     </html>

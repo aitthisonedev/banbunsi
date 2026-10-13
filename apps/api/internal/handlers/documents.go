@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/base64"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,12 +36,14 @@ type translationIn struct {
 type fileIn struct {
 	Label          string `json:"label"`
 	FileName       string `json:"file_name"`
+	StoragePath    string `json:"storage_path"`
 	Mime           string `json:"mime"`
 	SizeBytes      int64  `json:"size_bytes"`
 	Language       string `json:"language"`
 	Version        string `json:"version"`
 	DownloadAccess string `json:"download_access"`
 	SortOrder      int    `json:"sort_order"`
+	FileData       string `json:"file_data"`
 }
 
 type documentWriteIn struct {
@@ -50,7 +54,6 @@ type documentWriteIn struct {
 	EffectiveDate  *string         `json:"effective_date"`
 	Year           int             `json:"year"`
 	Tags           string          `json:"tags"`
-	CoverImage     string          `json:"cover_image"`
 	Translations   []translationIn `json:"translations"`
 	Files          []fileIn        `json:"files"`
 }
@@ -97,23 +100,6 @@ func canReadBody(access models.ReadAccess, user *models.User, tier models.Member
 	}
 }
 
-func canDownload(access models.DownloadAccess, user *models.User, tier models.MembershipTier) bool {
-	if user == nil || user.AccountStatus != models.StatusActive {
-		return false
-	}
-	if user.IsStaff() {
-		return true
-	}
-	switch access {
-	case models.DownloadMember:
-		return true
-	case models.DownloadVIP:
-		return tier == models.TierVIP
-	default:
-		return false
-	}
-}
-
 func pickDocTranslation(trs []models.DocumentTranslation, locale string) *models.DocumentTranslation {
 	var fallback *models.DocumentTranslation
 	for i := range trs {
@@ -133,18 +119,31 @@ func pickDocTranslation(trs []models.DocumentTranslation, locale string) *models
 	return nil
 }
 
-func filePayload(f models.DocumentFile, canDL bool) fiber.Map {
+func fileURL(storagePath string, apiPublicURL string) string {
+	trimmed := strings.TrimSpace(storagePath)
+	if trimmed == "" {
+		return ""
+	}
+	clean := filepath.ToSlash(filepath.Clean(filepath.FromSlash(trimmed)))
+	if apiPublicURL == "" {
+		return "/uploads/" + strings.TrimPrefix(clean, "/")
+	}
+	return strings.TrimRight(apiPublicURL, "/") + "/uploads/" + strings.TrimPrefix(clean, "/")
+}
+
+func filePayload(f models.DocumentFile, apiPublicURL string) fiber.Map {
 	return fiber.Map{
 		"id":              f.ID.String(),
 		"label":           f.Label,
 		"file_name":       f.FileName,
+		"storage_path":    f.StoragePath,
+		"file_url":        fileURL(f.StoragePath, apiPublicURL),
 		"mime":            f.Mime,
 		"size_bytes":      f.SizeBytes,
 		"language":        f.Language,
 		"version":         f.Version,
 		"download_access": f.DownloadAccess,
 		"sort_order":      f.SortOrder,
-		"can_download":    canDL,
 	}
 }
 
@@ -159,6 +158,10 @@ func categoryName(cat models.Category, locale string) (slug, name string) {
 func (h *DocumentHandler) listItem(doc models.Document, locale string, includeBody bool, user *models.User, tier models.MembershipTier) fiber.Map {
 	tr := pickDocTranslation(doc.Translations, locale)
 	catSlug, catName := categoryName(doc.Category, locale)
+	apiPublicURL := ""
+	if h.Cfg != nil {
+		apiPublicURL = h.Cfg.APIPublicURL
+	}
 	item := fiber.Map{
 		"id":              doc.ID.String(),
 		"document_number": doc.DocumentNumber,
@@ -169,7 +172,6 @@ func (h *DocumentHandler) listItem(doc models.Document, locale string, includeBo
 		"status":          doc.Status,
 		"year":            doc.Year,
 		"tags":            doc.Tags,
-		"cover_image":     doc.CoverImage,
 		"published_at":    doc.PublishedAt,
 		"effective_date":  doc.EffectiveDate,
 		"updated_at":      doc.UpdatedAt,
@@ -192,7 +194,7 @@ func (h *DocumentHandler) listItem(doc models.Document, locale string, includeBo
 	}
 	files := make([]fiber.Map, 0, len(doc.Files))
 	for _, f := range doc.Files {
-		files = append(files, filePayload(f, canDownload(f.DownloadAccess, user, tier)))
+		files = append(files, filePayload(f, apiPublicURL))
 	}
 	item["files"] = files
 	return item
@@ -296,97 +298,6 @@ func (h *DocumentHandler) PublicGet(c *fiber.Ctx) error {
 	user := h.optionalUser(c)
 	tier := h.currentMembershipTier(user)
 	return c.JSON(h.listItem(doc, locale, true, user, tier))
-}
-
-func (h *DocumentHandler) PublicDownload(c *fiber.Ctx) error {
-	slug := strings.TrimSpace(c.Params("slug"))
-	fileID, err := parseUUID(c.Params("fileId"))
-	if err != nil || slug == "" {
-		return errJSON(c, fiber.StatusBadRequest, "Invalid download request")
-	}
-
-	var tr models.DocumentTranslation
-	if err := h.DB.Where("slug = ?", slug).First(&tr).Error; err != nil {
-		return errJSON(c, fiber.StatusNotFound, "Document not found")
-	}
-
-	var doc models.Document
-	if err := h.DB.Where("id = ? AND status = ?", tr.DocumentID, models.DocPublished).
-		First(&doc).Error; err != nil {
-		return errJSON(c, fiber.StatusNotFound, "Document not found")
-	}
-
-	var file models.DocumentFile
-	if err := h.DB.Where("id = ? AND document_id = ?", fileID, doc.ID).First(&file).Error; err != nil {
-		return errJSON(c, fiber.StatusNotFound, "File not found")
-	}
-
-	user := h.optionalUser(c)
-	tier := h.currentMembershipTier(user)
-	if !canDownload(file.DownloadAccess, user, tier) {
-		if user == nil {
-			return errJSON(c, fiber.StatusUnauthorized, "Sign in to download")
-		}
-		return errJSON(c, fiber.StatusForbidden, "VIP membership required")
-	}
-
-	abs, downloadName, ok := h.resolveStoredFile(file.FileName)
-	if !ok {
-		return errJSON(c, fiber.StatusNotFound, "File is not available on the server")
-	}
-
-	c.Attachment(downloadName)
-	if file.Mime != "" {
-		c.Set("Content-Type", file.Mime)
-	}
-	return c.SendFile(abs, false)
-}
-
-func (h *DocumentHandler) resolveStoredFile(fileName string) (absPath, downloadName string, ok bool) {
-	if h.Cfg == nil {
-		return "", "", false
-	}
-	raw := strings.TrimSpace(fileName)
-	if raw == "" {
-		return "", "", false
-	}
-	raw = strings.ReplaceAll(raw, `\`, `/`)
-	raw = strings.TrimPrefix(raw, "/uploads/")
-	raw = strings.TrimPrefix(raw, "uploads/")
-	raw = strings.TrimPrefix(raw, "/")
-
-	candidates := []string{}
-	if strings.Contains(raw, "/") {
-		candidates = append(candidates, raw)
-	} else {
-		candidates = append(candidates, filepath.ToSlash(filepath.Join("documents", raw)), raw)
-	}
-
-	root, err := filepath.Abs(h.Cfg.UploadDir)
-	if err != nil {
-		return "", "", false
-	}
-
-	for _, rel := range candidates {
-		clean := filepath.Clean(filepath.FromSlash(rel))
-		if clean == "." || strings.HasPrefix(clean, "..") {
-			continue
-		}
-		abs := filepath.Join(root, clean)
-		absClean, err := filepath.Abs(abs)
-		if err != nil {
-			continue
-		}
-		if !strings.HasPrefix(absClean, root+string(os.PathSeparator)) && absClean != root {
-			continue
-		}
-		st, err := os.Stat(absClean)
-		if err != nil || st.IsDir() {
-			continue
-		}
-		return absClean, filepath.Base(clean), true
-	}
-	return "", "", false
 }
 
 func (h *DocumentHandler) AdminList(c *fiber.Ctx) error {
@@ -548,17 +459,35 @@ func (h *DocumentHandler) replaceFiles(tx *gorm.DB, docID uuid.UUID, files []fil
 		return err
 	}
 	for i, f := range files {
-		if strings.TrimSpace(f.FileName) == "" {
+		fileName := strings.TrimSpace(f.FileName)
+		storagePath := strings.TrimSpace(f.StoragePath)
+		if strings.TrimSpace(f.FileData) != "" {
+			if h.Cfg == nil {
+				return fmt.Errorf("upload config missing")
+			}
+			stored, err := storeDocumentUpload(h.Cfg, fileName, f.Mime, f.FileData)
+			if err != nil {
+				return err
+			}
+			if stored != "" {
+				storagePath = stored
+				if fileName == "" {
+					fileName = filepath.Base(filepath.FromSlash(stored))
+				}
+			}
+		}
+		if fileName == "" && storagePath == "" {
 			continue
 		}
 		label := strings.TrimSpace(f.Label)
 		if label == "" {
-			label = f.FileName
+			label = fileName
 		}
 		row := models.DocumentFile{
 			DocumentID:     docID,
 			Label:          label,
-			FileName:       strings.TrimSpace(f.FileName),
+			FileName:       fileName,
+			StoragePath:    storagePath,
 			Mime:           strings.TrimSpace(f.Mime),
 			SizeBytes:      f.SizeBytes,
 			Language:       localeOrDefault(f.Language),
@@ -577,6 +506,86 @@ func (h *DocumentHandler) replaceFiles(tx *gorm.DB, docID uuid.UUID, files []fil
 		}
 	}
 	return nil
+}
+
+func storeDocumentUpload(cfg *config.Config, fileName, mimeType, data string) (string, error) {
+	trimmed := strings.TrimSpace(data)
+	if trimmed == "" {
+		return "", nil
+	}
+	if cfg == nil {
+		return "", fmt.Errorf("upload config missing")
+	}
+	contentType := strings.TrimSpace(mimeType)
+	encoded := trimmed
+	if strings.Contains(trimmed, ";base64,") {
+		encoded = trimmed[strings.Index(trimmed, ";base64,")+len(";base64,"):]
+	} else if strings.HasPrefix(trimmed, "data:") {
+		parts := strings.SplitN(trimmed, ",", 2)
+		if len(parts) != 2 {
+			return "", fmt.Errorf("invalid file payload")
+		}
+		if strings.Contains(parts[0], ";base64") {
+			encoded = parts[1]
+		} else {
+			return "", fmt.Errorf("only base64 file uploads are supported")
+		}
+	}
+	decoded, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		decoded, err = base64.RawStdEncoding.DecodeString(encoded)
+		if err != nil {
+			return "", fmt.Errorf("invalid file payload: %w", err)
+		}
+	}
+	if len(decoded) == 0 {
+		return "", fmt.Errorf("uploaded file is empty")
+	}
+	if err := os.MkdirAll(filepath.Join(cfg.UploadDir, "documents"), 0o755); err != nil {
+		return "", fmt.Errorf("could not create upload dir: %w", err)
+	}
+	baseName := filepath.Base(strings.TrimSpace(fileName))
+	if baseName == "." || baseName == "" || baseName == "/" {
+		if contentType == "" {
+			contentType = "application/octet-stream"
+		}
+		switch {
+		case strings.Contains(contentType, "pdf"):
+			baseName = "document.pdf"
+		case strings.Contains(contentType, "word") || strings.Contains(contentType, "msword"):
+			baseName = "document.docx"
+		case strings.Contains(contentType, "excel"):
+			baseName = "document.xlsx"
+		case strings.Contains(contentType, "zip"):
+			baseName = "document.zip"
+		default:
+			baseName = "document.bin"
+		}
+	}
+	if ext := strings.ToLower(filepath.Ext(baseName)); ext == "" {
+		switch {
+		case strings.Contains(contentType, "pdf"):
+			baseName += ".pdf"
+		case strings.Contains(contentType, "json"):
+			baseName += ".json"
+		case strings.Contains(contentType, "csv"):
+			baseName += ".csv"
+		case strings.Contains(contentType, "html"):
+			baseName += ".html"
+		case strings.Contains(contentType, "xml"):
+			baseName += ".xml"
+		case strings.Contains(contentType, "text"):
+			baseName += ".txt"
+		}
+	}
+	fileID := uuid.NewString()
+	nameWithID := fileID + "_" + filepath.Base(baseName)
+	rel := filepath.ToSlash(filepath.Join("documents", nameWithID))
+	abs := filepath.Join(cfg.UploadDir, filepath.FromSlash(rel))
+	if err := os.WriteFile(abs, decoded, 0o644); err != nil {
+		return "", fmt.Errorf("could not store upload: %w", err)
+	}
+	return rel, nil
 }
 
 func (h *DocumentHandler) loadAdminJSON(c *fiber.Ctx, id uuid.UUID, status int) error {
@@ -626,7 +635,6 @@ func (h *DocumentHandler) AdminCreate(c *fiber.Ctx) error {
 		EffectiveDate:  eff,
 		Year:           year,
 		Tags:           strings.TrimSpace(in.Tags),
-		CoverImage:     strings.TrimSpace(in.CoverImage),
 	}
 	if status == models.DocPublished {
 		now := time.Now().UTC()
@@ -697,7 +705,6 @@ func (h *DocumentHandler) AdminUpdate(c *fiber.Ctx) error {
 		doc.ReadAccess = normalizeReadAccess(in.ReadAccess)
 		doc.Status = status
 		doc.Tags = strings.TrimSpace(in.Tags)
-		doc.CoverImage = strings.TrimSpace(in.CoverImage)
 		doc.Year = year
 		if in.EffectiveDate != nil {
 			doc.EffectiveDate = eff
