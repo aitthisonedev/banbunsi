@@ -49,7 +49,9 @@ export function SiteFooter({
               </Link>
             </li>
             <li>
-              <span className="opacity-70">{t(locale, "latestArticles")}</span>
+              <Link href={`/${locale}/articles`} className="hover:text-white">
+                {t(locale, "latestArticles")}
+              </Link>
             </li>
             <li>
               <Link href={`/${locale}/quizzes`} className="hover:text-white">
@@ -70,7 +72,9 @@ export function SiteFooter({
               </Link>
             </li>
             <li>
-              <span className="opacity-70">{t(locale, "faq")}</span>
+              <Link href={`/${locale}/faq`} className="hover:text-white">
+                {t(locale, "faq")}
+              </Link>
             </li>
             <li>
               <Link href={`/${locale}/vip`} className="hover:text-white">
