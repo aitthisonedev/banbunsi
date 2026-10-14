@@ -45,7 +45,10 @@ export default async function SearchPage({
         {!query ? (
           <EmptyState title={t(raw, "searchHint")} />
         ) : !result?.ok ? (
-          <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+          <ErrorState
+            title={t(raw, "loadError")}
+            description={t(raw, "tryAgain")}
+          />
         ) : result.data.items.length === 0 ? (
           <EmptyState title={t(raw, "noDocuments")} />
         ) : (

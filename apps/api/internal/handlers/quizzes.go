@@ -13,9 +13,9 @@ type QuizHandler struct {
 }
 
 type quizQuestionJSON struct {
-	ID              string `json:"id"`
-	Prompt          string `json:"prompt"`
-	Options         []struct {
+	ID      string `json:"id"`
+	Prompt  string `json:"prompt"`
+	Options []struct {
 		ID    string `json:"id"`
 		Label string `json:"label"`
 	} `json:"options"`
@@ -26,14 +26,14 @@ type quizQuestionJSON struct {
 type quizQuestionsByLocale map[string][]quizQuestionJSON
 
 type quizListItem struct {
-	ID           string `json:"id"`
-	Slug         string `json:"slug"`
-	Title        string `json:"title"`
-	Description  string `json:"description"`
-	Category     string `json:"category"`
-	Difficulty   string `json:"difficulty"`
-	PassPercent  int    `json:"pass_percent"`
-	QuestionCount int   `json:"question_count"`
+	ID            string `json:"id"`
+	Slug          string `json:"slug"`
+	Title         string `json:"title"`
+	Description   string `json:"description"`
+	Category      string `json:"category"`
+	Difficulty    string `json:"difficulty"`
+	PassPercent   int    `json:"pass_percent"`
+	QuestionCount int    `json:"question_count"`
 }
 
 type quizPublicQuestion struct {
@@ -166,13 +166,13 @@ func (h *QuizHandler) PublicSubmit(c *fiber.Ctx) error {
 			correct++
 		}
 		details = append(details, fiber.Map{
-			"question_id":  q.ID,
-			"prompt":       q.Prompt,
-			"selected_id":  selected,
-			"correct_id":   q.CorrectOptionID,
-			"is_correct":   isCorrect,
-			"explanation":  q.Explanation,
-			"options":      q.Options,
+			"question_id": q.ID,
+			"prompt":      q.Prompt,
+			"selected_id": selected,
+			"correct_id":  q.CorrectOptionID,
+			"is_correct":  isCorrect,
+			"explanation": q.Explanation,
+			"options":     q.Options,
 		})
 	}
 	total := len(qs)

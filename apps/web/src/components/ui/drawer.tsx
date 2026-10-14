@@ -29,12 +29,27 @@ export function Drawer({
   if (!open) return null;
 
   return (
-    <div className="drawer-root" role="dialog" aria-modal="true" aria-label={title}>
-      <button type="button" className="drawer-backdrop" aria-label="Close" onClick={onClose} />
+    <div
+      className="drawer-root"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <button
+        type="button"
+        className="drawer-backdrop"
+        aria-label="Close"
+        onClick={onClose}
+      />
       <div className="drawer-panel">
         <div className="drawer-head">
           <p className="drawer-title">{title}</p>
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={onClose}
+            aria-label="Close"
+          >
             ×
           </button>
         </div>

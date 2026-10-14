@@ -205,7 +205,9 @@ export default async function DocumentDetailPage({
                       <span>{file.file_name}</span>
                       {file.version ? <span>· v{file.version}</span> : null}
                       <span>·</span>
-                      <span className={`doc-badge doc-badge--${file.download_access}`}>
+                      <span
+                        className={`doc-badge doc-badge--${file.download_access}`}
+                      >
                         {accessLabel(raw, file.download_access)}
                       </span>
                     </p>
@@ -213,7 +215,12 @@ export default async function DocumentDetailPage({
                 </div>
 
                 {file.file_url ? (
-                  <a href={file.file_url} className="doc-file-btn" target="_blank" rel="noreferrer">
+                  <a
+                    href={file.file_url}
+                    className="doc-file-btn"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <DownloadIcon />
                     <span>{t(raw, "download") || "Download"}</span>
                   </a>

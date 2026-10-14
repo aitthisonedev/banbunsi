@@ -39,24 +39,23 @@ export default async function QuizzesPage({
   if (!isLocale(raw)) notFound();
 
   const api = await getQuizzes(raw).catch(() => null);
-  const quizzes =
-    api?.items?.length
-      ? api.items.map((q) => ({
-          slug: q.slug,
-          title: q.title,
-          description: q.description,
-          category: q.category,
-          difficulty: q.difficulty as QuizDifficulty,
-          questionCount: q.question_count,
-        }))
-      : listQuizzes(raw).map((q) => ({
-          slug: q.slug,
-          title: q.title,
-          description: q.description,
-          category: q.category,
-          difficulty: q.difficulty,
-          questionCount: q.questions.length,
-        }));
+  const quizzes = api?.items?.length
+    ? api.items.map((q) => ({
+        slug: q.slug,
+        title: q.title,
+        description: q.description,
+        category: q.category,
+        difficulty: q.difficulty as QuizDifficulty,
+        questionCount: q.question_count,
+      }))
+    : listQuizzes(raw).map((q) => ({
+        slug: q.slug,
+        title: q.title,
+        description: q.description,
+        category: q.category,
+        difficulty: q.difficulty,
+        questionCount: q.questions.length,
+      }));
 
   return (
     <div className="page-listing page-quizzes">

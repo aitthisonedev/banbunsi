@@ -145,7 +145,9 @@ export function AdminDocumentForm({
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "documentNumber")}</span>
+          <span className="mb-1 block text-bb-text-muted">
+            {t(locale, "documentNumber")}
+          </span>
           <input
             className="input"
             name="document_number"
@@ -154,7 +156,9 @@ export function AdminDocumentForm({
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "categories")}</span>
+          <span className="mb-1 block text-bb-text-muted">
+            {t(locale, "categories")}
+          </span>
           <Select
             name="category_id"
             required
@@ -163,7 +167,9 @@ export function AdminDocumentForm({
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "readAccess")}</span>
+          <span className="mb-1 block text-bb-text-muted">
+            {t(locale, "readAccess")}
+          </span>
           <Select
             name="read_access"
             defaultValue={initial?.read_access || "public"}
@@ -175,9 +181,15 @@ export function AdminDocumentForm({
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "status")}</span>
+          <span className="mb-1 block text-bb-text-muted">
+            {t(locale, "status")}
+          </span>
           {!isAdminPlus ? (
-            <input type="hidden" name="status" value={initial?.status || "draft"} />
+            <input
+              type="hidden"
+              name="status"
+              value={initial?.status || "draft"}
+            />
           ) : null}
           <Select
             name={isAdminPlus ? "status" : undefined}
@@ -191,7 +203,9 @@ export function AdminDocumentForm({
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "year")}</span>
+          <span className="mb-1 block text-bb-text-muted">
+            {t(locale, "year")}
+          </span>
           <input
             className="input"
             name="year"
@@ -200,45 +214,123 @@ export function AdminDocumentForm({
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "effectiveDate")}</span>
+          <span className="mb-1 block text-bb-text-muted">
+            {t(locale, "effectiveDate")}
+          </span>
           <input
             className="input"
             name="effective_date"
             type="date"
-            defaultValue={(initial?.effective_date || "").toString().slice(0, 10)}
+            defaultValue={(initial?.effective_date || "")
+              .toString()
+              .slice(0, 10)}
           />
         </label>
         <label className="block text-sm md:col-span-2">
-          <span className="mb-1 block text-bb-text-muted">{t(locale, "tags")}</span>
-          <input className="input" name="tags" defaultValue={initial?.tags || ""} />
+          <span className="mb-1 block text-bb-text-muted">
+            {t(locale, "tags")}
+          </span>
+          <input
+            className="input"
+            name="tags"
+            defaultValue={initial?.tags || ""}
+          />
         </label>
       </div>
 
       <fieldset className="surface-panel space-y-3">
         <legend className="font-bold">Lao</legend>
-        <input className="input" name="lo_title" required placeholder="Title" defaultValue={lo?.title || ""} />
-        <input className="input" name="lo_slug" placeholder="slug" defaultValue={lo?.slug || ""} />
-        <textarea className="input min-h-20" name="lo_summary" placeholder="Summary" defaultValue={lo?.summary || ""} />
-        <textarea className="input min-h-40" name="lo_body" placeholder="Body HTML" defaultValue={lo?.body_html || ""} />
+        <input
+          className="input"
+          name="lo_title"
+          required
+          placeholder="Title"
+          defaultValue={lo?.title || ""}
+        />
+        <input
+          className="input"
+          name="lo_slug"
+          placeholder="slug"
+          defaultValue={lo?.slug || ""}
+        />
+        <textarea
+          className="input min-h-20"
+          name="lo_summary"
+          placeholder="Summary"
+          defaultValue={lo?.summary || ""}
+        />
+        <textarea
+          className="input min-h-40"
+          name="lo_body"
+          placeholder="Body HTML"
+          defaultValue={lo?.body_html || ""}
+        />
       </fieldset>
 
       <fieldset className="surface-panel space-y-3">
         <legend className="font-bold">English</legend>
-        <input className="input" name="en_title" required placeholder="Title" defaultValue={en?.title || ""} />
-        <input className="input" name="en_slug" placeholder="slug" defaultValue={en?.slug || ""} />
-        <textarea className="input min-h-20" name="en_summary" placeholder="Summary" defaultValue={en?.summary || ""} />
-        <textarea className="input min-h-40" name="en_body" placeholder="Body HTML" defaultValue={en?.body_html || ""} />
+        <input
+          className="input"
+          name="en_title"
+          required
+          placeholder="Title"
+          defaultValue={en?.title || ""}
+        />
+        <input
+          className="input"
+          name="en_slug"
+          placeholder="slug"
+          defaultValue={en?.slug || ""}
+        />
+        <textarea
+          className="input min-h-20"
+          name="en_summary"
+          placeholder="Summary"
+          defaultValue={en?.summary || ""}
+        />
+        <textarea
+          className="input min-h-40"
+          name="en_body"
+          placeholder="Body HTML"
+          defaultValue={en?.body_html || ""}
+        />
       </fieldset>
 
       <fieldset className="surface-panel space-y-3">
         <legend className="font-bold">{t(locale, "files")} (metadata)</legend>
         <input className="input" type="file" name="file_upload" />
-        <input className="input" name="file_label" placeholder="Label" defaultValue={file0?.label || ""} />
-        <input className="input" name="file_name" placeholder="file.pdf" defaultValue={file0?.file_name || ""} />
+        <input
+          className="input"
+          name="file_label"
+          placeholder="Label"
+          defaultValue={file0?.label || ""}
+        />
+        <input
+          className="input"
+          name="file_name"
+          placeholder="file.pdf"
+          defaultValue={file0?.file_name || ""}
+        />
         <div className="grid gap-3 md:grid-cols-3">
-          <input className="input" name="file_mime" placeholder="mime" defaultValue={file0?.mime || "application/pdf"} />
-          <input className="input" name="file_size" type="number" placeholder="bytes" defaultValue={file0?.size_bytes || 0} />
-          <input className="input" name="file_version" placeholder="1.0" defaultValue={file0?.version || "1.0"} />
+          <input
+            className="input"
+            name="file_mime"
+            placeholder="mime"
+            defaultValue={file0?.mime || "application/pdf"}
+          />
+          <input
+            className="input"
+            name="file_size"
+            type="number"
+            placeholder="bytes"
+            defaultValue={file0?.size_bytes || 0}
+          />
+          <input
+            className="input"
+            name="file_version"
+            placeholder="1.0"
+            defaultValue={file0?.version || "1.0"}
+          />
         </div>
         <Select
           name="download_access"

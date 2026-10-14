@@ -54,7 +54,12 @@ export function LanguageSwitch({ locale }: { locale: Locale }) {
       >
         <Flag code={current.code} />
         <span>{current.label}</span>
-        <svg className="lang-switch-caret" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <svg
+          className="lang-switch-caret"
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
           <path
             d="M5 7.5l5 5 5-5"
             stroke="currentColor"
@@ -66,7 +71,11 @@ export function LanguageSwitch({ locale }: { locale: Locale }) {
       </button>
 
       {open && (
-        <div className="lang-switch-menu" role="listbox" aria-label={t(locale, "language")}>
+        <div
+          className="lang-switch-menu"
+          role="listbox"
+          aria-label={t(locale, "language")}
+        >
           {OPTIONS.map((opt) => {
             const active = opt.code === locale;
             return (

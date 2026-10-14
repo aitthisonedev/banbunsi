@@ -3,10 +3,7 @@ import { notFound } from "next/navigation";
 import { QuizPlayer } from "@/components/quiz-player";
 import { getQuiz as getQuizApi } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
-import {
-  getQuiz as getQuizDemo,
-  type QuizDifficulty,
-} from "@/lib/quizzes";
+import { getQuiz as getQuizDemo, type QuizDifficulty } from "@/lib/quizzes";
 
 export default async function QuizDetailPage({
   params,

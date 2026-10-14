@@ -40,8 +40,10 @@ const CATALOG: QuizDef[] = [
     difficulty: "easy",
     passPercent: 60,
     lo: {
-      title: "\u0e9e\u0eb2\u0eaa\u0eb5\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99",
-      description: "\u0e84\u0eb3\u0e96\u0eb2\u0ea1\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99\u0e81\u0ec8\u0ebd\u0ea7\u0e81\u0eb1\u0e9a\u0e9e\u0eb2\u0eaa\u0eb5",
+      title:
+        "\u0e9e\u0eb2\u0eaa\u0eb5\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99",
+      description:
+        "\u0e84\u0eb3\u0e96\u0eb2\u0ea1\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99\u0e81\u0ec8\u0ebd\u0ea7\u0e81\u0eb1\u0e9a\u0e9e\u0eb2\u0eaa\u0eb5",
       category: "\u0e9e\u0eb2\u0eaa\u0eb5",
     },
     en: {
@@ -82,7 +84,8 @@ const CATALOG: QuizDef[] = [
           { id: "d", label: "Website visitors" },
         ],
         correctOptionId: "a",
-        explanation: "Tax deadlines are set by the tax authority under the law.",
+        explanation:
+          "Tax deadlines are set by the tax authority under the law.",
       },
       {
         id: "t4",
@@ -101,8 +104,10 @@ const CATALOG: QuizDef[] = [
     difficulty: "easy",
     passPercent: 60,
     lo: {
-      title: "\u0e81\u0eb2\u0e99\u0e9a\u0eb1\u0e99\u0e8a\u0eb5\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99",
-      description: "\u0e84\u0eb3\u0e96\u0eb2\u0ea1\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99\u0e81\u0ec8\u0ebd\u0ea7\u0e81\u0eb1\u0e9a\u0e81\u0eb2\u0e99\u0e9a\u0eb1\u0e99\u0e8a\u0eb5",
+      title:
+        "\u0e81\u0eb2\u0e99\u0e9a\u0eb1\u0e99\u0e8a\u0eb5\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99",
+      description:
+        "\u0e84\u0eb3\u0e96\u0eb2\u0ea1\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99\u0e81\u0ec8\u0ebd\u0ea7\u0e81\u0eb1\u0e9a\u0e81\u0eb2\u0e99\u0e9a\u0eb1\u0e99\u0e8a\u0eb5",
       category: "\u0e81\u0eb2\u0e99\u0e9a\u0eb1\u0e99\u0e8a\u0eb5",
     },
     en: {
@@ -121,7 +126,8 @@ const CATALOG: QuizDef[] = [
           { id: "d", label: "Debt = Assets - Revenue" },
         ],
         correctOptionId: "a",
-        explanation: "The fundamental equation is Assets = Liabilities + Equity.",
+        explanation:
+          "The fundamental equation is Assets = Liabilities + Equity.",
       },
       {
         id: "a2",
@@ -152,8 +158,10 @@ const CATALOG: QuizDef[] = [
     difficulty: "medium",
     passPercent: 70,
     lo: {
-      title: "\u0e81\u0ebb\u0e94\u0edd\u0eb2\u0e8d\u0e97\u0eb8\u0ea5\u0eb0\u0e81\u0eb4\u0e94\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99",
-      description: "\u0e84\u0eb3\u0e96\u0eb2\u0ea1\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99\u0e81\u0ec8\u0ebd\u0ea7\u0e81\u0eb1\u0e9a\u0e81\u0ebb\u0e94\u0edd\u0eb2\u0e8d",
+      title:
+        "\u0e81\u0ebb\u0e94\u0edd\u0eb2\u0e8d\u0e97\u0eb8\u0ea5\u0eb0\u0e81\u0eb4\u0e94\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99",
+      description:
+        "\u0e84\u0eb3\u0e96\u0eb2\u0ea1\u0e9e\u0eb7\u0ec9\u0e99\u0e96\u0eb2\u0e99\u0e81\u0ec8\u0ebd\u0ea7\u0e81\u0eb1\u0e9a\u0e81\u0ebb\u0e94\u0edd\u0eb2\u0e8d",
       category: "\u0e81\u0ebb\u0e94\u0edd\u0eb2\u0e8d",
     },
     en: {

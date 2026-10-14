@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
 export type SelectOption = {
   value: string;
@@ -47,11 +41,7 @@ export function Select({
   const [internal, setInternal] = useState(defaultValue);
   const selected = controlled ?? internal;
   const selectedOption = options.find((o) => o.value === selected);
-  const label =
-    selectedOption?.label ||
-    placeholder ||
-    options[0]?.label ||
-    "";
+  const label = selectedOption?.label || placeholder || options[0]?.label || "";
 
   useEffect(() => {
     if (!open) return;
@@ -139,7 +129,12 @@ export function Select({
                 >
                   <span className="bb-select-check" aria-hidden>
                     {isSelected ? (
-                      <svg viewBox="0 0 20 20" width="14" height="14" fill="none">
+                      <svg
+                        viewBox="0 0 20 20"
+                        width="14"
+                        height="14"
+                        fill="none"
+                      >
                         <path
                           d="M4 10.5L8 14.5L16 5.5"
                           stroke="currentColor"

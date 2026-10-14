@@ -23,15 +23,15 @@ func (h *SettingsHandler) PublicGet(c *fiber.Ctx) error {
 		return errJSON(c, fiber.StatusInternalServerError, "Could not load settings")
 	}
 	return c.JSON(fiber.Map{
-		"site_name_lo":                 s.SiteNameLo,
-		"site_name_en":                 s.SiteNameEn,
-		"timezone":                     s.Timezone,
-		"contact_email":                s.ContactEmail,
-		"whatsapp_number":              s.WhatsappNumber,
-		"facebook_url":                 s.FacebookURL,
-		"tiktok_url":                   s.TiktokURL,
-		"default_meta_description_lo":  s.DefaultMetaDescriptionLo,
-		"default_meta_description_en":  s.DefaultMetaDescriptionEn,
+		"site_name_lo":                s.SiteNameLo,
+		"site_name_en":                s.SiteNameEn,
+		"timezone":                    s.Timezone,
+		"contact_email":               s.ContactEmail,
+		"whatsapp_number":             s.WhatsappNumber,
+		"facebook_url":                s.FacebookURL,
+		"tiktok_url":                  s.TiktokURL,
+		"default_meta_description_lo": s.DefaultMetaDescriptionLo,
+		"default_meta_description_en": s.DefaultMetaDescriptionEn,
 	})
 }
 

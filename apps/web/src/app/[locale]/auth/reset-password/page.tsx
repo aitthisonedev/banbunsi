@@ -252,7 +252,11 @@ function ResetInner() {
                 type="button"
                 className="auth-eye-btn"
                 onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? t(locale, "hidePassword") : t(locale, "showPassword")}
+                aria-label={
+                  showPassword
+                    ? t(locale, "hidePassword")
+                    : t(locale, "showPassword")
+                }
               >
                 {showPassword ? <EyeOffIcon /> : <EyeIcon />}
               </button>
@@ -281,7 +285,11 @@ function ResetInner() {
                 type="button"
                 className="auth-eye-btn"
                 onClick={() => setShowConfirm((prev) => !prev)}
-                aria-label={showConfirm ? t(locale, "hidePassword") : t(locale, "showPassword")}
+                aria-label={
+                  showConfirm
+                    ? t(locale, "hidePassword")
+                    : t(locale, "showPassword")
+                }
               >
                 {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
               </button>

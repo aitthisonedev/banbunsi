@@ -188,11 +188,7 @@ export default function ForgotPasswordPage() {
             </div>
           ) : null}
 
-          <button
-            className="auth-submit-btn"
-            disabled={loading}
-            type="submit"
-          >
+          <button className="auth-submit-btn" disabled={loading} type="submit">
             {loading ? (
               <>
                 <SpinnerIcon />

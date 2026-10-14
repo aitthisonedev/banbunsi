@@ -5,7 +5,10 @@ import { EmptyState, ErrorState } from "@/components/ui";
 import { getCategories, getDocuments, type CategoryNode } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 
-function findCategory(items: CategoryNode[], slug: string): CategoryNode | undefined {
+function findCategory(
+  items: CategoryNode[],
+  slug: string,
+): CategoryNode | undefined {
   for (const c of items) {
     if (c.slug === slug) return c;
     const child = findCategory(c.children || [], slug);
@@ -26,7 +29,10 @@ export default async function CategoryDetailPage({
   if (!cats) {
     return (
       <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-5">
-        <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+        <ErrorState
+          title={t(raw, "loadError")}
+          description={t(raw, "tryAgain")}
+        />
       </div>
     );
   }
@@ -47,14 +53,20 @@ export default async function CategoryDetailPage({
         </Link>
       </p>
       <h1 className="mt-2 text-3xl font-bold">{cat.name}</h1>
-      {cat.description ? <p className="mt-4 text-bb-text-muted">{cat.description}</p> : null}
+      {cat.description ? (
+        <p className="mt-4 text-bb-text-muted">{cat.description}</p>
+      ) : null}
       <div className="mt-8 surface-panel">
         {!docs ? (
           <ErrorState title={t(raw, "loadError")} />
         ) : docs.items.length === 0 ? (
           <EmptyState title={t(raw, "noDocuments")} />
         ) : (
-          <DocumentList locale={raw} items={docs.items} emptyText={t(raw, "noDocuments")} />
+          <DocumentList
+            locale={raw}
+            items={docs.items}
+            emptyText={t(raw, "noDocuments")}
+          />
         )}
       </div>
     </div>
