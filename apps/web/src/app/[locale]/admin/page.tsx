@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,6 +14,7 @@ import {
   clientPatchAdminMember,
   type AdminMember,
 } from "@/lib/client-api";
+import { categoryCover } from "@/lib/category-covers";
 import { isLocale, t } from "@/lib/i18n";
 import { MemberAvatar } from "@/components/member-avatar";
 import { usePublicSettings } from "@/components/public-settings-context";
@@ -756,103 +758,63 @@ export default function AdminDashboardPage() {
             <span className="dash-sub-select">Weekly ⌄</span>
           </div>
 
-          <div className="dash-category-list">
-            <Link
-              href={`/${locale}/admin/documents?category=tax`}
-              className="dash-category-item"
-            >
-              <span
-                className="dash-cat-icon"
-                style={{ background: "#fef2f2", color: "#ef4444" }}
-              >
-                📑
-              </span>
-              <div className="dash-cat-info">
-                <strong>
-                  {locale === "lo" ? "ພາສີ - ອາກອນ" : "Tax & Duties"}
-                </strong>
-                <span>
-                  {locale === "lo"
-                    ? "ແບບຟອມ & ລະບຽບການ"
-                    : "Forms & Regulations"}
-                </span>
-              </div>
-              <div className="dash-cat-stat">
-                <strong>4 Files</strong>
-                <span className="dash-cat-sold">Published</span>
-              </div>
-            </Link>
-
-            <Link
-              href={`/${locale}/admin/documents?category=accounting`}
-              className="dash-category-item"
-            >
-              <span
-                className="dash-cat-icon"
-                style={{ background: "#f5f3ff", color: "#8b5cf6" }}
-              >
-                📊
-              </span>
-              <div className="dash-cat-info">
-                <strong>{locale === "lo" ? "ການບັນຊີ" : "Accounting"}</strong>
-                <span>
-                  {locale === "lo" ? "ມາດຕະຖານ & ຄູ່ມື" : "Standards & Guides"}
-                </span>
-              </div>
-              <div className="dash-cat-stat">
-                <strong>3 Files</strong>
-                <span className="dash-cat-sold">Published</span>
-              </div>
-            </Link>
-
-            <Link
-              href={`/${locale}/admin/documents?category=law`}
-              className="dash-category-item"
-            >
-              <span
-                className="dash-cat-icon"
-                style={{ background: "#eff6ff", color: "#3b82f6" }}
-              >
-                ⚖️
-              </span>
-              <div className="dash-cat-info">
-                <strong>
-                  {locale === "lo" ? "ກົດໝາຍ" : "Law & Regulations"}
-                </strong>
-                <span>
-                  {locale === "lo" ? "ກົດໝາຍວິສາຫະກິດ" : "Commercial Law"}
-                </span>
-              </div>
-              <div className="dash-cat-stat">
-                <strong>3 Files</strong>
-                <span className="dash-cat-sold">Published</span>
-              </div>
-            </Link>
-
-            <Link
-              href={`/${locale}/admin/documents?category=finance`}
-              className="dash-category-item"
-            >
-              <span
-                className="dash-cat-icon"
-                style={{ background: "#ecfdf5", color: "#10b981" }}
-              >
-                💰
-              </span>
-              <div className="dash-cat-info">
-                <strong>{locale === "lo" ? "ການເງິນ" : "Finance"}</strong>
-                <span>
-                  {locale === "lo"
-                    ? "ບົດລາຍງານການເງິນ"
-                    : "Financial Statements"}
-                </span>
-              </div>
-              <div className="dash-cat-stat">
-                <strong>2 Files</strong>
-                <span className="dash-cat-sold">Published</span>
-              </div>
-            </Link>
-          </div>
+          <ul className="dash-category-list">
+            {[
+              {
+                code: "tax",
+                name: locale === "lo" ? "ພາສີ - ອາກອນ" : "Tax & Duties",
+                description:
+                  locale === "lo" ? "ແບບຟອມ & ລະບຽບການ" : "Forms & Regulations",
+                files: 4,
+              },
+              {
+                code: "accounting",
+                name: locale === "lo" ? "ການບັນຊີ" : "Accounting",
+                description:
+                  locale === "lo" ? "ມາດຕະຖານ & ຄູ່ມື" : "Standards & Guides",
+                files: 3,
+              },
+              {
+                code: "law",
+                name: locale === "lo" ? "ກົດໝາຍ" : "Law & Regulations",
+                description:
+                  locale === "lo" ? "ກົດໝາຍວິສາຫະກິດ" : "Commercial Law",
+                files: 3,
+              },
+              {
+                code: "finance",
+                name: locale === "lo" ? "ການເງິນ" : "Finance",
+                description:
+                  locale === "lo" ? "ບົດລາຍງານການເງິນ" : "Financial Statements",
+                files: 2,
+              },
+            ].map((cat) => (
+              <li key={cat.code}>
+                <Link
+                  href={`/${locale}/admin/documents?category=${cat.code}`}
+                  className="dash-category-item"
+                >
+                  <span className="dash-cat-media">
+                    <Image
+                      src={categoryCover({ category_slug: cat.code }, cat.code)}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 50vw, 200px"
+                      className="dash-cat-img"
+                    />
+                  </span>
+                  <span className="dash-cat-info">
+                    <strong>{cat.name}</strong>
+                    <span>{cat.description}</span>
+                  </span>
+                  <span className="dash-cat-stat">
+                    <strong>{cat.files} Files</strong>
+                    <span className="dash-cat-sold">Published</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 

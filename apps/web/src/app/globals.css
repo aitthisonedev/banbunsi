@@ -7292,72 +7292,99 @@ html.dark .dash-legend-dot--secondary {
 }
 
 .dash-category-list {
-  padding: 0.75rem 1.25rem;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+  margin: 0;
+  padding: 1rem 1.25rem 1.25rem;
+  list-style: none;
 }
 
+/* Same card style as the Home page category cards: cover image, then name and description */
 .dash-category-item {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--dash-border);
+  border-radius: 12px;
+  background: var(--dash-card-bg);
   color: inherit;
-  padding: 0.4rem;
-  border-radius: 6px;
-  transition: background 0.12s ease;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease;
 }
 
 .dash-category-item:hover {
-  background: var(--dash-bg);
+  border-color: color-mix(in srgb, var(--dash-primary) 55%, var(--dash-border));
+  transform: translateY(-2px);
 }
 
-.dash-cat-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
+.dash-category-item:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--dash-primary) 45%, transparent);
+  outline-offset: 2px;
+}
+
+.dash-cat-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #061644;
   flex-shrink: 0;
+}
+
+.dash-cat-img {
+  object-fit: cover;
+  transition: transform 320ms ease;
+}
+
+.dash-category-item:hover .dash-cat-img {
+  transform: scale(1.05);
 }
 
 .dash-cat-info {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  gap: 0.15rem;
   min-width: 0;
+  padding: 0.6rem 0.7rem 0;
 }
 
 .dash-cat-info strong {
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--dash-text);
-  white-space: nowrap;
+  line-height: 1.45;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dash-cat-info span {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--dash-text-muted);
-  white-space: nowrap;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .dash-cat-stat {
   display: flex;
-  flex-direction: column;
-  text-align: right;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding: 0.45rem 0.7rem 0.65rem;
 }
 
 .dash-cat-stat strong {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--dash-text);
+  color: var(--dash-primary-text);
 }
 
 .dash-cat-sold {
