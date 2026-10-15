@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { DocumentList } from "@/components/document-list";
 import { EmptyState, ErrorState } from "@/components/ui";
 import { getCategories, getDocuments, type CategoryNode } from "@/lib/api";
@@ -36,6 +36,15 @@ export async function generateMetadata({
   );
 }
 
+function findCategoryById(items: CategoryNode[], id: string): CategoryNode | undefined {
+  for (const c of items) {
+    if (c.id === id) return c;
+    const child = findCategoryById(c.children || [], id);
+    if (child) return child;
+  }
+  return undefined;
+}
+
 export default async function CategoryDetailPage({
   params,
 }: {
@@ -57,7 +66,16 @@ export default async function CategoryDetailPage({
   }
 
   const cat = findCategory(cats.items, slug);
-  if (!cat) notFound();
+  if (!cat) {
+    // Category slugs differ per language (e.g. "accounting" / "kan-banchi"). When the language
+    // switcher keeps the other language's slug, redirect to this language's slug instead of a 404.
+    const other = raw === "lo" ? "en" : "lo";
+    const otherCats = await getCategories(other).catch(() => null);
+    const match = otherCats ? findCategory(otherCats.items, slug) : undefined;
+    const localized = match ? findCategoryById(cats.items, match.id) : undefined;
+    if (localized) redirect(`/${raw}/categories/${encodeURIComponent(localized.slug)}`);
+    notFound();
+  }
 
   const docs = await getDocuments(raw, {
     category: cat.slug,
