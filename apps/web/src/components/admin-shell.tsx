@@ -17,9 +17,16 @@ type NavItem = {
   href: string;
   label: string;
   icon: (active: boolean) => React.ReactNode;
-  match: (p: string) => boolean;
+  /** Route prefix that marks this item as the current page. */
+  base: string;
+  group: "overview" | "content" | "administration";
   adminPlus?: boolean;
 };
+
+/** True when pathname is base itself or a page below it (e.g. /admin/documents/123/edit). */
+function isWithin(pathname: string, base: string) {
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
 
 export function AdminShell({
   locale,
@@ -83,7 +90,8 @@ export function AdminShell({
     {
       href: `/${locale}/admin`,
       label: t(locale, "dashboard"),
-      match: (p: string) => p === `/${locale}/admin`,
+      base: `/${locale}/admin`,
+      group: "overview",
       icon: () => (
         <svg
           viewBox="0 0 24 24"
@@ -103,7 +111,8 @@ export function AdminShell({
     {
       href: `/${locale}/admin/documents`,
       label: t(locale, "adminDocuments"),
-      match: (p: string) => p.includes("/admin/documents"),
+      base: `/${locale}/admin/documents`,
+      group: "content",
       icon: () => (
         <svg
           viewBox="0 0 24 24"
@@ -123,7 +132,8 @@ export function AdminShell({
     {
       href: `/${locale}/admin/categories`,
       label: t(locale, "adminCategories"),
-      match: (p: string) => p.includes("/admin/categories"),
+      base: `/${locale}/admin/categories`,
+      group: "content",
       icon: () => (
         <svg
           viewBox="0 0 24 24"
@@ -140,7 +150,8 @@ export function AdminShell({
     {
       href: `/${locale}/admin/quizzes`,
       label: t(locale, "adminQuizzes"),
-      match: (p: string) => p.includes("/admin/quizzes"),
+      base: `/${locale}/admin/quizzes`,
+      group: "content",
       icon: () => (
         <svg
           viewBox="0 0 24 24"
@@ -158,7 +169,8 @@ export function AdminShell({
     {
       href: `/${locale}/admin/members`,
       label: t(locale, "adminMembers"),
-      match: (p: string) => p.includes("/admin/members"),
+      base: `/${locale}/admin/members`,
+      group: "administration",
       adminPlus: true,
       icon: () => (
         <svg
@@ -179,7 +191,8 @@ export function AdminShell({
     {
       href: `/${locale}/admin/settings`,
       label: t(locale, "settings"),
-      match: (p: string) => p.includes("/admin/settings"),
+      base: `/${locale}/admin/settings`,
+      group: "administration",
       adminPlus: true,
       icon: () => (
         <svg
@@ -196,6 +209,24 @@ export function AdminShell({
       ),
     },
   ];
+
+  const visibleItems = navItems.filter(
+    (item) => !item.adminPlus || isAdminPlus,
+  );
+  // At most one item is current: the longest matching route. Dashboard (/admin) is a prefix of
+  // every page, so it must match exactly.
+  const activeHref = visibleItems
+    .filter((item) =>
+      item.group === "overview"
+        ? pathname === item.base
+        : isWithin(pathname, item.base),
+    )
+    .sort((a, b) => b.base.length - a.base.length)[0]?.href;
+  const navGroups = [
+    { key: "overview", label: t(locale, "navGroupOverview") },
+    { key: "content", label: t(locale, "navGroupContent") },
+    { key: "administration", label: t(locale, "navGroupAdministration") },
+  ] as const;
 
   return (
     <div className={`dash-shell${navOpen ? " is-nav-open" : ""}`}>
@@ -231,27 +262,35 @@ export function AdminShell({
 
         <div className="dash-sidebar-body">
           <nav className="dash-nav" aria-label="Admin Navigation">
-            <ul className="dash-nav-list">
-              {navItems
-                .filter((item) => !item.adminPlus || isAdminPlus)
-                .map((item) => {
-                  const isActive = item.match(pathname);
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={`dash-nav-link${isActive ? " is-active" : ""}`}
-                        onClick={() => setNavOpen(false)}
-                      >
-                        <span className="dash-nav-icon">
-                          {item.icon(isActive)}
-                        </span>
-                        <span className="dash-nav-text">{item.label}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-            </ul>
+            {navGroups.map((group) => {
+              const items = visibleItems.filter((i) => i.group === group.key);
+              if (!items.length) return null;
+              return (
+                <div key={group.key} className="dash-nav-group">
+                  <span className="dash-nav-heading">{group.label}</span>
+                  <ul className="dash-nav-list">
+                    {items.map((item) => {
+                      const isActive = item.href === activeHref;
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            className={`dash-nav-link${isActive ? " is-active" : ""}`}
+                            aria-current={isActive ? "page" : undefined}
+                            onClick={() => setNavOpen(false)}
+                          >
+                            <span className="dash-nav-icon">
+                              {item.icon(isActive)}
+                            </span>
+                            <span className="dash-nav-text">{item.label}</span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
           </nav>
         </div>
 
