@@ -4,15 +4,18 @@ import { useState } from "react";
 import { avatarSrc } from "@/lib/client-api";
 
 /**
- * Content for a member avatar circle: the member's profile photo when available, otherwise a
+ * Content for a member avatar circle: the member's profile photo (an upload or their Google
+ * picture) when available, otherwise a
  * default person icon (also used if the photo fails to load). The parent keeps its own size/shape.
  */
 export function MemberAvatar({
   avatarUrl,
   size,
+  imgClassName = "h-full w-full object-cover",
 }: {
   avatarUrl?: string | null;
   size: number;
+  imgClassName?: string;
 }) {
   const photo = avatarSrc(avatarUrl);
   const [failed, setFailed] = useState("");
@@ -25,7 +28,9 @@ export function MemberAvatar({
         alt=""
         width={size}
         height={size}
-        className="h-full w-full object-cover"
+        className={imgClassName}
+        // Google profile photos (lh3.googleusercontent.com) can refuse requests that send a referrer.
+        referrerPolicy="no-referrer"
         onError={() => setFailed(photo)}
       />
     );

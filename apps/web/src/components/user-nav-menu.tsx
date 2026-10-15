@@ -1,16 +1,10 @@
 "use client";
 
+import { MemberAvatar } from "@/components/member-avatar";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Locale, User } from "@/lib/api";
-import { avatarSrc } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
-
-function getInitials(user: User): string {
-  const first = (user.first_name || user.name || "?").trim().charAt(0);
-  const last = (user.last_name || "").trim().charAt(0);
-  return (first + last).toUpperCase() || "?";
-}
 
 export function UserNavMenu({
   user,
@@ -50,8 +44,6 @@ export function UserNavMenu({
     };
   }, [open]);
 
-  const photo = avatarSrc(user.avatar_url);
-  const initials = getInitials(user);
   const displayName =
     user.name ||
     [user.first_name, user.last_name].filter(Boolean).join(" ") ||
@@ -70,18 +62,11 @@ export function UserNavMenu({
         title={displayName}
       >
         <span className="user-nav-avatar">
-          {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={photo}
-              alt=""
-              width={32}
-              height={32}
-              className="user-nav-avatar-img"
-            />
-          ) : (
-            <span className="user-nav-avatar-initials">{initials}</span>
-          )}
+          <MemberAvatar
+            avatarUrl={user.avatar_url}
+            size={32}
+            imgClassName="user-nav-avatar-img"
+          />
         </span>
         <svg
           className={`user-nav-chevron ${open ? "is-open" : ""}`}
@@ -104,18 +89,11 @@ export function UserNavMenu({
           {/* User details header */}
           <div className="user-nav-dropdown-head">
             <span className="user-nav-dropdown-avatar">
-              {photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={photo}
-                  alt=""
-                  width={40}
-                  height={40}
-                  className="user-nav-avatar-img"
-                />
-              ) : (
-                <span className="user-nav-avatar-initials">{initials}</span>
-              )}
+              <MemberAvatar
+                avatarUrl={user.avatar_url}
+                size={40}
+                imgClassName="user-nav-avatar-img"
+              />
             </span>
             <div className="user-nav-dropdown-info">
               <span className="user-nav-dropdown-name">{displayName}</span>

@@ -1,16 +1,10 @@
 "use client";
 
+import { MemberAvatar } from "@/components/member-avatar";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Locale, User } from "@/lib/api";
-import { avatarSrc } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
-
-function getInitials(user: User): string {
-  const first = (user.first_name || user.name || "?").trim().charAt(0);
-  const last = (user.last_name || "").trim().charAt(0);
-  return (first + last).toUpperCase() || "?";
-}
 
 export function AdminProfileMenu({
   user,
@@ -23,8 +17,6 @@ export function AdminProfileMenu({
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const photo = avatarSrc(user.avatar_url);
-  const initials = getInitials(user);
   const displayName =
     user.name ||
     [user.first_name, user.last_name].filter(Boolean).join(" ") ||
@@ -61,18 +53,11 @@ export function AdminProfileMenu({
         aria-label={displayName}
       >
         <span className="dash-user-avatar">
-          {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={photo}
-              alt=""
-              width={34}
-              height={34}
-              className="dash-user-avatar-img"
-            />
-          ) : (
-            <span className="dash-user-avatar-initials">{initials}</span>
-          )}
+          <MemberAvatar
+            avatarUrl={user.avatar_url}
+            size={34}
+            imgClassName="dash-user-avatar-img"
+          />
         </span>
 
         <span className="dash-user-meta">
@@ -107,18 +92,11 @@ export function AdminProfileMenu({
         <div className="dash-dropdown" role="menu">
           <div className="dash-dropdown-header">
             <span className="dash-user-avatar dash-user-avatar--lg">
-              {photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={photo}
-                  alt=""
-                  width={42}
-                  height={42}
-                  className="dash-user-avatar-img"
-                />
-              ) : (
-                <span className="dash-user-avatar-initials">{initials}</span>
-              )}
+              <MemberAvatar
+                avatarUrl={user.avatar_url}
+                size={42}
+                imgClassName="dash-user-avatar-img"
+              />
             </span>
             <div className="dash-dropdown-user-info">
               <strong className="dash-dropdown-name">{displayName}</strong>

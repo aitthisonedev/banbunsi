@@ -1,5 +1,6 @@
 "use client";
 
+import { MemberAvatar } from "@/components/member-avatar";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,7 +10,7 @@ import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserNavMenu } from "@/components/user-nav-menu";
 import { Drawer } from "@/components/ui";
-import { avatarSrc, clientLogout, clientMe } from "@/lib/client-api";
+import { clientLogout, clientMe } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
 
 export function SiteHeader({ locale }: { locale: Locale }) {
@@ -110,23 +111,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
       <div className="drawer-user-section">
         <div className="drawer-user-head">
           <span className="user-nav-avatar">
-            {user.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarSrc(user.avatar_url)}
-                alt=""
-                width={40}
-                height={40}
-                className="user-nav-avatar-img"
-              />
-            ) : (
-              <span className="user-nav-avatar-initials">
-                {(
-                  (user.first_name || user.name || "?").trim().charAt(0) +
-                  (user.last_name || "").trim().charAt(0)
-                ).toUpperCase() || "?"}
-              </span>
-            )}
+            <MemberAvatar
+              avatarUrl={user.avatar_url}
+              size={40}
+              imgClassName="user-nav-avatar-img"
+            />
           </span>
           <div className="drawer-user-info">
             <span className="drawer-user-name">

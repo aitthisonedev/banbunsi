@@ -1,11 +1,11 @@
 "use client";
 
+import { MemberAvatar } from "@/components/member-avatar";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { User } from "@/lib/api";
 import {
-  avatarSrc,
   clientChangePassword,
   clientDeleteAvatar,
   clientMe,
@@ -30,12 +30,6 @@ type TabId =
   | "favorites"
   | "downloads"
   | "quizzes";
-
-function getInitials(user: User) {
-  const a = (user.first_name || user.name || "?").trim().charAt(0);
-  const b = (user.last_name || "").trim().charAt(0);
-  return (a + b).toUpperCase() || "?";
-}
 
 function tierLabel(locale: "lo" | "en", tier: User["membership_tier"]) {
   if (tier === "vip") return t(locale, "badgeVip");
@@ -260,8 +254,6 @@ export function AccountHub() {
     );
   }
 
-  const photo = avatarSrc(user.avatar_url);
-  const initials = getInitials(user);
   const isVip = user.membership_tier === "vip";
   const displayName =
     user.name ||
@@ -391,20 +383,11 @@ export function AccountHub() {
           <div className="account-hero-profile">
             <div className="account-avatar-wrapper">
               <div className="account-avatar-main" aria-hidden>
-                {photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photo}
-                    alt=""
-                    width={84}
-                    height={84}
-                    className="account-avatar-main-img"
-                  />
-                ) : (
-                  <span className="account-avatar-main-initials">
-                    {initials}
-                  </span>
-                )}
+                <MemberAvatar
+                  avatarUrl={user.avatar_url}
+                  size={84}
+                  imgClassName="account-avatar-main-img"
+                />
               </div>
             </div>
 
@@ -519,20 +502,11 @@ export function AccountHub() {
                   {/* Photo section */}
                   <div className="account-photo-card">
                     <div className="account-photo-preview" aria-hidden>
-                      {photo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={photo}
-                          alt=""
-                          width={68}
-                          height={68}
-                          className="account-photo-preview-img"
-                        />
-                      ) : (
-                        <span className="account-avatar-main-initials">
-                          {initials}
-                        </span>
-                      )}
+                      <MemberAvatar
+                        avatarUrl={user.avatar_url}
+                        size={68}
+                        imgClassName="account-photo-preview-img"
+                      />
                     </div>
                     <div className="account-photo-controls">
                       <div className="account-photo-btns">
