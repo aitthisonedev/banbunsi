@@ -7497,7 +7497,7 @@ html.dark .dash-legend-dot--secondary {
 }
 
 /* ==========================================================================
-   Admin dashboard overview (dov-*): same max width as the other admin pages
+   Admin dashboard overview (dov-*): full width of the admin content area, like the other admin pages
    ========================================================================== */
 .dov {
   --dov-blue: var(--bb-blue);
@@ -7506,7 +7506,7 @@ html.dark .dash-legend-dot--secondary {
   --dov-violet: #6d28d9;
   display: flex;
   width: 100%;
-  max-width: 80rem;
+  max-width: 100%;
   flex-direction: column;
   gap: 1.25rem;
 }

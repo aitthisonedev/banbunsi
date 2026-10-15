@@ -211,7 +211,7 @@ export function DocumentRowsSkeleton({ rows = 5 }: { rows?: number }) {
 export function PageSkeleton() {
   return (
     <div
-      className="w-full max-w-7xl animate-pulse space-y-6"
+      className="w-full animate-pulse space-y-6"
       role="status"
       aria-label="Loading"
     >

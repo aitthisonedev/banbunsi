@@ -83,7 +83,7 @@ export default function AdminDocumentDetailsPage() {
 
   if (loadError) {
     return (
-      <div className="w-full max-w-7xl space-y-4">
+      <div className="w-full space-y-4">
         {backLink}
         <section className={panelClass}>
           <StatePanel
@@ -165,7 +165,7 @@ export default function AdminDocumentDetailsPage() {
   ];
 
   return (
-    <div className="w-full max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       <PageHeader
         back={backLink}
         eyebrow={document.document_number}

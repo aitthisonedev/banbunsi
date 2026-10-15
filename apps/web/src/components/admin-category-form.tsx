@@ -158,7 +158,7 @@ export function AdminCategoryForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="w-full max-w-7xl space-y-5">
+    <form onSubmit={onSubmit} className="w-full space-y-5">
       {message ? <SuccessBanner>{message}</SuccessBanner> : null}
       {error ? (
         <p className="text-sm font-semibold text-red-600" role="alert">

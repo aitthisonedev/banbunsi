@@ -83,7 +83,7 @@ export default function AdminNewDocumentPage() {
 
   if (loadError) {
     return (
-      <div className="w-full max-w-7xl space-y-4">
+      <div className="w-full space-y-4">
         {backLink}
         <section className={panelClass}>
           <StatePanel
@@ -107,7 +107,7 @@ export default function AdminNewDocumentPage() {
   if (!categories || !defaults) return <PageSkeleton />;
 
   return (
-    <div className="w-full max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       <PageHeader
         back={backLink}
         title={t(locale, "newDocument")}
