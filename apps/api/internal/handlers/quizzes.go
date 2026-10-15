@@ -89,7 +89,7 @@ func (h *QuizHandler) PublicList(c *fiber.Ctx) error {
 
 func (h *QuizHandler) PublicGet(c *fiber.Ctx) error {
 	locale := localeOrDefault(c.Query("locale"))
-	slug := c.Params("slug")
+	slug := slugParam(c)
 	if slug == "" {
 		return errJSON(c, fiber.StatusBadRequest, "Missing slug")
 	}
@@ -134,7 +134,7 @@ type quizSubmitBody struct {
 
 func (h *QuizHandler) PublicSubmit(c *fiber.Ctx) error {
 	locale := localeOrDefault(c.Query("locale"))
-	slug := c.Params("slug")
+	slug := slugParam(c)
 	if slug == "" {
 		return errJSON(c, fiber.StatusBadRequest, "Missing slug")
 	}

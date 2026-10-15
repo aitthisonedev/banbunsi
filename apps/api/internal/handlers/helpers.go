@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/url"
 	"strings"
 	"time"
 
@@ -80,4 +81,14 @@ func userPayload(u *models.User, tier models.MembershipTier, endsAt *time.Time) 
 
 func parseUUID(s string) (uuid.UUID, error) {
 	return uuid.Parse(s)
+}
+
+// slugParam returns the :slug route parameter decoded. Fiber leaves path parameters
+// percent-encoded, so non-Latin slugs (e.g. Lao "ບົດລາຍງານ") would otherwise never match.
+func slugParam(c *fiber.Ctx) string {
+	raw := c.Params("slug")
+	if decoded, err := url.PathUnescape(raw); err == nil {
+		raw = decoded
+	}
+	return strings.TrimSpace(raw)
 }

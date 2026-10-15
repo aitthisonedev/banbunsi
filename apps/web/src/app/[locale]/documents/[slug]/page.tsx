@@ -8,6 +8,7 @@ import { isLocale, t } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import { decodeSlug } from "@/lib/slug";
 
 function accessLabel(locale: "lo" | "en", access: string) {
   if (access === "vip") return t(locale, "badgeVip");
@@ -84,7 +85,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { locale, slug } = await params;
+  const { locale, slug: rawSlug } = await params;
+  const slug = decodeSlug(rawSlug);
   if (!isLocale(locale)) return {};
   const doc = await getDocument(locale, slug).catch(() => null);
   return pageMetadata(
@@ -100,7 +102,8 @@ export default async function DocumentDetailPage({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { locale: raw, slug } = await params;
+  const { locale: raw, slug: rawSlug } = await params;
+  const slug = decodeSlug(rawSlug);
   if (!isLocale(raw)) notFound();
 
   const headerStore = await headers();

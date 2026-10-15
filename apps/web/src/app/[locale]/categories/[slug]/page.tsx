@@ -6,6 +6,7 @@ import { getCategories, getDocuments, type CategoryNode } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import { decodeSlug } from "@/lib/slug";
 
 function findCategory(
   items: CategoryNode[],
@@ -24,7 +25,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { locale, slug } = await params;
+  const { locale, slug: rawSlug } = await params;
+  const slug = decodeSlug(rawSlug);
   if (!isLocale(locale)) return {};
   const cats = await getCategories(locale).catch(() => null);
   const category = cats ? findCategory(cats.items, slug) : undefined;
@@ -53,7 +55,8 @@ export default async function CategoryDetailPage({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { locale: raw, slug } = await params;
+  const { locale: raw, slug: rawSlug } = await params;
+  const slug = decodeSlug(rawSlug);
   if (!isLocale(raw)) notFound();
 
   const cats = await getCategories(raw).catch(() => null);

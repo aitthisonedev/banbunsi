@@ -6,13 +6,15 @@ import { isLocale, t } from "@/lib/i18n";
 import { getQuiz as getQuizDemo, type QuizDifficulty } from "@/lib/quizzes";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import { decodeSlug } from "@/lib/slug";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { locale, slug } = await params;
+  const { locale, slug: rawSlug } = await params;
+  const slug = decodeSlug(rawSlug);
   if (!isLocale(locale)) return {};
   const quiz =
     (await getQuizApi(locale, slug).catch(() => null)) ||
@@ -30,7 +32,8 @@ export default async function QuizDetailPage({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { locale: raw, slug } = await params;
+  const { locale: raw, slug: rawSlug } = await params;
+  const slug = decodeSlug(rawSlug);
   if (!isLocale(raw)) notFound();
 
   const apiQuiz = await getQuizApi(raw, slug).catch(() => null);

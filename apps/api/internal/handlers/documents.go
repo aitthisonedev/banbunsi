@@ -372,7 +372,7 @@ func (h *DocumentHandler) PublicList(c *fiber.Ctx) error {
 
 func (h *DocumentHandler) PublicGet(c *fiber.Ctx) error {
 	locale := localeOrDefault(c.Query("locale"))
-	slug := strings.TrimSpace(c.Params("slug"))
+	slug := slugParam(c)
 	if slug == "" {
 		return errJSON(c, fiber.StatusBadRequest, "Missing slug")
 	}
