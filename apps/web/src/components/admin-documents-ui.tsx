@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
+import { imageVariant } from "@/lib/image-variants";
 
 /** Shared building blocks for the admin document pages (list, detail, new, edit). */
 
@@ -42,7 +43,9 @@ export function DocumentCover({
   size?: keyof typeof COVER_SIZES;
 }) {
   const [failed, setFailed] = useState<string[]>([]);
-  const src = [primarySrc, fallbackSrc].find(
+  // Uploaded covers are requested at thumbnail size from the API.
+  const resizedPrimary = imageVariant(primarySrc, size === "lg" ? 640 : 160);
+  const src = [resizedPrimary, fallbackSrc].find(
     (candidate) => candidate && !failed.includes(candidate),
   );
   const showImage = Boolean(src);

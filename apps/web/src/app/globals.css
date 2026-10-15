@@ -1573,6 +1573,38 @@ html.dark .doc-badge--vip {
 .doc-breadcrumb-current {
   color: var(--bb-text-muted);
 }
+/* Document page: the cover sits beside the title (above it on phones). */
+.doc-detail-header--with-cover {
+  display: grid;
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  .doc-detail-header--with-cover {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    align-items: start;
+  }
+}
+.doc-detail-header-main {
+  min-width: 0;
+}
+.doc-detail-cover {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--bb-border);
+  background: var(--bb-bg-muted);
+}
+@media (max-width: 767px) {
+  .doc-detail-cover {
+    order: -1;
+    max-width: 160px;
+  }
+}
+
 .doc-detail-header {
   border: 1px solid var(--bb-border);
   border-radius: 16px;

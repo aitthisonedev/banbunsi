@@ -46,6 +46,9 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 		c.Set("X-Content-Type-Options", "nosniff")
 		return c.Next()
 	})
+	// Resized cover/branding images (?w=…); requests without ?w= fall through to the static files.
+	app.Get("/uploads/covers/:name", handlers.ImageVariant(cfg, "covers"))
+	app.Get("/uploads/branding/:name", handlers.ImageVariant(cfg, "branding"))
 	app.Static("/uploads/avatars", filepath.Join(cfg.UploadDir, "avatars"))
 	app.Static("/uploads/covers", filepath.Join(cfg.UploadDir, "covers"))
 	app.Static("/uploads/branding", filepath.Join(cfg.UploadDir, "branding"))

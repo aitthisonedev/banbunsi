@@ -63,6 +63,7 @@ import {
   type AdminDocumentPayload,
 } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
+import { imageVariant } from "@/lib/image-variants";
 
 type Props = {
   locale: Locale;
@@ -331,11 +332,12 @@ export function AdminDocumentForm({
     ? `/${locale}/admin/documents/${initial.id}`
     : `/${locale}/admin/documents`;
   const coverSrc =
-    coverPreview || (!removeCover ? initial?.cover_image_url || "" : "");
+    coverPreview ||
+    (!removeCover ? imageVariant(initial?.cover_image_url, 480) : "");
   // Same fallback as the document list and detail page: default cover from Settings, then the category image.
   const selectedCategory = flatCats.find((c) => c.id === categoryId);
   const fallbackCover =
-    defaults?.default_cover_url ||
+    imageVariant(defaults?.default_cover_url, 480) ||
     categoryCover(
       {
         category_slug: selectedCategory?.slug,

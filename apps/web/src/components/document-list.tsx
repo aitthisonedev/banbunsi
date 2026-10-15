@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { DocumentListItem, Locale } from "@/lib/api";
+import { getPublicSettings, type DocumentListItem, type Locale } from "@/lib/api";
 import { EmptyState } from "@/components/ui";
-import { categoryCover } from "@/lib/category-covers";
+import { documentCoverSrc, isUploadedImage } from "@/lib/image-variants";
 import { t } from "@/lib/i18n";
 
 function accessLabel(locale: Locale, access: string) {
@@ -11,7 +11,7 @@ function accessLabel(locale: Locale, access: string) {
   return t(locale, "badgePublic");
 }
 
-export function DocumentList({
+export async function DocumentList({
   locale,
   items,
   emptyText,
@@ -25,6 +25,8 @@ export function DocumentList({
   if (!items.length) {
     return <EmptyState title={emptyText} />;
   }
+  // Same settings request as the page (deduplicated per request).
+  const defaultCover = (await getPublicSettings().catch(() => null))?.default_cover_url;
 
   if (variant === "list") {
     return (
@@ -37,7 +39,8 @@ export function DocumentList({
             >
               <span className="doc-card-thumb" aria-hidden>
                 <Image
-                  src={categoryCover(doc, index)}
+                  src={documentCoverSrc(doc, index, defaultCover, 160)}
+                  unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
                   alt=""
                   fill
                   sizes="72px"
@@ -79,7 +82,8 @@ export function DocumentList({
           >
             <span className="doc-card-media">
               <Image
-                src={categoryCover(doc, index)}
+                src={documentCoverSrc(doc, index, defaultCover, 640)}
+                unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
                 alt={doc.title}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

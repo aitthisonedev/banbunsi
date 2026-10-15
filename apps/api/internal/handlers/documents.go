@@ -836,6 +836,13 @@ func removeStoredImage(cfg *config.Config, relativePath, directory string) {
 		return
 	}
 	_ = os.Remove(absolutePath)
+	// Remove the resized copies made by ImageVariant as well.
+	base := strings.TrimSuffix(filepath.Base(absolutePath), filepath.Ext(absolutePath))
+	if variants, err := filepath.Glob(filepath.Join(filepath.Dir(absolutePath), ".variants", base+"-*")); err == nil {
+		for _, variant := range variants {
+			_ = os.Remove(variant)
+		}
+	}
 }
 
 func (h *DocumentHandler) AdminUploadCover(c *fiber.Ctx) error {

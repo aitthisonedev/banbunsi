@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { getDocument } from "@/lib/api";
+import Image from "next/image";
+import { getDocument, getPublicSettings } from "@/lib/api";
+import { documentCoverSrc, isUploadedImage } from "@/lib/image-variants";
 import { isLocale, t } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 import type { Metadata } from "next";
@@ -105,8 +107,10 @@ export default async function DocumentDetailPage({
   const cookie = headerStore.get("cookie") || undefined;
 
   let doc;
+  let defaultCover: string | undefined;
   try {
     doc = await getDocument(raw, slug, { cookie });
+    defaultCover = (await getPublicSettings().catch(() => null))?.default_cover_url;
   } catch {
     notFound();
   }
@@ -140,7 +144,8 @@ export default async function DocumentDetailPage({
           ) : null}
         </nav>
 
-        <header className="doc-detail-header">
+        <header className="doc-detail-header doc-detail-header--with-cover">
+          <div className="doc-detail-header-main">
           <div className="doc-detail-meta-pills">
             <span className={`doc-badge doc-badge--${doc.read_access}`}>
               {accessLabel(raw, doc.read_access)}
@@ -169,6 +174,18 @@ export default async function DocumentDetailPage({
               <p className="doc-summary-text">{doc.summary}</p>
             </div>
           ) : null}
+          </div>
+          <figure className="doc-detail-cover">
+            <Image
+              src={documentCoverSrc(doc, doc.id, defaultCover, 480)}
+              unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
+              alt={raw === "lo" ? `ໜ້າປົກ: ${doc.title}` : `Cover: ${doc.title}`}
+              fill
+              priority
+              sizes="(min-width: 768px) 220px, 60vw"
+              className="object-cover"
+            />
+          </figure>
         </header>
 
         <main className="doc-detail-content">
