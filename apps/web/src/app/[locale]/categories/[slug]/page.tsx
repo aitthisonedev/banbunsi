@@ -36,7 +36,10 @@ export async function generateMetadata({
   );
 }
 
-function findCategoryById(items: CategoryNode[], id: string): CategoryNode | undefined {
+function findCategoryById(
+  items: CategoryNode[],
+  id: string,
+): CategoryNode | undefined {
   for (const c of items) {
     if (c.id === id) return c;
     const child = findCategoryById(c.children || [], id);
@@ -72,8 +75,11 @@ export default async function CategoryDetailPage({
     const other = raw === "lo" ? "en" : "lo";
     const otherCats = await getCategories(other).catch(() => null);
     const match = otherCats ? findCategory(otherCats.items, slug) : undefined;
-    const localized = match ? findCategoryById(cats.items, match.id) : undefined;
-    if (localized) redirect(`/${raw}/categories/${encodeURIComponent(localized.slug)}`);
+    const localized = match
+      ? findCategoryById(cats.items, match.id)
+      : undefined;
+    if (localized)
+      redirect(`/${raw}/categories/${encodeURIComponent(localized.slug)}`);
     notFound();
   }
 
