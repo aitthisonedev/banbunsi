@@ -11,13 +11,13 @@ import {
   panelClass,
   StatePanel,
 } from "@/components/admin-documents-ui";
-import type { CategoryNode, PublicSettings } from "@/lib/api";
+import type { CategoryNode } from "@/lib/api";
 import {
   clientGetAdminDocument,
-  clientGetPublicSettings,
   clientMe,
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
+import { usePublicSettings } from "@/components/public-settings-context";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -29,7 +29,7 @@ export default function AdminEditDocumentPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<CategoryNode[] | null>(null);
   const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
-  const [defaults, setDefaults] = useState<PublicSettings | null>(null);
+  const defaults = usePublicSettings();
   const [isAdminPlus, setIsAdminPlus] = useState(false);
   const [loadError, setLoadError] = useState("");
 
@@ -48,7 +48,7 @@ export default function AdminEditDocumentPage() {
         setIsAdminPlus(
           user.staff_role === "admin" || user.staff_role === "owner",
         );
-        const [document, categoryResponse, settings] = await Promise.all([
+        const [document, categoryResponse] = await Promise.all([
           clientGetAdminDocument(id, locale),
           fetch(`${API_URL}/api/v1/admin/categories?locale=${locale}`, {
             credentials: "include",
@@ -56,11 +56,9 @@ export default function AdminEditDocumentPage() {
             if (!response.ok) throw new Error("Could not load categories");
             return response.json();
           }),
-          clientGetPublicSettings(),
         ]);
         setInitial(document);
         setCategories(categoryResponse.items || []);
-        setDefaults(settings);
       })
       .catch((reason) =>
         setLoadError(

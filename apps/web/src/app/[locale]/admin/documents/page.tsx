@@ -18,12 +18,12 @@ import {
   clientDeleteAdminDocument,
   clientListAdminCategories,
   clientListAdminDocuments,
-  clientGetPublicSettings,
   clientMe,
   type AdminDocumentFilters,
 } from "@/lib/client-api";
 import { categoryCover } from "@/lib/category-covers";
 import { isLocale, t } from "@/lib/i18n";
+import { usePublicSettings } from "@/components/public-settings-context";
 
 type Row = {
   id: string;
@@ -79,7 +79,7 @@ export default function AdminDocumentsPage() {
   const [categories, setCategories] = useState<
     Array<{ slug: string; name: string }>
   >([]);
-  const [defaultCover, setDefaultCover] = useState("");
+  const defaultCover = usePublicSettings()?.default_cover_url || "";
   const [canDelete, setCanDelete] = useState(false);
   const [deletingId, setDeletingId] = useState("");
   const requestId = useRef(0);
@@ -108,16 +108,11 @@ export default function AdminDocumentsPage() {
         setCanDelete(
           user.staff_role === "admin" || user.staff_role === "owner",
         );
-        await Promise.all([
-          clientListAdminCategories(locale)
-            .then(({ items: values }) => setCategories(values))
-            .catch(() => undefined),
-          clientGetPublicSettings()
-            .then((settings) =>
-              setDefaultCover(settings.default_cover_url || ""),
-            )
-            .catch(() => undefined),
-        ]);
+        // Load the list right away (no typing delay) while categories load in parallel.
+        void load(EMPTY_FILTERS);
+        clientListAdminCategories(locale)
+          .then(({ items: values }) => setCategories(values))
+          .catch(() => undefined);
         setReady(true);
       })
       .catch((err) =>
@@ -125,11 +120,17 @@ export default function AdminDocumentsPage() {
           err instanceof Error ? err.message : t(locale, "loadError"),
         ),
       );
-  }, [locale]);
+  }, [locale, load]);
 
   // Filters apply automatically; typing is debounced so each keystroke does not hit the API.
+  // The first list is loaded above without delay, so the first run here is skipped.
+  const skipFirstFilterRun = useRef(true);
   useEffect(() => {
     if (!ready) return;
+    if (skipFirstFilterRun.current) {
+      skipFirstFilterRun.current = false;
+      return;
+    }
     const timer = window.setTimeout(() => load(filters), 300);
     return () => window.clearTimeout(timer);
   }, [ready, filters, load]);

@@ -8,7 +8,6 @@ import { AdminAddPermissionModal } from "@/components/admin-add-permission-modal
 import { LoadingState, ErrorState } from "@/components/ui";
 import {
   clientGetAdminDashboard,
-  clientGetPublicSettings,
   clientListAdminMembers,
   clientMe,
   clientPatchAdminMember,
@@ -16,6 +15,7 @@ import {
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 import { MemberAvatar } from "@/components/member-avatar";
+import { usePublicSettings } from "@/components/public-settings-context";
 
 export default function AdminDashboardPage() {
   const params = useParams();
@@ -30,7 +30,7 @@ export default function AdminDashboardPage() {
   const [busyMemberId, setBusyMemberId] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [timeFilter, setTimeFilter] = useState("30days");
-  const [dashboardTitle, setDashboardTitle] = useState("");
+  const dashboardTitle = usePublicSettings()?.dashboard_title || "";
 
   useEffect(() => {
     let ignore = false;
@@ -38,14 +38,12 @@ export default function AdminDashboardPage() {
       clientMe(),
       clientGetAdminDashboard(),
       clientListAdminMembers(""),
-      clientGetPublicSettings(),
     ])
-      .then(([u, s, m, publicSettings]) => {
+      .then(([u, s, m]) => {
         if (ignore) return;
         setCurrentUser(u);
         setStats(s);
         setMembers(m.items);
-        setDashboardTitle(publicSettings.dashboard_title || "");
       })
       .catch((err) => {
         if (ignore) return;

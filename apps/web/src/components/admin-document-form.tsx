@@ -503,7 +503,7 @@ export function AdminDocumentForm({
                       alt="Default cover preview"
                       fill
                       sizes="(min-width: 1024px) 176px, 112px"
-                      unoptimized
+                      unoptimized={!fallbackCover.startsWith("/")}
                       onError={() => setFallbackFailed(fallbackCover)}
                       className="object-cover"
                     />

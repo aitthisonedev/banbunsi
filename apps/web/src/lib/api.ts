@@ -1,3 +1,4 @@
+import { cache } from "react";
 const API_URL =
   process.env.API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -101,9 +102,10 @@ async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
-export function getPublicSettings() {
-  return apiFetch<PublicSettings>("/settings/public");
-}
+// Deduplicated per server request: metadata, layout and page each ask for settings.
+export const getPublicSettings = cache(() =>
+  apiFetch<PublicSettings>("/settings/public"),
+);
 
 export function getCategories(locale: Locale) {
   return apiFetch<{ items: CategoryNode[] }>(`/categories?locale=${locale}`);

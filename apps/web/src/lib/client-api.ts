@@ -4,7 +4,13 @@ import type { DocumentFileMeta, PublicSettings, User } from "./api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
+// The current user is requested by several components at once (admin shell + page); they share
+// one request, reused for a few seconds. Any change (POST/PATCH/PUT/DELETE) clears it.
+const ME_REUSE_MS = 3000;
+let currentUserRequest: { promise: Promise<User>; at: number } | null = null;
+
 async function clientFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  if (init?.method && init.method.toUpperCase() !== "GET") currentUserRequest = null;
   const headers = new Headers(init?.headers);
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -42,7 +48,16 @@ export function clientLogout() {
 }
 
 export function clientMe() {
-  return clientFetch<User>("/auth/me");
+  const now = Date.now();
+  if (currentUserRequest && now - currentUserRequest.at < ME_REUSE_MS) {
+    return currentUserRequest.promise;
+  }
+  const promise = clientFetch<User>("/auth/me");
+  currentUserRequest = { promise, at: now };
+  promise.catch(() => {
+    if (currentUserRequest?.promise === promise) currentUserRequest = null;
+  });
+  return promise;
 }
 
 export function clientGetPublicSettings() {
@@ -63,6 +78,7 @@ export function clientUpdateProfile(body: {
 export async function clientUploadAvatar(file: File) {
   const form = new FormData();
   form.append("avatar", file);
+  currentUserRequest = null;
   const res = await fetch(`${API_URL}/api/v1/account/avatar`, {
     method: "POST",
     body: form,

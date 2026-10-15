@@ -299,7 +299,7 @@ function AssetControl({
             alt={`${label} preview`}
             fill
             sizes="112px"
-            unoptimized
+            unoptimized={!shown.startsWith("/")}
             onError={() => setFailedSrc(shown)}
             className={isCover ? "object-cover" : "object-contain p-2"}
           />

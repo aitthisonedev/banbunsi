@@ -56,7 +56,7 @@ export function DocumentCover({
           alt={`${title} cover`}
           fill
           sizes={size === "lg" ? "280px" : "96px"}
-          unoptimized
+          unoptimized={!src!.startsWith("/")}
           onError={() => setFailed((current) => [...current, src!])}
           className="object-cover"
         />

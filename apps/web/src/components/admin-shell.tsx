@@ -3,18 +3,18 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Locale, PublicSettings, User } from "@/lib/api";
+import type { Locale, User } from "@/lib/api";
 import { AdminProfileMenu } from "@/components/admin-profile-menu";
 import { BrandLogo } from "@/components/brand-logo";
 import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoadingState, ErrorState } from "@/components/ui";
 import {
-  clientGetPublicSettings,
   clientLogout,
   clientMe,
 } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
+import { usePublicSettings } from "@/components/public-settings-context";
 
 type NavItem = {
   href: string;
@@ -37,17 +37,9 @@ export function AdminShell({
   const [error, setError] = useState("");
   const [navOpen, setNavOpen] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
-  const [publicSettings, setPublicSettings] = useState<PublicSettings | null>(
-    null,
-  );
+  const publicSettings = usePublicSettings();
 
   useEffect(() => {
-    const loadSettings = () =>
-      clientGetPublicSettings()
-        .then(setPublicSettings)
-        .catch(() => undefined);
-    loadSettings();
-    window.addEventListener("brand-settings-updated", loadSettings);
     clientMe()
       .then((u) => {
         if (!["editor", "admin", "owner"].includes(u.staff_role)) {
@@ -60,8 +52,6 @@ export function AdminShell({
         setError(t(locale, "staffSignInRequired"));
         router.replace(`/${locale}/auth/login?next=/${locale}/admin`);
       });
-    return () =>
-      window.removeEventListener("brand-settings-updated", loadSettings);
   }, [locale, router]);
 
   async function onLogout() {

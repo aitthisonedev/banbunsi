@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Locale } from "@/lib/api";
-import { clientGetPublicSettings } from "@/lib/client-api";
+import { usePublicSettings } from "@/components/public-settings-context";
 import logoLight from "../../public/brand/logo-light.png";
 import logoDark from "../../public/brand/logo-dark.png";
 
@@ -20,37 +20,15 @@ export function BrandLogo({
   /** auto = theme swap; light/dark = fixed asset for that surface */
   variant?: "auto" | "light" | "dark";
 }) {
-  const [logos, setLogos] = useState({
-    logo: "",
-    login: "",
-    system: "",
-    name: "",
-  });
+  // Settings come from the page (server-rendered), so the right logo shows on first paint.
+  const settings = usePublicSettings();
+  const logos = {
+    logo: settings?.logo_url || "",
+    login: settings?.login_logo_url || "",
+    system: settings?.system_logo_url || "",
+    name: settings?.system_name || settings?.organization_name || "",
+  };
   const [failedLogo, setFailedLogo] = useState("");
-
-  useEffect(() => {
-    let active = true;
-    const load = () => {
-      clientGetPublicSettings()
-        .then((settings) => {
-          if (active) {
-            setLogos({
-              logo: settings.logo_url || "",
-              login: settings.login_logo_url || "",
-              system: settings.system_logo_url || "",
-              name: settings.system_name || settings.organization_name || "",
-            });
-          }
-        })
-        .catch(() => undefined);
-    };
-    load();
-    window.addEventListener("brand-settings-updated", load);
-    return () => {
-      active = false;
-      window.removeEventListener("brand-settings-updated", load);
-    };
-  }, []);
 
   const brandName = logos.name || "BAN BUNSI";
   const configuredLogo =

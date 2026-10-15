@@ -11,13 +11,13 @@ import {
   panelClass,
   StatePanel,
 } from "@/components/admin-documents-ui";
-import type { CategoryNode, PublicSettings } from "@/lib/api";
+import type { CategoryNode } from "@/lib/api";
 import {
-  clientGetPublicSettings,
   clientListAdminDocuments,
   clientMe,
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
+import { usePublicSettings } from "@/components/public-settings-context";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -27,7 +27,7 @@ export default function AdminNewDocumentPage() {
   const locale = isLocale(localeRaw) ? localeRaw : "lo";
   const router = useRouter();
   const [categories, setCategories] = useState<CategoryNode[] | null>(null);
-  const [defaults, setDefaults] = useState<PublicSettings | null>(null);
+  const defaults = usePublicSettings();
   const [existingDocuments, setExistingDocuments] = useState<
     Array<{ document_number?: string; category_id?: string }>
   >([]);
@@ -47,14 +47,13 @@ export default function AdminNewDocumentPage() {
           return;
         }
         setIsAdminPlus(u.staff_role === "admin" || u.staff_role === "owner");
-        const [response, settings, documents] = await Promise.all([
+        const [response, documents] = await Promise.all([
           fetch(`${API_URL}/api/v1/admin/categories?locale=${locale}`, {
             credentials: "include",
           }).then(async (res) => {
             if (!res.ok) throw new Error("Could not load categories");
             return res.json();
           }),
-          clientGetPublicSettings(),
           // Used to suggest the next document number; the form still works without it.
           clientListAdminDocuments(locale)
             .then(
@@ -67,7 +66,6 @@ export default function AdminNewDocumentPage() {
             .catch(() => []),
         ]);
         setCategories(response.items || []);
-        setDefaults(settings);
         setExistingDocuments(documents);
       })
       .catch((reason) =>

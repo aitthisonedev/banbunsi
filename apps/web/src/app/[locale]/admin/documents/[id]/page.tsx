@@ -18,11 +18,11 @@ import type { DocumentFileMeta } from "@/lib/api";
 import {
   clientDeleteAdminDocumentFile,
   clientGetAdminDocument,
-  clientGetPublicSettings,
   clientMe,
 } from "@/lib/client-api";
 import { categoryCover } from "@/lib/category-covers";
 import { isLocale, t } from "@/lib/i18n";
+import { usePublicSettings } from "@/components/public-settings-context";
 
 type AdminDocument = {
   id: string;
@@ -50,7 +50,7 @@ export default function AdminDocumentDetailsPage() {
   const id = String(params.id || "");
   const router = useRouter();
   const [document, setDocument] = useState<AdminDocument | null>(null);
-  const [defaultCover, setDefaultCover] = useState("");
+  const defaultCover = usePublicSettings()?.default_cover_url || "";
   const [loadError, setLoadError] = useState("");
   const [fileError, setFileError] = useState("");
   const [removingFileId, setRemovingFileId] = useState("");
@@ -62,12 +62,8 @@ export default function AdminDocumentDetailsPage() {
           router.replace(`/${locale}`);
           return;
         }
-        const [details, settings] = await Promise.all([
-          clientGetAdminDocument(id, locale),
-          clientGetPublicSettings().catch(() => null),
-        ]);
+        const details = await clientGetAdminDocument(id, locale);
         setDocument(details as AdminDocument);
-        setDefaultCover(settings?.default_cover_url || "");
       })
       .catch((reason) =>
         setLoadError(

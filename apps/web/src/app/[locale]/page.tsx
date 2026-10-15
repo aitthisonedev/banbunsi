@@ -94,7 +94,6 @@ export default async function HomePage({
               alt=""
               fill
               priority
-              quality={80}
               className="object-cover"
               sizes="100vw"
             />

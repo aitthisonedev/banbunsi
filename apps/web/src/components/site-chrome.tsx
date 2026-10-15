@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import type { Locale, PublicSettings } from "@/lib/api";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { PublicSettingsProvider } from "@/components/public-settings-context";
 
 export function SiteChrome({
   locale,
@@ -18,14 +19,16 @@ export function SiteChrome({
   const isAdmin = /\/admin(\/|$)/.test(pathname);
 
   if (isAdmin) {
-    return <>{children}</>;
+    return (
+      <PublicSettingsProvider initial={settings}>{children}</PublicSettingsProvider>
+    );
   }
 
   return (
-    <>
+    <PublicSettingsProvider initial={settings}>
       <SiteHeader locale={locale} />
       <main className="flex flex-1 flex-col">{children}</main>
       <SiteFooter locale={locale} settings={settings} />
-    </>
+    </PublicSettingsProvider>
   );
 }
