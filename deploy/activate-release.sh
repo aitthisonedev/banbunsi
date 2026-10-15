@@ -59,8 +59,10 @@ fi
 printf '%s\n' "$revision" > "$app_dir/deployed-revision"
 
 # Keep the newest five builds, always preserving current and previous targets.
+# Pruning is best-effort: the web service writes image-cache files into its release that the
+# deploy user may not be allowed to delete, and that must not fail a healthy, already-live deploy.
 while IFS= read -r old; do
   [[ "$old" == "$release" || "$old" == "$previous" ]] && continue
-  rm -rf -- "$old"
+  rm -rf -- "$old" 2>/dev/null || echo "Warning: could not fully remove old release $old" >&2
 done < <(find "$app_dir/releases" -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +6)
 echo "Deployed $revision successfully."
