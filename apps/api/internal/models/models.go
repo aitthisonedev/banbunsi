@@ -172,6 +172,29 @@ func (t *CategoryTranslation) BeforeCreate(tx *gorm.DB) error {
 
 type SiteSettings struct {
 	ID                       uint      `gorm:"primaryKey" json:"id"`
+	OrganizationName         string    `gorm:"size:200;not null;default:''" json:"organization_name"`
+	SystemName               string    `gorm:"size:200;not null;default:''" json:"system_name"`
+	Description              string    `gorm:"size:1000;not null;default:''" json:"description"`
+	ContactPhone             string    `gorm:"size:32;not null;default:''" json:"contact_phone"`
+	Address                  string    `gorm:"size:500;not null;default:''" json:"address"`
+	Website                  string    `gorm:"size:500;not null;default:''" json:"website"`
+	LogoPath                 string    `gorm:"size:500;not null;default:''" json:"-"`
+	LoginLogoPath            string    `gorm:"size:500;not null;default:''" json:"-"`
+	SystemLogoPath           string    `gorm:"size:500;not null;default:''" json:"-"`
+	FaviconPath              string    `gorm:"size:500;not null;default:''" json:"-"`
+	DefaultCoverPath         string    `gorm:"size:500;not null;default:''" json:"-"`
+	PrimaryColor             string    `gorm:"size:7;not null;default:''" json:"primary_color"`
+	SecondaryColor           string    `gorm:"size:7;not null;default:''" json:"secondary_color"`
+	AccentColor              string    `gorm:"size:7;not null;default:''" json:"accent_color"`
+	DefaultDocumentCategory  string    `gorm:"size:64;not null;default:''" json:"default_document_category"`
+	DefaultDocumentStatus    string    `gorm:"size:16;not null;default:'draft'" json:"default_document_status"`
+	AllowedFileTypes         string    `gorm:"size:500;not null;default:'pdf,doc,docx,xls,xlsx,csv,txt,zip'" json:"allowed_file_types"`
+	MaxFileSizeBytes         int64     `gorm:"not null;default:2097152" json:"max_file_size_bytes"`
+	DocumentNumberFormat     string    `gorm:"size:120;not null;default:''" json:"document_number_format"`
+	ApplicationTitle         string    `gorm:"size:200;not null;default:''" json:"application_title"`
+	SidebarTitle             string    `gorm:"size:200;not null;default:''" json:"sidebar_title"`
+	FooterText               string    `gorm:"size:500;not null;default:''" json:"footer_text"`
+	DashboardTitle           string    `gorm:"size:200;not null;default:''" json:"dashboard_title"`
 	SiteNameLo               string    `gorm:"size:200;not null" json:"site_name_lo"`
 	SiteNameEn               string    `gorm:"size:200;not null" json:"site_name_en"`
 	Timezone                 string    `gorm:"size:64;not null" json:"timezone"`

@@ -34,6 +34,7 @@ type Document struct {
 	ID             uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
 	DocumentNumber string         `gorm:"size:64;uniqueIndex;not null" json:"document_number"`
 	CategoryID     uuid.UUID      `gorm:"type:uuid;index;not null" json:"category_id"`
+	CoverImagePath string         `gorm:"size:500;not null;default:''" json:"-"`
 	ReadAccess     ReadAccess     `gorm:"size:16;not null;default:public" json:"read_access"`
 	Status         DocStatus      `gorm:"size:16;not null;default:draft;index" json:"status"`
 	PublishedAt    *time.Time     `json:"published_at,omitempty"`

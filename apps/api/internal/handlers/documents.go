@@ -1,8 +1,15 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
+	"mime"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,7 +21,14 @@ import (
 	"github.com/banbunsi/banbunsi/apps/api/internal/sanitize"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	_ "golang.org/x/image/webp"
 	"gorm.io/gorm"
+)
+
+const (
+	maxDocumentCoverBytes  = 2 << 20
+	maxDocumentCoverSide   = 8000
+	maxDocumentCoverPixels = 40_000_000
 )
 
 type DocumentHandler struct {
@@ -34,9 +48,9 @@ type translationIn struct {
 }
 
 type fileIn struct {
+	ID             string `json:"id"`
 	Label          string `json:"label"`
 	FileName       string `json:"file_name"`
-	StoragePath    string `json:"storage_path"`
 	Mime           string `json:"mime"`
 	SizeBytes      int64  `json:"size_bytes"`
 	Language       string `json:"language"`
@@ -132,12 +146,15 @@ func fileURL(storagePath string, apiPublicURL string) string {
 }
 
 func filePayload(f models.DocumentFile, apiPublicURL string) fiber.Map {
+	downloadURL := "/api/v1/documents/files/" + f.ID.String()
+	if apiPublicURL != "" {
+		downloadURL = strings.TrimRight(apiPublicURL, "/") + downloadURL
+	}
 	return fiber.Map{
 		"id":              f.ID.String(),
 		"label":           f.Label,
 		"file_name":       f.FileName,
-		"storage_path":    f.StoragePath,
-		"file_url":        fileURL(f.StoragePath, apiPublicURL),
+		"file_url":        downloadURL,
 		"mime":            f.Mime,
 		"size_bytes":      f.SizeBytes,
 		"language":        f.Language,
@@ -145,6 +162,78 @@ func filePayload(f models.DocumentFile, apiPublicURL string) fiber.Map {
 		"download_access": f.DownloadAccess,
 		"sort_order":      f.SortOrder,
 	}
+}
+
+func documentUploadPath(cfg *config.Config, storedPath string) (string, error) {
+	if cfg == nil {
+		return "", fmt.Errorf("upload config missing")
+	}
+	cleanPath := filepath.Clean(filepath.FromSlash(storedPath))
+	if filepath.IsAbs(cleanPath) || !strings.HasPrefix(cleanPath, "documents"+string(os.PathSeparator)) {
+		return "", fmt.Errorf("invalid document file path")
+	}
+	root, err := filepath.Abs(cfg.UploadDir)
+	if err != nil {
+		return "", fmt.Errorf("invalid upload root")
+	}
+	absPath, err := filepath.Abs(filepath.Join(root, cleanPath))
+	if err != nil {
+		return "", fmt.Errorf("invalid document file path")
+	}
+	relative, err := filepath.Rel(root, absPath)
+	if err != nil || relative == ".." || strings.HasPrefix(relative, ".."+string(os.PathSeparator)) {
+		return "", fmt.Errorf("invalid document file path")
+	}
+	return absPath, nil
+}
+
+func (h *DocumentHandler) DownloadFile(c *fiber.Ctx) error {
+	fileID, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Invalid file id")
+	}
+	var file models.DocumentFile
+	if err := h.DB.First(&file, "id = ?", fileID).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "File not found")
+	}
+	var doc models.Document
+	if err := h.DB.First(&doc, "id = ?", file.DocumentID).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "File not found")
+	}
+	user := h.optionalUser(c)
+	if user == nil || user.AccountStatus != models.StatusActive {
+		return errJSON(c, fiber.StatusUnauthorized, "Sign in to download this file")
+	}
+	if doc.Status != models.DocPublished && !user.IsStaff() {
+		return errJSON(c, fiber.StatusNotFound, "File not found")
+	}
+	if !user.IsStaff() {
+		tier := h.currentMembershipTier(user)
+		if file.DownloadAccess == models.DownloadVIP && tier != models.TierVIP {
+			return errJSON(c, fiber.StatusForbidden, "VIP membership required")
+		}
+	}
+	absPath, err := documentUploadPath(h.Cfg, file.StoragePath)
+	if err != nil {
+		return errJSON(c, fiber.StatusNotFound, "File not found")
+	}
+	source, err := os.Open(absPath)
+	if err != nil {
+		return errJSON(c, fiber.StatusNotFound, "File not found")
+	}
+	defer source.Close()
+	var sniff [512]byte
+	read, readErr := source.Read(sniff[:])
+	if readErr != nil && readErr != io.EOF {
+		return errJSON(c, fiber.StatusInternalServerError, "Could not read file")
+	}
+	if _, err := source.Seek(0, io.SeekStart); err != nil {
+		return errJSON(c, fiber.StatusInternalServerError, "Could not read file")
+	}
+	c.Set(fiber.HeaderContentType, http.DetectContentType(sniff[:read]))
+	c.Set(fiber.HeaderContentDisposition, mime.FormatMediaType("attachment", map[string]string{"filename": filepath.Base(file.FileName)}))
+	c.Set("X-Content-Type-Options", "nosniff")
+	return c.SendStream(source)
 }
 
 func categoryName(cat models.Category, locale string) (slug, name string) {
@@ -166,12 +255,14 @@ func (h *DocumentHandler) listItem(doc models.Document, locale string, includeBo
 		"id":              doc.ID.String(),
 		"document_number": doc.DocumentNumber,
 		"category_id":     doc.CategoryID.String(),
+		"cover_image_url": fileURL(doc.CoverImagePath, apiPublicURL),
 		"category_slug":   catSlug,
 		"category_name":   catName,
 		"read_access":     doc.ReadAccess,
 		"status":          doc.Status,
 		"year":            doc.Year,
 		"tags":            doc.Tags,
+		"created_at":      doc.CreatedAt,
 		"published_at":    doc.PublishedAt,
 		"effective_date":  doc.EffectiveDate,
 		"updated_at":      doc.UpdatedAt,
@@ -183,7 +274,7 @@ func (h *DocumentHandler) listItem(doc models.Document, locale string, includeBo
 		item["seo_title"] = tr.SEOTitle
 		item["seo_description"] = tr.SEODescription
 		if includeBody && canReadBody(doc.ReadAccess, user, tier) {
-			item["body_html"] = tr.BodyHTML
+			item["body_html"] = sanitize.HTML(tr.BodyHTML)
 			item["body_available"] = true
 		} else {
 			item["body_available"] = canReadBody(doc.ReadAccess, user, tier)
@@ -304,6 +395,7 @@ func (h *DocumentHandler) AdminList(c *fiber.Ctx) error {
 	locale := localeOrDefault(c.Query("locale"))
 	status := strings.TrimSpace(c.Query("status"))
 	q := strings.TrimSpace(c.Query("q"))
+	category := strings.TrimSpace(c.Query("category"))
 	page := c.QueryInt("page", 1)
 	if page < 1 {
 		page = 1
@@ -319,13 +411,47 @@ func (h *DocumentHandler) AdminList(c *fiber.Ctx) error {
 		Preload("Category.Translations")
 
 	if status != "" {
+		if status != string(models.DocDraft) && status != string(models.DocPublished) && status != string(models.DocArchived) {
+			return errJSON(c, fiber.StatusBadRequest, "Invalid document status")
+		}
 		dbq = dbq.Where("status = ?", status)
+	}
+	if year := c.QueryInt("year", 0); year > 0 {
+		dbq = dbq.Where("documents.year = ?", year)
+	}
+	if category != "" {
+		dbq = dbq.Where(`EXISTS (
+			SELECT 1 FROM category_translations ct
+			WHERE ct.category_id = documents.category_id AND ct.slug = ?
+		)`, category)
 	}
 	if q != "" {
 		like := "%" + q + "%"
-		dbq = dbq.Joins("LEFT JOIN document_translations ON document_translations.document_id = documents.id").
-			Where("documents.document_number ILIKE ? OR document_translations.title ILIKE ?", like, like).
-			Distinct()
+		dbq = dbq.Where(`documents.document_number ILIKE ? OR documents.tags ILIKE ? OR EXISTS (
+			SELECT 1 FROM document_translations dt
+			WHERE dt.document_id = documents.id AND (dt.title ILIKE ? OR dt.summary ILIKE ?)
+		) OR EXISTS (
+			SELECT 1 FROM category_translations ct
+			WHERE ct.category_id = documents.category_id AND ct.name ILIKE ?
+		)`, like, like, like, like, like)
+	}
+	for _, bound := range []struct {
+		name string
+		cmp  string
+		end  bool
+	}{{"updated_after", ">=", false}, {"updated_before", "<", true}} {
+		value := strings.TrimSpace(c.Query(bound.name))
+		if value == "" {
+			continue
+		}
+		date, err := time.Parse("2006-01-02", value)
+		if err != nil {
+			return errJSON(c, fiber.StatusBadRequest, "Invalid update date")
+		}
+		if bound.end {
+			date = date.Add(24 * time.Hour)
+		}
+		dbq = dbq.Where("documents.updated_at "+bound.cmp+" ?", date)
 	}
 
 	var total int64
@@ -455,17 +581,49 @@ func (h *DocumentHandler) replaceTranslations(tx *gorm.DB, docID uuid.UUID, trs 
 }
 
 func (h *DocumentHandler) replaceFiles(tx *gorm.DB, docID uuid.UUID, files []fileIn) error {
-	if err := tx.Where("document_id = ?", docID).Delete(&models.DocumentFile{}).Error; err != nil {
+	var existingFiles []models.DocumentFile
+	if err := tx.Where("document_id = ?", docID).Find(&existingFiles).Error; err != nil {
 		return err
 	}
+	existingByID := make(map[uuid.UUID]*models.DocumentFile, len(existingFiles))
+	for index := range existingFiles {
+		existingByID[existingFiles[index].ID] = &existingFiles[index]
+	}
 	for i, f := range files {
+		var existing *models.DocumentFile
+		if strings.TrimSpace(f.ID) != "" {
+			fileID, err := parseUUID(f.ID)
+			if err != nil || existingByID[fileID] == nil {
+				return fmt.Errorf("invalid document file id")
+			}
+			existing = existingByID[fileID]
+		}
 		fileName := strings.TrimSpace(f.FileName)
-		storagePath := strings.TrimSpace(f.StoragePath)
+		storagePath := ""
+		if existing != nil {
+			storagePath = existing.StoragePath
+			if fileName == "" {
+				fileName = existing.FileName
+			}
+		}
 		if strings.TrimSpace(f.FileData) != "" {
 			if h.Cfg == nil {
 				return fmt.Errorf("upload config missing")
 			}
-			stored, err := storeDocumentUpload(h.Cfg, fileName, f.Mime, f.FileData)
+			maxBytes := int64(14 << 20)
+			allowedTypes := "pdf,doc,docx,xls,xlsx,csv,txt,zip,jpg,jpeg,png,webp"
+			var settings models.SiteSettings
+			if err := tx.First(&settings, 1).Error; err == nil {
+				if settings.MaxFileSizeBytes > 0 {
+					maxBytes = settings.MaxFileSizeBytes
+				}
+				if strings.TrimSpace(settings.AllowedFileTypes) != "" {
+					allowedTypes = settings.AllowedFileTypes
+				}
+			} else if err != gorm.ErrRecordNotFound {
+				return err
+			}
+			stored, err := storeDocumentUploadWithPolicy(h.Cfg, fileName, f.Mime, f.FileData, maxBytes, allowedTypes)
 			if err != nil {
 				return err
 			}
@@ -484,6 +642,12 @@ func (h *DocumentHandler) replaceFiles(tx *gorm.DB, docID uuid.UUID, files []fil
 			label = fileName
 		}
 		row := models.DocumentFile{
+			ID: func() uuid.UUID {
+				if existing != nil {
+					return existing.ID
+				}
+				return uuid.Nil
+			}(),
 			DocumentID:     docID,
 			Label:          label,
 			FileName:       fileName,
@@ -501,7 +665,7 @@ func (h *DocumentHandler) replaceFiles(tx *gorm.DB, docID uuid.UUID, files []fil
 		if row.SortOrder == 0 {
 			row.SortOrder = i
 		}
-		if err := tx.Create(&row).Error; err != nil {
+		if err := tx.Save(&row).Error; err != nil {
 			return err
 		}
 	}
@@ -509,6 +673,10 @@ func (h *DocumentHandler) replaceFiles(tx *gorm.DB, docID uuid.UUID, files []fil
 }
 
 func storeDocumentUpload(cfg *config.Config, fileName, mimeType, data string) (string, error) {
+	return storeDocumentUploadWithPolicy(cfg, fileName, mimeType, data, 14<<20, "pdf,doc,docx,xls,xlsx,csv,txt,zip,jpg,jpeg,png,webp")
+}
+
+func storeDocumentUploadWithPolicy(cfg *config.Config, fileName, mimeType, data string, maxBytes int64, allowedTypes string) (string, error) {
 	trimmed := strings.TrimSpace(data)
 	if trimmed == "" {
 		return "", nil
@@ -540,6 +708,9 @@ func storeDocumentUpload(cfg *config.Config, fileName, mimeType, data string) (s
 	}
 	if len(decoded) == 0 {
 		return "", fmt.Errorf("uploaded file is empty")
+	}
+	if maxBytes <= 0 || int64(len(decoded)) > maxBytes {
+		return "", fmt.Errorf("uploaded file exceeds the configured size limit")
 	}
 	if err := os.MkdirAll(filepath.Join(cfg.UploadDir, "documents"), 0o755); err != nil {
 		return "", fmt.Errorf("could not create upload dir: %w", err)
@@ -578,6 +749,13 @@ func storeDocumentUpload(cfg *config.Config, fileName, mimeType, data string) (s
 			baseName += ".txt"
 		}
 	}
+	allowed, err := normalizeAllowedFileTypes(allowedTypes)
+	if err != nil {
+		return "", fmt.Errorf("configured file types are invalid")
+	}
+	if !strings.Contains(","+allowed+",", ","+strings.TrimPrefix(strings.ToLower(filepath.Ext(baseName)), ".")+",") {
+		return "", fmt.Errorf("file type is not allowed")
+	}
 	fileID := uuid.NewString()
 	nameWithID := fileID + "_" + filepath.Base(baseName)
 	rel := filepath.ToSlash(filepath.Join("documents", nameWithID))
@@ -586,6 +764,148 @@ func storeDocumentUpload(cfg *config.Config, fileName, mimeType, data string) (s
 		return "", fmt.Errorf("could not store upload: %w", err)
 	}
 	return rel, nil
+}
+
+func storeDocumentCover(cfg *config.Config, source io.Reader, size int64) (string, error) {
+	return storeImageAsset(cfg, "covers", source, size)
+}
+
+func storeImageAsset(cfg *config.Config, directory string, source io.Reader, size int64) (string, error) {
+	if directory != "covers" && directory != "branding" {
+		return "", fmt.Errorf("invalid image storage directory")
+	}
+	if cfg == nil || size <= 0 || size > maxDocumentCoverBytes {
+		return "", fmt.Errorf("image must be between 1 byte and 2 MiB")
+	}
+	data, err := io.ReadAll(io.LimitReader(source, maxDocumentCoverBytes+1))
+	if err != nil || len(data) == 0 || len(data) > maxDocumentCoverBytes {
+		return "", fmt.Errorf("invalid cover image")
+	}
+	imageConfig, format, err := image.DecodeConfig(bytes.NewReader(data))
+	if err != nil {
+		return "", fmt.Errorf("unsupported or invalid cover image")
+	}
+	if imageConfig.Width < 1 || imageConfig.Height < 1 || imageConfig.Width > maxDocumentCoverSide || imageConfig.Height > maxDocumentCoverSide || int64(imageConfig.Width)*int64(imageConfig.Height) > maxDocumentCoverPixels {
+		return "", fmt.Errorf("cover image dimensions are too large")
+	}
+	extension := map[string]string{"jpeg": ".jpg", "png": ".png", "webp": ".webp"}[format]
+	if extension == "" {
+		return "", fmt.Errorf("cover must be JPEG, PNG, or WebP")
+	}
+	if err := os.MkdirAll(filepath.Join(cfg.UploadDir, directory), 0o755); err != nil {
+		return "", fmt.Errorf("could not create image directory")
+	}
+	relativePath := filepath.ToSlash(filepath.Join(directory, uuid.NewString()+extension))
+	absolutePath := filepath.Join(cfg.UploadDir, filepath.FromSlash(relativePath))
+	if err := os.WriteFile(absolutePath, data, 0o644); err != nil {
+		return "", fmt.Errorf("could not store cover image")
+	}
+	return relativePath, nil
+}
+
+func removeDocumentCover(cfg *config.Config, relativePath string) {
+	removeStoredImage(cfg, relativePath, "covers")
+}
+
+func removeStoredImage(cfg *config.Config, relativePath, directory string) {
+	if cfg == nil {
+		return
+	}
+	cleanPath := filepath.Clean(filepath.FromSlash(relativePath))
+	if cleanPath == directory || !strings.HasPrefix(cleanPath, directory+string(os.PathSeparator)) {
+		return
+	}
+	root, err := filepath.Abs(cfg.UploadDir)
+	if err != nil {
+		return
+	}
+	absolutePath, err := filepath.Abs(filepath.Join(root, cleanPath))
+	if err != nil {
+		return
+	}
+	relativeToRoot, err := filepath.Rel(root, absolutePath)
+	if err != nil || relativeToRoot == ".." || strings.HasPrefix(relativeToRoot, ".."+string(os.PathSeparator)) {
+		return
+	}
+	_ = os.Remove(absolutePath)
+}
+
+func (h *DocumentHandler) AdminUploadCover(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Invalid id")
+	}
+	var doc models.Document
+	if err := h.DB.First(&doc, "id = ?", id).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "Document not found")
+	}
+	file, err := c.FormFile("cover")
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Cover image is required")
+	}
+	source, err := file.Open()
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Could not read cover image")
+	}
+	defer source.Close()
+	newPath, err := storeDocumentCover(h.Cfg, source, file.Size)
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, err.Error())
+	}
+	previousPath := doc.CoverImagePath
+	if err := h.DB.Model(&doc).Update("cover_image_path", newPath).Error; err != nil {
+		removeDocumentCover(h.Cfg, newPath)
+		return errJSON(c, fiber.StatusInternalServerError, "Could not save cover image")
+	}
+	removeDocumentCover(h.Cfg, previousPath)
+	return c.JSON(fiber.Map{"cover_image_url": fileURL(newPath, h.Cfg.APIPublicURL)})
+}
+
+func (h *DocumentHandler) AdminDeleteCover(c *fiber.Ctx) error {
+	id, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Invalid id")
+	}
+	var doc models.Document
+	if err := h.DB.First(&doc, "id = ?", id).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "Document not found")
+	}
+	previousPath := doc.CoverImagePath
+	if err := h.DB.Model(&doc).Update("cover_image_path", "").Error; err != nil {
+		return errJSON(c, fiber.StatusInternalServerError, "Could not remove cover image")
+	}
+	removeDocumentCover(h.Cfg, previousPath)
+	return c.JSON(fiber.Map{"cover_image_url": ""})
+}
+
+func (h *DocumentHandler) AdminDeleteFile(c *fiber.Ctx) error {
+	docID, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Invalid document id")
+	}
+	fileID, err := parseUUID(c.Params("fileID"))
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Invalid file id")
+	}
+	var doc models.Document
+	if err := h.DB.First(&doc, "id = ?", docID).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "Document not found")
+	}
+	user := c.Locals("user").(*models.User)
+	if !user.IsAdminPlus() && doc.Status == models.DocPublished {
+		return errJSON(c, fiber.StatusForbidden, "Editors cannot change files on published documents")
+	}
+	var file models.DocumentFile
+	if err := h.DB.Where("id = ? AND document_id = ?", fileID, docID).First(&file).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "File not found")
+	}
+	if err := h.DB.Delete(&file).Error; err != nil {
+		return errJSON(c, fiber.StatusInternalServerError, "Could not delete file")
+	}
+	if path, err := documentUploadPath(h.Cfg, file.StoragePath); err == nil {
+		_ = os.Remove(path)
+	}
+	return msg(c, "File deleted")
 }
 
 func (h *DocumentHandler) loadAdminJSON(c *fiber.Ctx, id uuid.UUID, status int) error {

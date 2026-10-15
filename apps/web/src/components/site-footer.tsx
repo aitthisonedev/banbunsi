@@ -22,19 +22,22 @@ export function SiteFooter({
   settings: PublicSettings;
 }) {
   const year = new Date().getFullYear();
+  const organizationName = settings.organization_name || settings.site_name_en || "BAN BUNSI";
+  const footerLogo = settings.system_logo_url || settings.logo_url || logoDark;
   return (
     <footer className="site-footer">
       <div className="bb-content grid grid-cols-2 gap-x-6 gap-y-8 py-12 md:grid-cols-4 md:gap-10">
         <div className="col-span-2 md:col-span-1">
-          <Link href={`/${locale}`} className="inline-block" aria-label="BAN BUNSI">
+          <Link href={`/${locale}`} className="inline-block" aria-label={organizationName}>
             <Image
-              src={logoDark}
-              alt="BAN BUNSI"
-              className="h-12 w-auto"
+              src={footerLogo}
+              alt={organizationName}
+              {...(typeof footerLogo === "string" ? { width: 240, height: 96, unoptimized: true } : {})}
+              className="h-12 w-auto object-contain"
             />
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/85">
-            {t(locale, "footerBlurb")}
+            {settings.description || t(locale, "footerBlurb")}
           </p>
         </div>
 
@@ -128,7 +131,7 @@ export function SiteFooter({
       <div className="border-t border-white/20">
         <div className="bb-content flex flex-wrap items-center justify-between gap-3 py-4 text-xs text-white/75">
           <p>
-            © {year} BAN BUNSI. {t(locale, "allRights")}
+            {settings.footer_text || `© ${year} ${organizationName}. ${t(locale, "allRights")}`}
           </p>
           <Link href={`/${locale}/privacy`} className="hover:text-white">
             {t(locale, "privacy")}

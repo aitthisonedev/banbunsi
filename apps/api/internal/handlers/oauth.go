@@ -257,6 +257,9 @@ func (h *AuthHandler) processGoogleUser(c *fiber.Ctx, state *OAuthState, gUser *
 	if sub == "" || email == "" {
 		return c.Redirect(withParam(nextURL, "error", "missing_google_profile"))
 	}
+	if !gUser.EmailVerified {
+		return c.Redirect(withParam(nextURL, "error", "google_email_unverified"))
+	}
 
 	if state.Mode == "link" {
 		var currentUser *models.User

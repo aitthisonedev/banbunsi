@@ -64,6 +64,17 @@ func seedSettings(db *gorm.DB) error {
 	}
 	settings := models.SiteSettings{
 		ID:                       1,
+		OrganizationName:         "BAN BUNSI",
+		SystemName:               "BAN BUNSI",
+		PrimaryColor:             "#0036ad",
+		SecondaryColor:           "#061644",
+		AccentColor:              "#27ae60",
+		DefaultDocumentStatus:    "draft",
+		AllowedFileTypes:         "pdf,doc,docx,xls,xlsx,csv,txt,zip,jpg,jpeg,png,webp",
+		MaxFileSizeBytes:         2 << 20,
+		ApplicationTitle:         "BAN BUNSI",
+		SidebarTitle:             "BAN BUNSI",
+		DashboardTitle:           "BAN BUNSI Dashboard",
 		SiteNameLo:               "BAN BUNSI",
 		SiteNameEn:               "BAN BUNSI",
 		Timezone:                 "Asia/Vientiane",

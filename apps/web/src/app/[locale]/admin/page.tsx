@@ -9,6 +9,7 @@ import { LoadingState, ErrorState } from "@/components/ui";
 import {
   avatarSrc,
   clientGetAdminDashboard,
+  clientGetPublicSettings,
   clientListAdminMembers,
   clientMe,
   clientPatchAdminMember,
@@ -52,6 +53,7 @@ export default function AdminDashboardPage() {
   const [busyMemberId, setBusyMemberId] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [timeFilter, setTimeFilter] = useState("30days");
+  const [dashboardTitle, setDashboardTitle] = useState("");
 
   useEffect(() => {
     let ignore = false;
@@ -59,12 +61,14 @@ export default function AdminDashboardPage() {
       clientMe(),
       clientGetAdminDashboard(),
       clientListAdminMembers(""),
+      clientGetPublicSettings(),
     ])
-      .then(([u, s, m]) => {
+      .then(([u, s, m, publicSettings]) => {
         if (ignore) return;
         setCurrentUser(u);
         setStats(s);
         setMembers(m.items);
+        setDashboardTitle(publicSettings.dashboard_title || "");
       })
       .catch((err) => {
         if (ignore) return;
@@ -122,7 +126,7 @@ export default function AdminDashboardPage() {
       {/* 1. Dashboard Page Header (DashLite Style) */}
       <div className="dash-head">
         <div className="dash-head-content">
-          <h1 className="dash-title">{t(locale, "dashboard")}</h1>
+          <h1 className="dash-title">{dashboardTitle || t(locale, "dashboard")}</h1>
           <p className="dash-subtitle">
             {locale === "lo"
               ? "ຍິນດີຕ້ອນຮັບກັບຄືນ, ແຜງຄວບຄຸມລະບົບ BAN BUNSI"

@@ -15,6 +15,29 @@ export type PublicSettings = {
   tiktok_url: string;
   default_meta_description_lo: string;
   default_meta_description_en: string;
+  organization_name?: string;
+  system_name?: string;
+  description?: string;
+  contact_phone?: string;
+  address?: string;
+  website?: string;
+  logo_url?: string;
+  login_logo_url?: string;
+  system_logo_url?: string;
+  favicon_url?: string;
+  default_cover_url?: string;
+  primary_color?: string;
+  secondary_color?: string;
+  accent_color?: string;
+  application_title?: string;
+  sidebar_title?: string;
+  dashboard_title?: string;
+  footer_text?: string;
+  default_document_category?: string;
+  default_document_status?: string;
+  allowed_file_types?: string;
+  max_file_size_bytes?: number;
+  document_number_format?: string;
 };
 
 export type CategoryNode = {
@@ -164,7 +187,6 @@ export type DocumentFileMeta = {
   id: string;
   label: string;
   file_name: string;
-  storage_path?: string;
   file_url?: string;
   mime: string;
   size_bytes: number;
@@ -178,6 +200,7 @@ export type DocumentListItem = {
   id: string;
   document_number: string;
   category_id: string;
+  cover_image_url?: string;
   category_slug: string;
   category_name: string;
   read_access: "public" | "member" | "vip";

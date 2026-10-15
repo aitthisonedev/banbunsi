@@ -1,6 +1,6 @@
 "use client";
 
-import type { User } from "./api";
+import type { PublicSettings, User } from "./api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -43,6 +43,10 @@ export function clientLogout() {
 
 export function clientMe() {
   return clientFetch<User>("/auth/me");
+}
+
+export function clientGetPublicSettings() {
+  return clientFetch<PublicSettings>("/settings/public");
 }
 
 export function clientUpdateProfile(body: {
@@ -118,14 +122,43 @@ export function clientResetPassword(token: string, password: string) {
 }
 
 export function clientGetAdminSettings() {
-  return clientFetch<Record<string, string>>("/admin/settings");
+  return clientFetch<Record<string, unknown>>("/admin/settings");
 }
 
-export function clientPatchAdminSettings(body: Record<string, string>) {
+export function clientPatchAdminSettings(body: Record<string, unknown>) {
   return clientFetch("/admin/settings", {
     method: "PATCH",
     body: JSON.stringify(body),
   });
+}
+
+export async function clientUploadAdminSettingsAsset(
+  kind: "logo" | "login-logo" | "system-logo" | "favicon" | "default-cover",
+  file: File,
+) {
+  const form = new FormData();
+  form.append("asset", file);
+  const res = await fetch(`${API_URL}/api/v1/admin/settings/assets/${kind}`, {
+    method: "POST",
+    body: form,
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { error?: string }).error || `Request failed (${res.status})`,
+    );
+  }
+  return data as Record<string, unknown>;
+}
+
+export function clientDeleteAdminSettingsAsset(
+  kind: "logo" | "login-logo" | "system-logo" | "favicon" | "default-cover",
+) {
+  return clientFetch<Record<string, unknown>>(
+    `/admin/settings/assets/${kind}`,
+    { method: "DELETE" },
+  );
 }
 
 export function clientGetAdminDashboard() {
@@ -142,6 +175,7 @@ export function clientGetAdminDashboard() {
 export type AdminDocumentPayload = {
   document_number: string;
   category_id: string;
+  cover_image_url?: string;
   read_access: string;
   status: string;
   effective_date?: string | null;
@@ -158,9 +192,9 @@ export type AdminDocumentPayload = {
   }>;
   /** Omit on update to leave existing files unchanged. Never send [] unless clearing. */
   files?: Array<{
+    id?: string;
     label: string;
     file_name: string;
-    storage_path?: string;
     mime: string;
     size_bytes: number;
     language: string;
@@ -171,9 +205,23 @@ export type AdminDocumentPayload = {
   }>;
 };
 
-export function clientListAdminDocuments(locale: string, q = "") {
+export type AdminDocumentFilters = {
+  q?: string;
+  category?: string;
+  year?: string;
+  status?: string;
+  updated_after?: string;
+  updated_before?: string;
+};
+
+export function clientListAdminDocuments(
+  locale: string,
+  filters: AdminDocumentFilters = {},
+) {
   const params = new URLSearchParams({ locale, per_page: "100" });
-  if (q) params.set("q", q);
+  for (const [key, value] of Object.entries(filters)) {
+    if (value) params.set(key, value);
+  }
   return clientFetch<{
     items: Array<Record<string, unknown>>;
     total: number;
@@ -207,6 +255,37 @@ export function clientDeleteAdminDocument(id: string) {
   return clientFetch<{ message: string }>(`/admin/documents/${id}`, {
     method: "DELETE",
   });
+}
+
+export async function clientUploadAdminDocumentCover(id: string, file: File) {
+  const form = new FormData();
+  form.append("cover", file);
+  const res = await fetch(`${API_URL}/api/v1/admin/documents/${id}/cover`, {
+    method: "POST",
+    body: form,
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { error?: string }).error || `Request failed (${res.status})`,
+    );
+  }
+  return data as { cover_image_url: string };
+}
+
+export function clientDeleteAdminDocumentCover(id: string) {
+  return clientFetch<{ cover_image_url: string }>(
+    `/admin/documents/${id}/cover`,
+    { method: "DELETE" },
+  );
+}
+
+export function clientDeleteAdminDocumentFile(documentId: string, fileId: string) {
+  return clientFetch<{ message: string }>(
+    `/admin/documents/${documentId}/files/${fileId}`,
+    { method: "DELETE" },
+  );
 }
 
 export type AdminCategoryTranslation = {
