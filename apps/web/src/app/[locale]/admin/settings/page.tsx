@@ -45,8 +45,8 @@ const SECTIONS: Section[] = [
     id: "general",
     title: { lo: "ທົ່ວໄປ", en: "General" },
     description: {
-      lo: "ຊື່ເວັບໄຊ ແລະ ຂໍ້ຄວາມ SEO ຈະສະແດງຢູ່ແຖບຂອງບຣາວເຊີ ແລະ ໃນຜົນການຄົ້ນຫາ. ຫົວຂໍ້ SEO ຄວນຍາວປະມານ 50–60 ຕົວອັກສອນ ແລະ ຄຳອະທິບາຍ Meta 120–160 ຕົວອັກສອນ, ບໍ່ຊ້ຳກັນ ແລະ ອະທິບາຍໄດ້ຊັດເຈນ. WhatsApp ໃຊ້ຮູບແບບສາກົນ (+856…); ລິ້ງຕ້ອງຂຶ້ນຕົ້ນດ້ວຍ https://.",
-      en: "Site names and SEO text appear in browser tabs and search results. Keep SEO titles to about 50–60 characters and meta descriptions to 120–160 characters, unique and descriptive. WhatsApp uses international format (+856…); links must start with https://.",
+      lo: "ຊື່ເວັບໄຊ, ຊ່ອງທາງຕິດຕໍ່ ແລະ SEO.",
+      en: "Site names, contact links and SEO.",
     },
     fields: [
       {
@@ -120,8 +120,8 @@ const SECTIONS: Section[] = [
     id: "organization",
     title: { lo: "ອົງກອນ ແລະ ການຕິດຕໍ່", en: "Organization & contact" },
     description: {
-      lo: "ສະແດງຢູ່ສ່ວນທ້າຍເວັບ, ໜ້າຕິດຕໍ່, ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ ແລະ ເງື່ອນໄຂການນຳໃຊ້. ປ່ອຍຊ່ອງຕິດຕໍ່ໃດໜຶ່ງໃຫ້ວ່າງເພື່ອເຊື່ອງມັນ; ຄວນມີຢ່າງໜ້ອຍໜຶ່ງຊ່ອງທາງໃຫ້ຕິດຕໍ່ໄດ້.",
-      en: "Shown in the footer, on the Contact page and in the Privacy Policy and Terms. Leave a contact field blank to hide it; provide at least one way to reach you.",
+      lo: "ສະແດງຢູ່ສ່ວນທ້າຍເວັບ ແລະ ໜ້າຕິດຕໍ່. ປ່ອຍວ່າງເພື່ອເຊື່ອງ.",
+      en: "Shown in the footer and on the Contact page. Leave blank to hide.",
     },
     fields: [
       {
@@ -161,8 +161,8 @@ const SECTIONS: Section[] = [
     id: "branding",
     title: { lo: "ໂລໂກ້ ແລະ ຮູບພາບ", en: "Logo & images" },
     description: {
-      lo: "ໃຊ້ໄຟລ໌ PNG ຫຼື WebP. ໂລໂກ້ຈະຄົມຊັດທີ່ສຸດເມື່ອມີຂະໜາດສອງເທົ່າຂອງຂະໜາດທີ່ສະແດງ (ເຊັ່ນ 480 × 160 px) ແລະ ມີພື້ນຫຼັງໂປ່ງໃສ; Favicon ຄວນເປັນຮູບສີ່ຫຼ່ຽມຈະຕຸລັດ ຢ່າງໜ້ອຍ 512 × 512 px. ບໍ່ເກີນ 2 MB ຕໍ່ຮູບ. ເບິ່ງຕົວຢ່າງໄດ້ທີ່ນີ້ ແລະ ຈະນຳໃຊ້ເມື່ອທ່ານບັນທຶກ.",
-      en: "Use PNG or WebP. Logos look sharpest at twice their display size (e.g. 480 × 160 px) with a transparent background; the favicon should be square, at least 512 × 512 px. Max 2 MB each. Changes are previewed here and applied when you save.",
+      lo: "ເບິ່ງຕົວຢ່າງໄດ້ທີ່ນີ້, ນຳໃຊ້ເມື່ອບັນທຶກ.",
+      en: "Previewed here, applied when you save.",
     },
     assets: true,
   },
@@ -170,8 +170,8 @@ const SECTIONS: Section[] = [
     id: "documents",
     title: { lo: "ເອກະສານ", en: "Documents" },
     description: {
-      lo: "ຄ່າເລີ່ມຕົ້ນທີ່ໃຊ້ເມື່ອສ້າງເອກະສານ. ອະນຸຍາດສະເພາະປະເພດໄຟລ໌ທີ່ຈຳເປັນ; ແນະນຳໃຫ້ໃຊ້ PDF ສຳລັບເອກະສານທີ່ເຜີຍແຜ່ ເພາະເປີດໄດ້ຄືກັນໃນທຸກອຸປະກອນ.",
-      en: "Defaults used when creating documents. Allow only the file types you need; PDF is recommended for published documents because it opens the same on every device.",
+      lo: "ຄ່າເລີ່ມຕົ້ນສຳລັບເອກະສານໃໝ່.",
+      en: "Defaults for new documents.",
     },
     fields: [
       {
@@ -207,8 +207,8 @@ const SECTIONS: Section[] = [
     id: "appearance",
     title: { lo: "ຮູບແບບການສະແດງຜົນ", en: "Appearance" },
     description: {
-      lo: "ສີຂອງແບຣນໃຊ້ໃນໂໝດແຈ້ງ; ໂໝດມືດໃຊ້ຊຸດສີຂອງຕົນເອງທີ່ອ່ານງ່າຍ. ສີຫຼັກ ແລະ ສີຮອງຢູ່ຫຼັງຕົວໜັງສືສີຂາວ (ປຸ່ມ, ສ່ວນທ້າຍເວັບ) ຈຶ່ງຕ້ອງມີຄວາມຄົມຊັດກັບສີຂາວຢ່າງໜ້ອຍ 4.5:1; ສີເນັ້ນໃຊ້ກັບໄອຄອນ ແລະ ຈຸດເດັ່ນ ຈຶ່ງຕ້ອງມີຢ່າງໜ້ອຍ 3:1 ເມື່ອທຽບກັບພື້ນສີຂາວ (WCAG 2.1 AA). ອັດຕາສ່ວນຈະຖືກກວດຢູ່ລຸ່ມແຕ່ລະສີ.",
-      en: "Brand colors apply in light mode; dark mode keeps its own accessible palette. Primary and secondary colors sit behind white text (buttons, footer), so they need at least 4.5:1 contrast with white; the accent color is used for icons and highlights and needs at least 3:1 against white (WCAG 2.1 AA). The ratio is checked under each color.",
+      lo: "ສີໃຊ້ໃນໂໝດແຈ້ງ; ຄວາມຄົມຊັດຖືກກວດຢູ່ລຸ່ມແຕ່ລະສີ.",
+      en: "Colors apply in light mode; contrast is checked under each color.",
     },
     fields: [
       {
@@ -838,12 +838,6 @@ export default function AdminSettingsPage() {
     <div className="w-full max-w-7xl">
       <header className="mb-6">
         <h1 className="text-2xl font-bold">{t(locale, "settings")}</h1>
-        <p className="mt-1 text-sm text-bb-text-muted">
-          {L(
-            "ການປ່ຽນແປງຈະນຳໃຊ້ທົ່ວທັງເວັບໄຊຫຼັງຈາກທ່ານບັນທຶກ. ຊ່ອງທີ່ໝາຍວ່າຈຳເປັນ ບໍ່ສາມາດປ່ອຍວ່າງໄດ້.",
-            "Changes apply across the website after you save. Fields marked as required cannot be left blank.",
-          )}
-        </p>
       </header>
       <form onSubmit={onSubmit} className="space-y-4">
         {SECTIONS.map((section, index) => (
