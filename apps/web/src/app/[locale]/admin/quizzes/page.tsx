@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Badge, EmptyState, ErrorState, LoadingState } from "@/components/ui";
 import {
   clientDeleteAdminQuiz,
@@ -10,6 +10,8 @@ import {
   clientMe,
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
+import { btn } from "@/components/admin-documents-ui";
+import { AdminPagination, usePagination } from "@/components/admin-pagination";
 
 type Row = {
   id: string;
@@ -56,6 +58,10 @@ export default function AdminQuizzesPage() {
     }
   }
 
+  // Before the early returns: hooks must run on every render.
+  const pager = usePagination(items || []);
+  const listTop = useRef<HTMLDivElement>(null);
+
   if (error) return <ErrorState title={error} />;
   if (!items) return <LoadingState label={t(locale, "loading")} />;
 
@@ -66,28 +72,52 @@ export default function AdminQuizzesPage() {
           <h1 className="text-2xl font-bold">{t(locale, "adminQuizzes")}</h1>
           <p>{t(locale, "adminQuizzesLead")}</p>
         </div>
-        <Link href={`/${locale}/admin/quizzes/new`} className="btn-primary">
-          {t(locale, "newQuiz")}
-        </Link>
+        <div className="admin-page-head-actions">
+          {/* Same count pill as Manage Members: the number of items in the list below. */}
+          <span className="admin-count-pill" aria-live="polite">
+            {t(locale, items.length === 1 ? "quizCountOne" : "quizCount", {
+              count: items.length,
+            })}
+          </span>
+          <Link href={`/${locale}/admin/quizzes/new`} className="btn-primary">
+            {t(locale, "newQuiz")}
+          </Link>
+        </div>
       </div>
 
-      <div className="surface-panel overflow-x-auto">
+      <div ref={listTop} className="surface-panel overflow-x-auto">
         {items.length === 0 ? (
           <EmptyState title={t(locale, "noQuizzes")} />
         ) : (
-          <table className="admin-table">
+          <table className="admin-table min-w-[34rem]">
             <thead>
               <tr>
+                <th>
+                  <span className="block text-center">
+                    {t(locale, "rowNumber")}
+                  </span>
+                </th>
                 <th>{t(locale, "title")}</th>
                 <th>{t(locale, "difficulty")}</th>
                 <th>{t(locale, "questions")}</th>
                 <th>{t(locale, "status")}</th>
-                <th />
+                {/* .admin-table cells force text-align: left, so alignment sits on an inner element. */}
+                <th>
+                  <span className="block text-center">
+                    {t(locale, "colActions")}
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {items.map((row) => (
+              {pager.rows.map((row, index) => (
                 <tr key={row.id}>
+                  {/* Position in the list (not the database id), continuing across pages. */}
+                  <td className="w-12">
+                    <span className="block text-center text-sm font-medium tabular-nums text-bb-text-muted">
+                      {pager.offset + index + 1}
+                    </span>
+                  </td>
                   <td>
                     <div className="font-semibold">{row.title || "—"}</div>
                     <div className="text-xs text-bb-text-muted">
@@ -103,28 +133,38 @@ export default function AdminQuizzesPage() {
                         : t(locale, "draft")}
                     </Badge>
                   </td>
-                  <td className="text-right">
-                    <Link
-                      href={`/${locale}/admin/quizzes/${row.id}`}
-                      className="section-link mr-3"
-                    >
-                      {t(locale, "edit")}
-                    </Link>
-                    {canDelete ? (
-                      <button
-                        type="button"
-                        className="admin-danger"
-                        onClick={() => onDelete(row.id)}
+                  <td>
+                    <div className="flex flex-nowrap justify-center gap-2">
+                      <Link
+                        href={`/${locale}/admin/quizzes/${row.id}`}
+                        className={`${btn.secondarySm} min-w-[4.5rem]`}
                       >
-                        {t(locale, "delete")}
-                      </button>
-                    ) : null}
+                        {t(locale, "edit")}
+                      </Link>
+                      {canDelete ? (
+                        <button
+                          type="button"
+                          className={`${btn.dangerOutlineSm} min-w-[4.5rem]`}
+                          onClick={() => onDelete(row.id)}
+                        >
+                          {t(locale, "delete")}
+                        </button>
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
+        <AdminPagination
+          locale={locale}
+          page={pager.page}
+          pageCount={pager.pageCount}
+          total={pager.total}
+          onPageChange={pager.setPage}
+          scrollTarget={listTop}
+        />
       </div>
     </div>
   );

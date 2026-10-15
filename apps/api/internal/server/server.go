@@ -61,7 +61,7 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	setH := &handlers.SettingsHandler{DB: db, Cfg: cfg}
 	adminH := &handlers.AdminHandler{DB: db}
 	docH := &handlers.DocumentHandler{DB: db, Cfg: cfg, Sessions: sessions}
-	quizH := &handlers.QuizHandler{DB: db}
+	quizH := &handlers.QuizHandler{DB: db, Cfg: cfg, Sessions: sessions}
 
 	v1 := app.Group("/api/v1")
 	v1.Get("/health", func(c *fiber.Ctx) error {
@@ -89,6 +89,8 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	account.Delete("/avatar", accountH.DeleteAvatar)
 	account.Post("/password", accountH.ChangePassword)
 	account.Post("/unlink-google", accountH.UnlinkGoogle)
+	account.Get("/downloads", accountH.Downloads)
+	account.Get("/quiz-history", accountH.QuizHistory)
 
 	v1.Get("/categories", catH.PublicList)
 	v1.Get("/settings/public", setH.PublicGet)

@@ -12,6 +12,7 @@ import { LoadingState, ErrorState } from "@/components/ui";
 import { clientLogout, clientMe } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
 import { usePublicSettings } from "@/components/public-settings-context";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 type NavItem = {
   href: string;
@@ -245,7 +246,7 @@ export function AdminShell({
             type="button"
             className="dash-sidebar-close"
             onClick={() => setNavOpen(false)}
-            aria-label="Close menu"
+            aria-label={t(locale, "closeMenu")}
           >
             <svg
               viewBox="0 0 24 24"
@@ -261,7 +262,7 @@ export function AdminShell({
         </div>
 
         <div className="dash-sidebar-body">
-          <nav className="dash-nav" aria-label="Admin Navigation">
+          <nav className="dash-nav" aria-label={t(locale, "adminNavigation")}>
             {navGroups.map((group) => {
               const items = visibleItems.filter((i) => i.group === group.key);
               if (!items.length) return null;
@@ -337,8 +338,18 @@ export function AdminShell({
               </svg>
             </button>
 
-            {/* DashLite search bar */}
-            <div className="dash-topbar-search">
+            {/* Searches documents: Enter opens Manage Documents filtered by the text. */}
+            <form
+              className="dash-topbar-search"
+              role="search"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const q = searchFilter.trim();
+                router.push(
+                  `/${locale}/admin/documents${q ? `?q=${encodeURIComponent(q)}` : ""}`,
+                );
+              }}
+            >
               <svg
                 viewBox="0 0 20 20"
                 width="16"
@@ -351,16 +362,15 @@ export function AdminShell({
                 <path d="M13.5 13.5l4 4" strokeLinecap="round" />
               </svg>
               <input
-                type="text"
+                type="search"
+                aria-label={t(locale, "searchDocuments")}
                 placeholder={
-                  locale === "lo"
-                    ? "ຄົ້ນຫາເອກະສານ, ຂໍ້ມູນ..."
-                    : "Search files, folders, members..."
+                  locale === "lo" ? "ຄົ້ນຫາເອກະສານ..." : "Search documents..."
                 }
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
               />
-            </div>
+            </form>
           </div>
 
           <div className="dash-topbar-right">
@@ -384,27 +394,6 @@ export function AdminShell({
               </svg>
             </Link>
 
-            {/* Notification Bell (DashLite aesthetic) */}
-            <button
-              type="button"
-              className="dash-icon-btn"
-              title="Notifications"
-              aria-label="Notifications"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-              </svg>
-              <span className="dash-bell-dot" />
-            </button>
-
             {/* Theme Toggle */}
             <ThemeToggle
               darkLabel={t(locale, "darkMode")}
@@ -423,6 +412,7 @@ export function AdminShell({
 
         {/* Main Content Area */}
         <main className="dash-main">{children}</main>
+        <ScrollToTop locale={locale} />
       </div>
 
       {/* Mobile Backdrop */}

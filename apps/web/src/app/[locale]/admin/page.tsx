@@ -40,6 +40,7 @@ import {
 import { isLocale, t } from "@/lib/i18n";
 import { MemberAvatar } from "@/components/member-avatar";
 import { usePublicSettings } from "@/components/public-settings-context";
+import { categoryCover } from "@/lib/category-covers";
 
 const RECENT_DOCUMENTS = 6;
 
@@ -55,6 +56,14 @@ function toDashboardDocument(
     files: Array.isArray(row.files) ? row.files.length : 0,
     status: String(row.status || "draft"),
     cover: String(row.cover_image_url || ""),
+    // Same image the documents list and website show when no cover is uploaded.
+    categoryCover: categoryCover(
+      {
+        category_slug: String(row.category_slug || ""),
+        category_name: String(row.category_name || ""),
+      },
+      String(row.id),
+    ),
     publicHref:
       row.status === "published" && slug
         ? `/${locale}/documents/${encodeURIComponent(slug)}`
@@ -77,7 +86,9 @@ export default function AdminDashboardPage() {
   const [busyMemberId, setBusyMemberId] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [range, setRange] = useState<DashboardRange>("30d");
-  const dashboardTitle = usePublicSettings()?.dashboard_title || "";
+  const publicSettings = usePublicSettings();
+  const dashboardTitle = publicSettings?.dashboard_title || "";
+  const defaultCover = publicSettings?.default_cover_url || "";
 
   useEffect(() => {
     let ignore = false;
@@ -212,6 +223,16 @@ export default function AdminDashboardPage() {
       total: stats.quizzes ?? 0,
       series: series.quizzes,
       href: `/${locale}/admin/quizzes`,
+    },
+    {
+      // Successful file downloads recorded by the API (audit log "document.download").
+      key: "downloads",
+      tone: "teal" as const,
+      icon: Icons.download(22),
+      label: L("ການດາວໂຫຼດ", "Downloads"),
+      total: stats.downloads ?? 0,
+      series: series.downloads,
+      href: undefined,
     },
   ];
 
@@ -443,6 +464,7 @@ export default function AdminDashboardPage() {
             <RecentDocuments
               locale={locale}
               docs={documents}
+              defaultCover={defaultCover}
               emptyAction={addDocumentButton}
             />
           ) : (

@@ -6,11 +6,14 @@ export function Drawer({
   open,
   onClose,
   title,
+  closeLabel,
   children,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  /** Accessible name of the close buttons, in the page language. */
+  closeLabel: string;
   children: ReactNode;
 }) {
   useEffect(() => {
@@ -38,7 +41,7 @@ export function Drawer({
       <button
         type="button"
         className="drawer-backdrop"
-        aria-label="Close"
+        aria-label={closeLabel}
         onClick={onClose}
       />
       <div className="drawer-panel">
@@ -48,7 +51,7 @@ export function Drawer({
             type="button"
             className="icon-btn"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={closeLabel}
           >
             ×
           </button>

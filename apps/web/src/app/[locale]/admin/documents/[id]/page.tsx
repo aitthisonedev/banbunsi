@@ -21,6 +21,7 @@ import {
   clientMe,
 } from "@/lib/client-api";
 import { categoryCover } from "@/lib/category-covers";
+import { formatDate } from "@/lib/dashboard-stats";
 import { isLocale, t } from "@/lib/i18n";
 import { usePublicSettings } from "@/components/public-settings-context";
 
@@ -88,7 +89,7 @@ export default function AdminDocumentDetailsPage() {
         <section className={panelClass}>
           <StatePanel
             tone="error"
-            title="This document could not be loaded"
+            title={t(locale, "documentLoadFailed")}
             description={loadError}
             action={
               <>
@@ -97,13 +98,13 @@ export default function AdminDocumentDetailsPage() {
                   className={btn.secondary}
                   onClick={() => window.location.reload()}
                 >
-                  Try again
+                  {t(locale, "retry")}
                 </button>
                 <Link
                   href={`/${locale}/admin/documents`}
                   className={btn.primary}
                 >
-                  Back to documents
+                  {t(locale, "backToDocuments")}
                 </Link>
               </>
             }
@@ -112,18 +113,12 @@ export default function AdminDocumentDetailsPage() {
       </div>
     );
   }
-  if (!document) return <PageSkeleton />;
+  if (!document) return <PageSkeleton locale={locale} />;
 
   const files = document.files || [];
-  const title = document.title || "Untitled document";
+  const title = document.title || t(locale, "untitledDocument");
   const dateLabel = (value?: string) =>
-    value
-      ? new Date(value).toLocaleDateString(locale === "lo" ? "lo-LA" : "en", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })
-      : "";
+    value ? formatDate(locale, value) : "";
   const tags = (document.tags || "")
     .split(",")
     .map((tag) => tag.trim())
@@ -131,7 +126,9 @@ export default function AdminDocumentDetailsPage() {
 
   async function onDeleteFile(file: DocumentFileMeta) {
     if (
-      !confirm(`Remove "${file.label || file.file_name}" from this document?`)
+      !confirm(
+        t(locale, "removeFileConfirm", { name: file.label || file.file_name }),
+      )
     )
       return;
     setFileError("");
@@ -148,7 +145,9 @@ export default function AdminDocumentDetailsPage() {
       );
     } catch (reason) {
       setFileError(
-        reason instanceof Error ? reason.message : "Could not remove the file.",
+        reason instanceof Error
+          ? reason.message
+          : t(locale, "fileRemoveFailed"),
       );
     } finally {
       setRemovingFileId("");
@@ -156,12 +155,12 @@ export default function AdminDocumentDetailsPage() {
   }
 
   const details: Array<[string, string | number | undefined]> = [
-    ["Document number", document.document_number],
-    ["Category", document.category_name],
+    [t(locale, "documentNumber"), document.document_number],
+    [t(locale, "category"), document.category_name],
     [t(locale, "year"), document.year],
-    ["Effective date", dateLabel(document.effective_date)],
-    ["Created", dateLabel(document.created_at)],
-    ["Last updated", dateLabel(document.updated_at)],
+    [t(locale, "effectiveDate"), dateLabel(document.effective_date)],
+    [t(locale, "created"), dateLabel(document.created_at)],
+    [t(locale, "lastUpdated"), dateLabel(document.updated_at)],
   ];
 
   return (
@@ -172,8 +171,8 @@ export default function AdminDocumentDetailsPage() {
         title={title}
         badges={
           <>
-            <StatusBadge status={document.status} />
-            <AccessBadge access={document.read_access} />
+            <StatusBadge locale={locale} status={document.status} />
+            <AccessBadge locale={locale} access={document.read_access} />
           </>
         }
         actions={
@@ -185,14 +184,14 @@ export default function AdminDocumentDetailsPage() {
                 rel="noreferrer"
                 className={btn.secondary}
               >
-                View on site ↗
+                {t(locale, "viewOnSite")} ↗
               </Link>
             ) : null}
             <Link
               href={`/${locale}/admin/documents/${id}/edit`}
               className={btn.primary}
             >
-              Edit document
+              {t(locale, "editDocument")}
             </Link>
           </>
         }
@@ -202,6 +201,7 @@ export default function AdminDocumentDetailsPage() {
         <aside className="space-y-3">
           <div className="mx-auto w-full max-w-[220px] lg:max-w-none">
             <DocumentCover
+              locale={locale}
               src={document.cover_image_url || defaultCover}
               fallbackSrc={categoryCover(document, document.id)}
               title={title}
@@ -210,14 +210,15 @@ export default function AdminDocumentDetailsPage() {
           </div>
           {!document.cover_image_url ? (
             <p className="text-center text-xs text-bb-text-muted lg:text-left">
-              {defaultCover
-                ? "Showing the default cover. "
-                : "Showing the category image. "}
+              {t(
+                locale,
+                defaultCover ? "showingDefaultCover" : "showingCategoryImage",
+              )}{" "}
               <Link
                 href={`/${locale}/admin/documents/${id}/edit`}
                 className="font-semibold text-bb-blue hover:underline"
               >
-                Upload a cover
+                {t(locale, "uploadCover")}
               </Link>
             </p>
           ) : null}
@@ -225,7 +226,7 @@ export default function AdminDocumentDetailsPage() {
 
         <div className="space-y-6">
           <section className={`${panelClass} p-5`}>
-            <h2 className="font-semibold">Details</h2>
+            <h2 className="font-semibold">{t(locale, "details")}</h2>
             <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4">
               {details.map(([label, value]) => (
                 <div key={label}>
@@ -251,7 +252,7 @@ export default function AdminDocumentDetailsPage() {
             {document.summary ? (
               <div className="mt-4 border-t border-bb-border pt-4">
                 <h3 className="text-xs font-medium text-bb-text-muted">
-                  Summary
+                  {t(locale, "summary")}
                 </h3>
                 <p className="mt-1 text-sm leading-relaxed">
                   {document.summary}
@@ -263,7 +264,7 @@ export default function AdminDocumentDetailsPage() {
           <section className={`${panelClass} p-5`}>
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-semibold">
-                Files{" "}
+                {t(locale, "files")}{" "}
                 <span className="font-normal text-bb-text-muted">
                   ({files.length})
                 </span>
@@ -272,7 +273,7 @@ export default function AdminDocumentDetailsPage() {
                 href={`/${locale}/admin/documents/${id}/edit`}
                 className="text-sm font-semibold text-bb-blue hover:underline"
               >
-                Manage files
+                {t(locale, "manageFiles")}
               </Link>
             </div>
             {fileError ? (
@@ -306,8 +307,8 @@ export default function AdminDocumentDetailsPage() {
                             formatBytes(file.size_bytes),
                             `v${file.version || "1.0"}`,
                             file.download_access === "vip"
-                              ? "VIP download"
-                              : "Members download",
+                              ? t(locale, "vipDownload")
+                              : t(locale, "membersDownload"),
                           ]
                             .filter(Boolean)
                             .join(" · ")}
@@ -321,7 +322,7 @@ export default function AdminDocumentDetailsPage() {
                           className={btn.secondarySm}
                           rel="noreferrer"
                         >
-                          Download
+                          {t(locale, "download")}
                         </a>
                       ) : null}
                       <button
@@ -330,7 +331,9 @@ export default function AdminDocumentDetailsPage() {
                         disabled={removingFileId === file.id}
                         onClick={() => onDeleteFile(file)}
                       >
-                        {removingFileId === file.id ? "Removing…" : "Remove"}
+                        {removingFileId === file.id
+                          ? t(locale, "removing")
+                          : t(locale, "remove")}
                       </button>
                     </div>
                   </li>
@@ -338,7 +341,7 @@ export default function AdminDocumentDetailsPage() {
               </ul>
             ) : (
               <p className="mt-3 rounded-lg border border-dashed border-bb-border px-4 py-6 text-center text-sm text-bb-text-muted">
-                No files attached yet.
+                {t(locale, "noFilesYet")}
               </p>
             )}
           </section>

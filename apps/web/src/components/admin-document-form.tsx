@@ -173,7 +173,7 @@ export function AdminDocumentForm({
         !allowedExtensions.test(file.name)) ||
       file.size > 2 * 1024 * 1024
     ) {
-      setError("Choose a JPG, PNG, or WebP image up to 2 MiB.");
+      setError(t(locale, "coverInvalid"));
       return;
     }
     setError("");
@@ -209,13 +209,16 @@ export function AdminDocumentForm({
         .map((extension) => extension.trim().replace(/^\./, "").toLowerCase());
       const extension = uploadedFile.name.split(".").pop()?.toLowerCase() || "";
       if (!allowedExtensions.includes(extension)) {
-        setError(`File type .${extension || "?"} is not allowed.`);
+        setError(t(locale, "fileTypeNotAllowed", { ext: extension || "?" }));
         setLoading(false);
         return;
       }
       if (uploadedFile.size > maximumBytes) {
         setError(
-          `This file is ${formatFileSize(uploadedFile.size)}; the limit set in Settings is ${formatFileSize(maximumBytes)}.`,
+          t(locale, "fileTooLarge", {
+            size: formatFileSize(uploadedFile.size),
+            limit: formatFileSize(maximumBytes),
+          }),
         );
         setLoading(false);
         return;
@@ -285,10 +288,9 @@ export function AdminDocumentForm({
         try {
           await clientUploadAdminDocumentCover(documentId, coverFile);
         } catch (err) {
-          const reason = err instanceof Error ? err.message : "Upload failed";
-          throw new Error(
-            `Document saved, but the cover could not be uploaded: ${reason}`,
-          );
+          const reason =
+            err instanceof Error ? err.message : t(locale, "uploadFailed");
+          throw new Error(t(locale, "coverUploadFailedAfterSave", { reason }));
         }
       } else if (documentId && removeCover && initial?.cover_image_url) {
         await clientDeleteAdminDocumentCover(documentId);
@@ -309,10 +311,9 @@ export function AdminDocumentForm({
             setUploadProgress,
           );
         } catch (err) {
-          const reason = err instanceof Error ? err.message : "Upload failed";
-          throw new Error(
-            `Document saved, but the file could not be uploaded: ${reason}`,
-          );
+          const reason =
+            err instanceof Error ? err.message : t(locale, "uploadFailed");
+          throw new Error(t(locale, "fileUploadFailedAfterSave", { reason }));
         } finally {
           setUploadProgress(null);
         }
@@ -324,7 +325,7 @@ export function AdminDocumentForm({
       );
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
+      setError(err instanceof Error ? err.message : t(locale, "saveFailed"));
     } finally {
       setLoading(false);
     }
@@ -352,8 +353,7 @@ export function AdminDocumentForm({
   const isNewDocument = !initial?.id;
   const showFallback =
     !isNewDocument && !showUploaded && fallbackFailed !== fallbackCover;
-  const addImagePrompt =
-    locale === "lo" ? "ກະລຸນາເພີ່ມຮູບພາບ" : "Please add an image";
+  const addImagePrompt = t(locale, "addImagePrompt");
   const fileAccept = (
     defaults?.allowed_file_types || "pdf,doc,docx,xls,xlsx,csv,txt,zip"
   )
@@ -368,7 +368,10 @@ export function AdminDocumentForm({
     <form onSubmit={onSubmit} className="space-y-6 pb-4">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
         <div className="lg:col-start-1 lg:row-start-1">
-          <FormSection title="Basic information" description={guide.basic}>
+          <FormSection
+            title={t(locale, "basicInformation")}
+            description={guide.basic}
+          >
             <div className="grid gap-4 sm:grid-cols-2">
               <Field
                 label={`${t(locale, "documentNumber")} *`}
@@ -388,7 +391,7 @@ export function AdminDocumentForm({
                   }}
                 />
               </Field>
-              <Field label="Category *">
+              <Field label={`${t(locale, "category")} *`}>
                 <Select
                   name="category_id"
                   searchPlaceholder={t(locale, "selectSearch")}
@@ -402,7 +405,7 @@ export function AdminDocumentForm({
                   }))}
                 />
               </Field>
-              <Field label={t(locale, "year")}>
+              <Field label={t(locale, "year")} hint={t(locale, "yearHint")}>
                 <input
                   className="input"
                   name="year"
@@ -410,7 +413,10 @@ export function AdminDocumentForm({
                   defaultValue={initial?.year || new Date().getFullYear()}
                 />
               </Field>
-              <Field label={t(locale, "effectiveDate")}>
+              <Field
+                label={t(locale, "effectiveDate")}
+                hint={t(locale, "effectiveDateHint")}
+              >
                 <input
                   className="input"
                   name="effective_date"
@@ -421,10 +427,7 @@ export function AdminDocumentForm({
                 />
               </Field>
               <div className="sm:col-span-2">
-                <Field
-                  label={t(locale, "tags")}
-                  hint="Separate tags with commas, e.g. tax, 2026, VAT"
-                >
+                <Field label={t(locale, "tags")} hint={t(locale, "tagsHint")}>
                   <input
                     className="input"
                     name="tags"
@@ -437,11 +440,14 @@ export function AdminDocumentForm({
         </div>
 
         <div className="space-y-6 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <FormSection title="Publishing" description={guide.publishing}>
+          <FormSection
+            title={t(locale, "publishing")}
+            description={guide.publishing}
+          >
             <Field
               label={t(locale, "status")}
               hint={
-                isAdminPlus ? undefined : "Only admins can change the status."
+                isAdminPlus ? undefined : t(locale, "onlyAdminsChangeStatus")
               }
             >
               {!isAdminPlus ? (
@@ -464,15 +470,15 @@ export function AdminDocumentForm({
                 }
                 disabled={!isAdminPlus}
                 options={[
-                  { value: "draft", label: "Draft" },
-                  { value: "published", label: "Published" },
-                  { value: "archived", label: "Archived" },
+                  { value: "draft", label: t(locale, "draft") },
+                  { value: "published", label: t(locale, "published") },
+                  { value: "archived", label: t(locale, "archived") },
                 ]}
               />
             </Field>
             <Field
               label={t(locale, "readAccess")}
-              hint="Who can read this document on the website."
+              hint={t(locale, "readAccessHint")}
             >
               <Select
                 name="read_access"
@@ -487,15 +493,15 @@ export function AdminDocumentForm({
           </FormSection>
 
           <FormSection
-            title="Cover image"
-            description="JPG, PNG or WebP, up to 2 MB. Best size: 1200 × 1600 px."
+            title={t(locale, "coverImage")}
+            description={t(locale, "coverImageHint")}
           >
             <div className="flex items-start gap-4 lg:flex-col lg:items-stretch">
               <div className="relative aspect-[3/4] w-28 shrink-0 overflow-hidden rounded-md border border-bb-border bg-bb-muted lg:mx-auto lg:w-44">
                 {showUploaded ? (
                   <Image
                     src={coverSrc}
-                    alt="Document cover preview"
+                    alt={t(locale, "coverPreviewAlt")}
                     fill
                     sizes="(min-width: 1024px) 176px, 112px"
                     unoptimized
@@ -506,7 +512,7 @@ export function AdminDocumentForm({
                   <>
                     <Image
                       src={fallbackCover}
-                      alt="Default cover preview"
+                      alt={t(locale, "defaultCoverAlt")}
                       fill
                       sizes="(min-width: 1024px) 176px, 112px"
                       unoptimized={!fallbackCover.startsWith("/")}
@@ -514,7 +520,7 @@ export function AdminDocumentForm({
                       className="object-cover"
                     />
                     <span className="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1 text-center text-[11px] font-medium text-white">
-                      Default image
+                      {t(locale, "defaultImage")}
                     </span>
                   </>
                 ) : isNewDocument && !coverSrc ? (
@@ -541,18 +547,18 @@ export function AdminDocumentForm({
                   </label>
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center gap-1 px-2 text-center text-xs text-bb-text-muted">
-                    {coverSrc ? "Preview unavailable" : "No cover"}
+                    {t(locale, coverSrc ? "previewUnavailable" : "noCover")}
                   </div>
                 )}
                 {coverFile ? (
                   <span className="absolute left-2 top-2 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800">
-                    Not saved yet
+                    {t(locale, "notSavedYet")}
                   </span>
                 ) : null}
               </div>
               <div className="flex flex-wrap gap-2">
                 <label className={`${btn.secondarySm} cursor-pointer`}>
-                  {coverSrc ? "Replace image" : "Choose image"}
+                  {t(locale, coverSrc ? "replaceImage" : "chooseImage")}
                   <input
                     id="document-cover-input"
                     className="sr-only"
@@ -575,36 +581,42 @@ export function AdminDocumentForm({
                       setRemoveCover(true);
                     }}
                   >
-                    Remove
+                    {t(locale, "remove")}
                   </button>
                 ) : null}
               </div>
             </div>
             {removeCover && initial?.cover_image_url ? (
               <p className="text-xs text-bb-text-muted">
-                The cover will be removed when you save.
+                {t(locale, "coverRemovedOnSave")}
               </p>
             ) : !showUploaded ? (
               <p className="text-xs text-bb-text-muted">
                 {isNewDocument
-                  ? `${addImagePrompt}. ${locale === "lo" ? "ຮູບນີ້ຈະເປັນໜ້າປົກຂອງເອກະສານ." : "It will be used as the document cover."}`
-                  : "No cover uploaded yet. The website shows this default image until you choose one."}
+                  ? `${addImagePrompt}. ${t(locale, "coverUsedAsDocumentCover")}`
+                  : t(locale, "noCoverUploadedYet")}
               </p>
             ) : null}
           </FormSection>
 
           <FormSection
-            title="Attachment"
-            description={`Allowed: ${fileAccept.replaceAll(",", ", ")} · up to ${maxFileMb} MB`}
+            title={t(locale, "attachment")}
+            description={t(locale, "allowedFilesHint", {
+              types: fileAccept.replaceAll(",", ", "),
+              size: maxFileMb,
+            })}
           >
             {file0?.file_name ? (
               <p className="rounded-lg bg-bb-muted px-3 py-2 text-sm">
-                Current file:{" "}
+                {t(locale, "currentFile")}{" "}
                 <span className="font-medium">{file0.file_name}</span>
               </p>
             ) : null}
             <Field
-              label={file0?.file_name ? "Upload a replacement" : "Upload file"}
+              label={t(
+                locale,
+                file0?.file_name ? "uploadReplacement" : "uploadFile",
+              )}
             >
               <input
                 className="input text-sm"
@@ -613,16 +625,22 @@ export function AdminDocumentForm({
                 accept={fileAccept}
               />
             </Field>
-            <Field label="Display name">
+            <Field
+              label={t(locale, "displayName")}
+              hint={t(locale, "displayNameHint")}
+            >
               <input
                 className="input"
                 name="file_label"
-                placeholder="e.g. Full document (PDF)"
+                placeholder={t(locale, "displayNamePlaceholder")}
                 defaultValue={file0?.label || ""}
               />
             </Field>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Version">
+              <Field
+                label={t(locale, "version")}
+                hint={t(locale, "versionHint")}
+              >
                 <input
                   className="input"
                   name="file_version"
@@ -630,7 +648,10 @@ export function AdminDocumentForm({
                   defaultValue={file0?.version || "1.0"}
                 />
               </Field>
-              <Field label="Who can download">
+              <Field
+                label={t(locale, "whoCanDownload")}
+                hint={t(locale, "whoCanDownloadHint")}
+              >
                 <Select
                   name="download_access"
                   defaultValue={file0?.download_access || "member"}
@@ -643,13 +664,13 @@ export function AdminDocumentForm({
             </div>
             <details className="rounded-lg border border-bb-border px-3 py-2">
               <summary className="cursor-pointer text-sm font-medium text-bb-text-muted">
-                Advanced file details
+                {t(locale, "advancedFileDetails")}
               </summary>
               <p className="mt-2 text-xs text-bb-text-muted">
-                Filled in automatically when you upload a file.
+                {t(locale, "autoFilledOnUpload")}
               </p>
               <div className="mt-3 space-y-3">
-                <Field label="File name">
+                <Field label={t(locale, "fileName")}>
                   <input
                     className="input"
                     name="file_name"
@@ -658,7 +679,7 @@ export function AdminDocumentForm({
                   />
                 </Field>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="File type">
+                  <Field label={t(locale, "fileType")}>
                     <input
                       className="input"
                       name="file_mime"
@@ -666,7 +687,7 @@ export function AdminDocumentForm({
                       defaultValue={file0?.mime || "application/pdf"}
                     />
                   </Field>
-                  <Field label="Size (bytes)">
+                  <Field label={t(locale, "sizeBytes")}>
                     <input
                       className="input"
                       name="file_size"
@@ -681,11 +702,19 @@ export function AdminDocumentForm({
         </div>
         <div className="space-y-6 lg:col-start-1 lg:row-start-2">
           {[
-            { code: "lo" as const, heading: "Content — Lao", values: lo },
-            { code: "en" as const, heading: "Content — English", values: en },
+            {
+              code: "lo" as const,
+              heading: t(locale, "contentLao"),
+              values: lo,
+            },
+            {
+              code: "en" as const,
+              heading: t(locale, "contentEnglish"),
+              values: en,
+            },
           ].map(({ code, heading, values }) => (
             <FormSection key={code} title={heading} description={guide.content}>
-              <Field label="Title *">
+              <Field label={`${t(locale, "title")} *`}>
                 <input
                   className="input"
                   name={`${code}_title`}
@@ -695,8 +724,8 @@ export function AdminDocumentForm({
                 />
               </Field>
               <Field
-                label="Summary"
-                hint="A short description shown in document lists."
+                label={t(locale, "summary")}
+                hint={t(locale, "summaryHint")}
               >
                 <textarea
                   className="input min-h-20"
@@ -710,7 +739,7 @@ export function AdminDocumentForm({
                   id={`${code}-body-label`}
                   className="mb-1 block font-medium"
                 >
-                  Body
+                  {t(locale, "body")}
                 </span>
                 <RichTextField
                   name={`${code}_body`}
@@ -720,18 +749,17 @@ export function AdminDocumentForm({
                   placeholder={CONTENT_GUIDE[code].body}
                 />
                 <span className="mt-1 block text-xs text-bb-text-muted">
-                  The full text readers see on the document page. Use headings
-                  and lists to organize it.
+                  {t(locale, "bodyHint")}
                 </span>
               </div>
               <details className="group rounded-lg border border-bb-border px-3 py-2">
                 <summary className="cursor-pointer text-sm font-medium text-bb-text-muted">
-                  Web address (optional)
+                  {t(locale, "webAddressOptional")}
                 </summary>
                 <div className="mt-3">
                   <Field
-                    label="URL slug"
-                    hint="Leave blank to create it from the title."
+                    label={t(locale, "urlSlug")}
+                    hint={t(locale, "slugHint")}
                   >
                     <input
                       className="input"
@@ -758,9 +786,7 @@ export function AdminDocumentForm({
         {uploadProgress !== null ? (
           <div className="mb-3" role="status" aria-live="polite">
             <div className="mb-1 flex justify-between text-xs font-medium text-bb-text-muted">
-              <span>
-                {locale === "lo" ? "ກຳລັງອັບໂຫຼດໄຟລ໌…" : "Uploading file…"}
-              </span>
+              <span>{t(locale, "uploadingFile")}</span>
               <span>{uploadProgress}%</span>
             </div>
             <div
@@ -769,9 +795,7 @@ export function AdminDocumentForm({
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={uploadProgress}
-              aria-label={
-                locale === "lo" ? "ຄວາມຄືບໜ້າການອັບໂຫຼດ" : "Upload progress"
-              }
+              aria-label={t(locale, "uploadProgress")}
             >
               <div
                 className="h-full rounded-full bg-bb-blue transition-[width] duration-200"
@@ -786,12 +810,12 @@ export function AdminDocumentForm({
           </Link>
           <button className={btn.primary} type="submit" disabled={loading}>
             {uploadProgress !== null
-              ? `Uploading… ${uploadProgress}%`
+              ? t(locale, "uploadingPercent", { percent: uploadProgress })
               : loading
-                ? "Saving…"
+                ? t(locale, "saving")
                 : initial?.id
-                  ? "Save changes"
-                  : "Create document"}
+                  ? t(locale, "saveChanges")
+                  : t(locale, "createDocument")}
           </button>
         </div>
       </div>

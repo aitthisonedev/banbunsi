@@ -71,6 +71,13 @@ export const Icons = {
       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
     </Svg>
   ),
+  download: (size?: number) => (
+    <Svg size={size}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <path d="M7 10l5 5 5-5" />
+      <path d="M12 15V3" />
+    </Svg>
+  ),
   folder: (size?: number) => (
     <Svg size={size}>
       <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
@@ -166,7 +173,7 @@ export function KpiCard({
   href,
 }: {
   locale: Locale;
-  tone: "blue" | "green" | "amber" | "violet";
+  tone: "blue" | "green" | "amber" | "violet" | "teal";
   icon: ReactNode;
   label: string;
   total: number;
@@ -535,7 +542,10 @@ export type DashboardDocument = {
   category: string;
   files: number;
   status: string;
+  /** Uploaded cover; empty when the document has none. */
   cover: string;
+  /** Category image used when there is no uploaded or default cover. */
+  categoryCover: string;
   publicHref?: string;
 };
 
@@ -611,9 +621,17 @@ function DocumentMenu({
   );
 }
 
-function DocumentCover({ src, title }: { src: string; title: string }) {
-  const [failed, setFailed] = useState("");
-  if (!src || failed === src) {
+/** Tries each image in turn (uploaded cover, default cover, category image); icon if none load. */
+function DocumentCover({
+  sources,
+  title,
+}: {
+  sources: string[];
+  title: string;
+}) {
+  const [failed, setFailed] = useState<string[]>([]);
+  const src = sources.find((s) => s && !failed.includes(s));
+  if (!src) {
     return (
       <span className="dov-doc-fallback" aria-hidden="true">
         {Icons.document(34)}
@@ -627,7 +645,7 @@ function DocumentCover({ src, title }: { src: string; title: string }) {
       alt={title}
       loading="lazy"
       className="dov-doc-img"
-      onError={() => setFailed(src)}
+      onError={() => setFailed((current) => [...current, src])}
     />
   );
 }
@@ -635,10 +653,13 @@ function DocumentCover({ src, title }: { src: string; title: string }) {
 export function RecentDocuments({
   locale,
   docs,
+  defaultCover,
   emptyAction,
 }: {
   locale: Locale;
   docs: DashboardDocument[];
+  /** Default document cover from Settings. */
+  defaultCover: string;
   emptyAction: ReactNode;
 }) {
   const L = useText(locale);
@@ -665,7 +686,10 @@ export function RecentDocuments({
             tabIndex={-1}
             aria-hidden="true"
           >
-            <DocumentCover src={doc.cover} title={doc.title} />
+            <DocumentCover
+              sources={[doc.cover, defaultCover, doc.categoryCover]}
+              title={doc.title}
+            />
           </Link>
           <div className="dov-doc-body">
             <div className="dov-doc-head">

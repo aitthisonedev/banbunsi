@@ -82,7 +82,11 @@ export default function GoogleDevSandboxPage() {
       router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Development authorization failed",
+        err instanceof Error
+          ? err.message
+          : locale === "lo"
+            ? "ການຢືນຢັນໃນໂໝດພັດທະນາບໍ່ສຳເລັດ"
+            : "Development authorization failed",
       );
       setLoading(false);
     }

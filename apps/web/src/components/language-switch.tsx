@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/api";
 import { Flag } from "@/components/flag";
@@ -23,6 +23,7 @@ const OPTIONS: { code: Locale; label: string }[] = [
 
 export function LanguageSwitch({ locale }: { locale: Locale }) {
   const pathname = usePathname() || `/${locale}`;
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const current = OPTIONS.find((o) => o.code === locale) ?? OPTIONS[0];
@@ -85,7 +86,16 @@ export function LanguageSwitch({ locale }: { locale: Locale }) {
                 role="option"
                 aria-selected={active}
                 aria-current={active ? "true" : undefined}
-                onClick={() => setOpen(false)}
+                onClick={(event) => {
+                  setOpen(false);
+                  // Keep the search, filters and page (?q=…&page=2) when only the language changes.
+                  const { search, hash } = window.location;
+                  if (!search && !hash) return;
+                  event.preventDefault();
+                  router.push(
+                    `${swapLocalePath(pathname, opt.code)}${search}${hash}`,
+                  );
+                }}
               >
                 <Flag code={opt.code} />
                 <span>{opt.label}</span>

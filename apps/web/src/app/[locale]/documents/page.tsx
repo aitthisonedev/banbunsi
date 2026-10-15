@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { DocumentList } from "@/components/document-list";
 import { EmptyState, ErrorState, Pagination, Select } from "@/components/ui";
-import { getCategories, getDocuments } from "@/lib/api";
+import { getCategories, getDocuments, type CategoryNode } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
 import type { Metadata } from "next";
@@ -70,6 +70,28 @@ export default async function DocumentsPage({
   ]);
 
   const apiCats = catsResult.ok ? catsResult.data.items : [];
+  // Category slugs differ per language ("accounting" / "kan-banchi"). When the language switcher
+  // keeps the other language's ?category=, swap in this language's slug for the same category.
+  if (sp.category && catsResult.ok) {
+    const flat = (items: CategoryNode[]): CategoryNode[] =>
+      items.flatMap((c) => [c, ...flat(c.children || [])]);
+    if (!flat(apiCats).some((c) => c.slug === sp.category)) {
+      const otherCats = await getCategories(raw === "lo" ? "en" : "lo").catch(
+        () => null,
+      );
+      const id = flat(otherCats?.items || []).find(
+        (c) => c.slug === sp.category,
+      )?.id;
+      const localized = id ? flat(apiCats).find((c) => c.id === id) : undefined;
+      if (localized) {
+        const query = new URLSearchParams();
+        for (const [key, value] of Object.entries(sp))
+          if (value) query.set(key, value);
+        query.set("category", localized.slug);
+        redirect(`/${raw}/documents?${query.toString()}`);
+      }
+    }
+  }
   const { items: categories } = categoriesOrDemo(raw, apiCats);
 
   const total = docsResult.ok ? docsResult.data.total : 0;
@@ -179,6 +201,7 @@ export default async function DocumentsPage({
             prevLabel={t(raw, "previous")}
             nextLabel={t(raw, "next")}
             perPageLabel={t(raw, "perPage")}
+            navLabel={t(raw, "pagination")}
             perPageSizes={PER_PAGE_OPTIONS}
             defaultPerPage={DEFAULT_PER_PAGE}
           />

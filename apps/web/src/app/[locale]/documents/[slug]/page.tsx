@@ -2,7 +2,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { getDocument, getPublicSettings } from "@/lib/api";
+import { canDownloadFile, getDocument, getPublicSettings, me } from "@/lib/api";
 import { documentCoverSrc, isUploadedImage } from "@/lib/image-variants";
 import { isLocale, t } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/sanitize-html";
@@ -119,6 +119,9 @@ export default async function DocumentDetailPage({
     notFound();
   }
 
+  // Who is viewing decides which download button each file gets (the API enforces the same rules).
+  const viewer = cookie ? await me({ cookie }).catch(() => null) : null;
+
   const next = encodeURIComponent(`/${raw}/documents/${doc.slug}`);
   const loginHref = `/${raw}/auth/login?next=${next}`;
   const safeBody = doc.body_html ? sanitizeHtml(doc.body_html) : "";
@@ -126,7 +129,7 @@ export default async function DocumentDetailPage({
   return (
     <div className="doc-detail-page">
       <div className="doc-detail-shell">
-        <nav className="doc-breadcrumbs" aria-label="Breadcrumb">
+        <nav className="doc-breadcrumbs" aria-label={t(raw, "breadcrumb")}>
           <Link href={`/${raw}`} className="doc-breadcrumb-link">
             {t(raw, "home")}
           </Link>
@@ -255,7 +258,8 @@ export default async function DocumentDetailPage({
                   </div>
                 </div>
 
-                {file.file_url ? (
+                {file.file_url &&
+                canDownloadFile(viewer, file.download_access) ? (
                   <a
                     href={file.file_url}
                     className="doc-file-btn"
@@ -265,6 +269,12 @@ export default async function DocumentDetailPage({
                     <DownloadIcon />
                     <span>{t(raw, "download") || "Download"}</span>
                   </a>
+                ) : viewer && viewer.account_status === "active" ? (
+                  // Signed in, but this file is for VIP members only.
+                  <Link href={`/${raw}/vip`} className="doc-file-btn">
+                    <LockIcon width={16} height={16} />
+                    <span>{t(raw, "vipDownloadOnly")}</span>
+                  </Link>
                 ) : (
                   <Link href={loginHref} className="doc-file-btn">
                     <DownloadIcon />

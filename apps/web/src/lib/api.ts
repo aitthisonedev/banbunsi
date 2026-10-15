@@ -129,8 +129,9 @@ export function logout() {
   return apiFetch<{ message: string }>("/auth/logout", { method: "POST" });
 }
 
-export function me() {
-  return apiFetch<User>("/auth/me");
+/** Current user; on the server pass the visitor's cookie so the API knows who is signed in. */
+export function me(opts?: { cookie?: string }) {
+  return apiFetch<User>("/auth/me", { cookie: opts?.cookie });
 }
 
 export function verifyEmail(token: string) {
@@ -336,4 +337,17 @@ export function submitQuiz(
       body: JSON.stringify({ answers }),
     },
   );
+}
+
+/**
+ * Whether `viewer` may download a file, mirroring the API's download rules (documents.go
+ * DownloadFile): signed in and active; VIP files need a VIP membership unless the viewer is staff.
+ */
+export function canDownloadFile(
+  viewer: User | null,
+  downloadAccess: string | undefined,
+) {
+  if (!viewer || viewer.account_status !== "active") return false;
+  if (viewer.staff_role !== "member") return true;
+  return downloadAccess !== "vip" || viewer.membership_tier === "vip";
 }

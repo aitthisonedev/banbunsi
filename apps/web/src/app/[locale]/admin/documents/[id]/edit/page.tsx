@@ -50,7 +50,8 @@ export default function AdminEditDocumentPage() {
           fetch(`${API_URL}/api/v1/admin/categories?locale=${locale}`, {
             credentials: "include",
           }).then(async (response) => {
-            if (!response.ok) throw new Error("Could not load categories");
+            if (!response.ok)
+              throw new Error(t(locale, "categoriesLoadFailed"));
             return response.json();
           }),
         ]);
@@ -69,7 +70,7 @@ export default function AdminEditDocumentPage() {
       href={`/${locale}/admin/documents/${id}`}
       className="inline-flex items-center gap-1 text-sm text-bb-text-muted hover:text-[var(--bb-text)]"
     >
-      ← Back to document
+      ← {t(locale, "backToDocument")}
     </Link>
   );
 
@@ -80,7 +81,7 @@ export default function AdminEditDocumentPage() {
         <section className={panelClass}>
           <StatePanel
             tone="error"
-            title="This document could not be opened for editing"
+            title={t(locale, "editLoadFailed")}
             description={loadError}
             action={
               <button
@@ -88,7 +89,7 @@ export default function AdminEditDocumentPage() {
                 className={btn.secondary}
                 onClick={() => window.location.reload()}
               >
-                Try again
+                {t(locale, "retry")}
               </button>
             }
           />
@@ -96,7 +97,8 @@ export default function AdminEditDocumentPage() {
       </div>
     );
   }
-  if (!categories || !initial || !defaults) return <PageSkeleton />;
+  if (!categories || !initial || !defaults)
+    return <PageSkeleton locale={locale} />;
 
   const translations = (initial.translations || []) as Array<{
     locale: string;

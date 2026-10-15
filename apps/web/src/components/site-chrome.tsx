@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import type { Locale, PublicSettings } from "@/lib/api";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -17,6 +18,12 @@ export function SiteChrome({
 }) {
   const pathname = usePathname() || "";
   const isAdmin = /\/admin(\/|$)/.test(pathname);
+
+  // The root layout sets <html lang> on the first load only; switching language navigates on
+  // the client, so keep it in step with the URL for screen readers and Lao/English fonts.
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   if (isAdmin) {
     return (

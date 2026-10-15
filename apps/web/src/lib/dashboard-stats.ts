@@ -79,6 +79,15 @@ export function formatShortDate(locale: string, day: string, withYear = false) {
 }
 
 /**
+ * "15 ຕ.ລ. 2026" / "15 Oct 2026" for a timestamp, in the viewer's timezone. Used instead of
+ * toLocaleDateString("lo-LA"), which falls back to English month names in most browsers.
+ */
+export function formatDate(locale: string, value: string | Date) {
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return formatShortDate(locale, todayIn(timeZone, new Date(value)), true);
+}
+
+/**
  * Chart buckets ending today: daily for 7/30 days, weekly for 90 days, monthly for 12 months.
  * Labels use the page language.
  */

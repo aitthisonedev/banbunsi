@@ -1,6 +1,7 @@
 "use client";
 
 import type { DocumentFileMeta, PublicSettings, User } from "./api";
+import { translateApiError } from "./i18n";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -8,6 +9,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 // one request, reused for a few seconds. Any change (POST/PATCH/PUT/DELETE) clears it.
 const ME_REUSE_MS = 3000;
 let currentUserRequest: { promise: Promise<User>; at: number } | null = null;
+
+/** Error with the API's message, shown in the language of the current page (/lo/… or /en/…). */
+function apiError(message: string) {
+  const segment =
+    typeof window === "undefined" ? "" : window.location.pathname.split("/")[1];
+  return new Error(translateApiError(segment === "en" ? "en" : "lo", message));
+}
 
 async function clientFetch<T>(path: string, init?: RequestInit): Promise<T> {
   if (init?.method && init.method.toUpperCase() !== "GET")
@@ -23,7 +31,7 @@ async function clientFetch<T>(path: string, init?: RequestInit): Promise<T> {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(
+    throw apiError(
       (data as { error?: string }).error || `Request failed (${res.status})`,
     );
   }
@@ -105,7 +113,7 @@ export async function clientUploadAvatar(file: File) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(
+    throw apiError(
       (data as { error?: string }).error || `Request failed (${res.status})`,
     );
   }
@@ -180,7 +188,7 @@ export async function clientUploadAdminSettingsAsset(
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(
+    throw apiError(
       (data as { error?: string }).error || `Request failed (${res.status})`,
     );
   }
@@ -329,7 +337,7 @@ export async function clientUploadAdminDocumentCover(id: string, file: File) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(
+    throw apiError(
       (data as { error?: string }).error || `Request failed (${res.status})`,
     );
   }
@@ -376,17 +384,17 @@ export function clientUploadAdminDocumentFile(
         return resolve(data as DocumentFileMeta);
       if (xhr.status === 413 && !data.error)
         return reject(
-          new Error("The file is too large for the server to accept."),
+          apiError("The file is too large for the server to accept."),
         );
-      reject(new Error(data.error || `Upload failed (${xhr.status})`));
+      reject(apiError(data.error || `Upload failed (${xhr.status})`));
     };
     xhr.onerror = () =>
       reject(
-        new Error(
+        apiError(
           "Network error during upload. Check your connection and try again.",
         ),
       );
-    xhr.onabort = () => reject(new Error("Upload cancelled."));
+    xhr.onabort = () => reject(apiError("Upload cancelled."));
     xhr.send(form);
   });
 }
@@ -617,4 +625,40 @@ export function clientGoogleDevCallback(body: {
     method: "POST",
     body: JSON.stringify(body),
   });
+}
+
+export type DownloadHistoryItem = {
+  at: string;
+  file_id: string;
+  file_label: string;
+  file_name: string;
+  document_title: string;
+  /** Empty when the document is no longer published. */
+  document_slug: string;
+  document_number: string;
+};
+
+export type QuizHistoryItem = {
+  at: string;
+  quiz_title: string;
+  /** Empty when the quiz is no longer published. */
+  quiz_slug: string;
+  correct: number;
+  total: number;
+  percent: number;
+  passed: boolean;
+};
+
+/** The signed-in user's recent downloads, newest first. */
+export function clientAccountDownloads(locale: string) {
+  return clientFetch<{ items: DownloadHistoryItem[] }>(
+    `/account/downloads?locale=${locale}`,
+  );
+}
+
+/** The signed-in user's recent quiz results, newest first. */
+export function clientAccountQuizHistory(locale: string) {
+  return clientFetch<{ items: QuizHistoryItem[] }>(
+    `/account/quiz-history?locale=${locale}`,
+  );
 }

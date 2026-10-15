@@ -236,7 +236,10 @@ export function AuthPanel({
 
           <div className="auth-aside-bottom">
             <div className="auth-trust-card">
-              <div className="auth-trust-stars" aria-label="5 stars rating">
+              <div
+                className="auth-trust-stars"
+                aria-label={t(locale, "fiveStarRating")}
+              >
                 ★★★★★
               </div>
               <p className="auth-trust-text">{t(locale, "trustMembers")}</p>

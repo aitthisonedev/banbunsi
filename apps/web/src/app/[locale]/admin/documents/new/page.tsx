@@ -48,7 +48,7 @@ export default function AdminNewDocumentPage() {
           fetch(`${API_URL}/api/v1/admin/categories?locale=${locale}`, {
             credentials: "include",
           }).then(async (res) => {
-            if (!res.ok) throw new Error("Could not load categories");
+            if (!res.ok) throw new Error(t(locale, "categoriesLoadFailed"));
             return res.json();
           }),
           // Used to suggest the next document number; the form still works without it.
@@ -88,7 +88,7 @@ export default function AdminNewDocumentPage() {
         <section className={panelClass}>
           <StatePanel
             tone="error"
-            title="The form could not be loaded"
+            title={t(locale, "formLoadFailed")}
             description={loadError}
             action={
               <button
@@ -96,7 +96,7 @@ export default function AdminNewDocumentPage() {
                 className={btn.secondary}
                 onClick={() => window.location.reload()}
               >
-                Try again
+                {t(locale, "retry")}
               </button>
             }
           />
@@ -104,14 +104,14 @@ export default function AdminNewDocumentPage() {
       </div>
     );
   }
-  if (!categories || !defaults) return <PageSkeleton />;
+  if (!categories || !defaults) return <PageSkeleton locale={locale} />;
 
   return (
     <div className="w-full space-y-6">
       <PageHeader
         back={backLink}
         title={t(locale, "newDocument")}
-        description="Fill in the details below. Fields marked * are required."
+        description={t(locale, "requiredFieldsLead")}
       />
       <AdminDocumentForm
         locale={locale}

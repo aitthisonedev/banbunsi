@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { CategoryCards } from "@/components/category-cards";
 import { DocumentList } from "@/components/document-list";
-import { getCategories, getDocuments } from "@/lib/api";
+import { getCategories, getDocuments, me } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
 import type { Metadata } from "next";
@@ -65,7 +66,8 @@ export default async function HomePage({
 }) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
-  const [{ items }, latest] = await Promise.all([
+  const cookie = (await headers()).get("cookie") || undefined;
+  const [{ items }, latest, viewer] = await Promise.all([
     getCategories(raw).catch(() => ({ items: [] })),
     getDocuments(raw, { per_page: 40 }).catch(() => ({
       items: [],
@@ -73,6 +75,8 @@ export default async function HomePage({
       page: 1,
       per_page: 40,
     })),
+    // Signed-in visitors are not asked to register or sign in again.
+    cookie ? me({ cookie }).catch(() => null) : Promise.resolve(null),
   ]);
   const { items: categoryItems } = categoriesOrDemo(raw, items);
   const preview = categoryItems.slice(0, 8);
@@ -287,10 +291,22 @@ export default async function HomePage({
             <h2 className="home-promo-title">{t(raw, "homePromoTitle")}</h2>
             <p className="home-promo-lead">{t(raw, "homePromoLead")}</p>
           </div>
+          {/* Downloading needs an account: visitors are offered Register (main) and Sign in;
+              signed-in members only see the VIP link. */}
           <div className="home-promo-actions">
-            <Link href={`/${raw}/auth/login`} className="home-promo-btn">
-              {t(raw, "login")}
-            </Link>
+            {viewer ? null : (
+              <>
+                <Link href={`/${raw}/auth/register`} className="home-promo-btn">
+                  {t(raw, "register")}
+                </Link>
+                <Link
+                  href={`/${raw}/auth/login`}
+                  className="home-promo-secondary"
+                >
+                  {t(raw, "login")}
+                </Link>
+              </>
+            )}
             <Link href={`/${raw}/vip`} className="home-promo-secondary">
               {t(raw, "vipBenefits")}
             </Link>

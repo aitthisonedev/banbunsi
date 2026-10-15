@@ -29,6 +29,7 @@ export function Pagination({
   prevLabel,
   nextLabel,
   perPageLabel,
+  navLabel,
   perPageSizes = DEFAULT_SIZES,
   defaultPerPage = 8,
 }: {
@@ -41,6 +42,8 @@ export function Pagination({
   prevLabel: string;
   nextLabel: string;
   perPageLabel: string;
+  /** Accessible name of the page links, in the page language. */
+  navLabel: string;
   perPageSizes?: number[];
   defaultPerPage?: number;
 }) {
@@ -91,7 +94,7 @@ export function Pagination({
         </select>
       </label>
 
-      <nav className="pagination" aria-label="Pagination">
+      <nav className="pagination" aria-label={navLabel}>
         {page > 1 ? (
           <Link className="btn-secondary" href={pageHref(page - 1)}>
             {prevLabel}

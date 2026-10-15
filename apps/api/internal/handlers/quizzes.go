@@ -3,6 +3,9 @@ package handlers
 import (
 	"encoding/json"
 
+	"github.com/banbunsi/banbunsi/apps/api/internal/auth"
+	"github.com/banbunsi/banbunsi/apps/api/internal/config"
+
 	"github.com/banbunsi/banbunsi/apps/api/internal/models"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -10,6 +13,32 @@ import (
 
 type QuizHandler struct {
 	DB *gorm.DB
+	// Optional: when set, results of signed-in users are recorded for their quiz history.
+	Cfg      *config.Config
+	Sessions *auth.SessionService
+}
+
+// quizSubmitAuditAction is recorded in audit_logs for each quiz a signed-in user submits.
+const quizSubmitAuditAction = "quiz.submit"
+
+// quizResultMeta is the score stored with a quiz.submit audit entry (read back by the quiz history).
+type quizResultMeta struct {
+	Correct int  `json:"correct"`
+	Total   int  `json:"total"`
+	Percent int  `json:"percent"`
+	Passed  bool `json:"passed"`
+}
+
+// optionalUser is the signed-in user, or nil for visitors (quizzes can be taken without an account).
+func (h *QuizHandler) optionalUser(c *fiber.Ctx) *models.User {
+	if h.Sessions == nil || h.Cfg == nil {
+		return nil
+	}
+	user, _, err := h.Sessions.Resolve(c.Cookies(h.Cfg.SessionCookieName))
+	if err != nil {
+		return nil
+	}
+	return user
 }
 
 type quizQuestionJSON struct {
@@ -181,6 +210,20 @@ func (h *QuizHandler) PublicSubmit(c *fiber.Ctx) error {
 		percent = (correct * 100) / total
 	}
 	passed := percent >= quiz.PassPercent
+
+	// Keep the result for the user's quiz history; a failed log entry never blocks the result.
+	if user := h.optionalUser(c); user != nil {
+		meta, _ := json.Marshal(quizResultMeta{Correct: correct, Total: total, Percent: percent, Passed: passed})
+		actorID := user.ID
+		_ = h.DB.Create(&models.AuditLog{
+			ActorUserID: &actorID,
+			Action:      quizSubmitAuditAction,
+			TargetType:  "quiz",
+			TargetID:    quiz.ID.String(),
+			Result:      "ok",
+			Metadata:    string(meta),
+		}).Error
+	}
 
 	return c.JSON(fiber.Map{
 		"slug":         tr.Slug,

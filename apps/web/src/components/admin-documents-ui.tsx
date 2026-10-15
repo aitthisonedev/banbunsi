@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
+import type { Locale } from "@/lib/api";
+import { t } from "@/lib/i18n";
 import { imageVariant } from "@/lib/image-variants";
 
 /** Shared building blocks for the admin document pages (list, detail, new, edit). */
@@ -15,6 +17,8 @@ export const btn = {
   secondary: `${BTN_BASE} min-h-10 px-4 border border-bb-border bg-[var(--bb-surface)] hover:bg-bb-muted`,
   secondarySm: `${BTN_BASE} min-h-9 px-3 border border-bb-border bg-[var(--bb-surface)] hover:bg-bb-muted`,
   dangerSm: `${BTN_BASE} min-h-9 px-3 border border-transparent text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40`,
+  /** Outlined like secondarySm, so an Edit + Delete pair is visually balanced in table rows. */
+  dangerOutlineSm: `${BTN_BASE} min-h-9 px-3 border border-rose-200 bg-[var(--bb-surface)] text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40`,
   danger: `${BTN_BASE} min-h-10 px-4 border border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40`,
 };
 
@@ -31,11 +35,13 @@ const COVER_SIZES = {
 } as const;
 
 export function DocumentCover({
+  locale,
   src: primarySrc,
   fallbackSrc,
   title,
   size = "sm",
 }: {
+  locale: Locale;
   src?: string;
   /** Shown when `src` is missing or fails to load (e.g. a category image). */
   fallbackSrc?: string;
@@ -56,7 +62,7 @@ export function DocumentCover({
       {showImage ? (
         <Image
           src={src!}
-          alt={`${title} cover`}
+          alt={t(locale, "coverOf", { title })}
           fill
           sizes={size === "lg" ? "280px" : "96px"}
           unoptimized={!src!.startsWith("/")}
@@ -77,7 +83,7 @@ export function DocumentCover({
             <path d="M14 3v5h5M10 13h6M10 17h4" strokeLinecap="round" />
           </svg>
           {size === "lg" ? (
-            <span className="text-sm">No cover image</span>
+            <span className="text-sm">{t(locale, "noCoverImage")}</span>
           ) : null}
         </div>
       )}
@@ -94,34 +100,47 @@ const STATUS_STYLE: Record<string, string> = {
     "bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-800 dark:text-slate-300",
 };
 
+// Dictionary keys for each status; unknown values are shown as sent by the API.
 const STATUS_LABEL: Record<string, string> = {
-  published: "Published",
-  draft: "Draft",
-  archived: "Archived",
+  published: "published",
+  draft: "draft",
+  archived: "archived",
 };
 
-export function StatusBadge({ status }: { status?: string }) {
+export function StatusBadge({
+  locale,
+  status,
+}: {
+  locale: Locale;
+  status?: string;
+}) {
   const value = status || "draft";
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${STATUS_STYLE[value] || STATUS_STYLE.draft}`}
     >
-      {STATUS_LABEL[value] || value}
+      {STATUS_LABEL[value] ? t(locale, STATUS_LABEL[value]) : value}
     </span>
   );
 }
 
 const ACCESS_LABEL: Record<string, string> = {
-  public: "Public",
-  member: "Members",
-  vip: "VIP",
+  public: "badgePublic",
+  member: "accessMembers",
+  vip: "badgeVip",
 };
 
-export function AccessBadge({ access }: { access?: string }) {
+export function AccessBadge({
+  locale,
+  access,
+}: {
+  locale: Locale;
+  access?: string;
+}) {
   const value = access || "public";
   return (
     <span className="inline-flex items-center rounded-full bg-bb-tint px-2 py-0.5 text-xs font-medium text-bb-blue">
-      {ACCESS_LABEL[value] || value}
+      {ACCESS_LABEL[value] ? t(locale, ACCESS_LABEL[value]) : value}
     </span>
   );
 }
@@ -186,12 +205,18 @@ export function StatePanel({
 }
 
 /** Placeholder rows shown while the document list loads. */
-export function DocumentRowsSkeleton({ rows = 5 }: { rows?: number }) {
+export function DocumentRowsSkeleton({
+  locale,
+  rows = 5,
+}: {
+  locale: Locale;
+  rows?: number;
+}) {
   return (
     <div
       className="divide-y divide-[var(--bb-border)]"
       role="status"
-      aria-label="Loading documents"
+      aria-label={t(locale, "loadingDocuments")}
     >
       {Array.from({ length: rows }, (_, index) => (
         <div key={index} className="flex animate-pulse items-center gap-4 p-4">
@@ -208,12 +233,12 @@ export function DocumentRowsSkeleton({ rows = 5 }: { rows?: number }) {
 }
 
 /** Page-level loading placeholder for detail and form pages. */
-export function PageSkeleton() {
+export function PageSkeleton({ locale }: { locale: Locale }) {
   return (
     <div
       className="w-full animate-pulse space-y-6"
       role="status"
-      aria-label="Loading"
+      aria-label={t(locale, "loading")}
     >
       <div className="h-4 w-32 rounded bg-bb-muted" />
       <div className="h-8 w-2/3 rounded bg-bb-muted" />

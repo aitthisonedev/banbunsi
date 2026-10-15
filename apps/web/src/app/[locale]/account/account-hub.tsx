@@ -21,6 +21,8 @@ import {
   LoadingState,
   SuccessBanner,
 } from "@/components/ui";
+import { formatDate } from "@/lib/dashboard-stats";
+import { DownloadHistory, QuizHistory } from "@/components/account-history";
 
 type TabId =
   | "profile"
@@ -581,7 +583,11 @@ export function AccountHub() {
                     />
                   </FormField>
 
-                  <FormField label={t(locale, "email")} htmlFor="email-ro">
+                  <FormField
+                    label={t(locale, "email")}
+                    htmlFor="email-ro"
+                    hint={t(locale, "emailReadonlyHint")}
+                  >
                     <input
                       id="email-ro"
                       className="input"
@@ -878,11 +884,7 @@ export function AccountHub() {
                       </span>
                       <span className="account-membership-item-val">
                         {user.membership_ends_at
-                          ? new Date(
-                              user.membership_ends_at,
-                            ).toLocaleDateString(
-                              locale === "lo" ? "lo-LA" : "en-GB",
-                            )
+                          ? formatDate(locale, user.membership_ends_at)
                           : t(locale, "noExpiry")}
                       </span>
                     </div>
@@ -930,10 +932,7 @@ export function AccountHub() {
                     {t(locale, "downloadsTab")}
                   </h2>
                 </div>
-                <EmptyState
-                  title={t(locale, "emptyDownloads")}
-                  description={t(locale, "stubHint")}
-                />
+                <DownloadHistory locale={locale} />
               </div>
             ) : null}
 
@@ -945,10 +944,7 @@ export function AccountHub() {
                     {t(locale, "quizHistoryTab")}
                   </h2>
                 </div>
-                <EmptyState
-                  title={t(locale, "emptyQuizHistory")}
-                  description={t(locale, "stubHint")}
-                />
+                <QuizHistory locale={locale} />
               </div>
             ) : null}
           </main>

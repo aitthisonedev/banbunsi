@@ -1882,7 +1882,8 @@ html.dark .doc-badge--vip {
   padding: 0.75rem 0.5rem;
   border-bottom: 1px solid var(--bb-border);
   text-align: left;
-  vertical-align: top;
+  /* Middle, so row text lines up with the Edit/Delete buttons. */
+  vertical-align: middle;
 }
 .admin-table th {
   font-size: 0.8rem;
@@ -3132,6 +3133,25 @@ html.dark .admin-tier-pill {
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
+.admin-page-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.admin-count-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--dash-border, var(--bb-border));
+  background: var(--dash-card-bg, var(--bb-surface));
+  padding: 0.35rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--dash-text, var(--bb-text));
+  white-space: nowrap;
+}
 .admin-page-head p {
   margin: 0.35rem 0 0;
   color: var(--bb-text-muted);
@@ -3463,6 +3483,15 @@ html.dark .admin-tier-pill {
   min-width: 10rem;
   max-width: 20rem;
 }
+.admin-toolbar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.admin-sort {
+  min-width: 13rem;
+}
 .admin-filter-tabs {
   display: inline-flex;
   padding: 0.25rem;
@@ -3500,32 +3529,80 @@ html.dark .admin-tier-pill {
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
 }
 @media (min-width: 900px) {
+  /* Fixed actions column, so every card's role picker lines up whatever buttons it has. */
   .admin-member-card {
-    grid-template-columns: minmax(0, 1.4fr) minmax(12rem, 0.8fr) auto;
+    grid-template-columns: minmax(0, 1.4fr) minmax(12rem, 0.8fr) 22rem;
     align-items: center;
   }
 }
+.admin-member-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+/* One width for every action button (fits the longest label, "Approve VIP"), so all cards match. */
+.admin-member-actions > button {
+  min-width: 7rem;
+}
+@media (min-width: 900px) {
+  .admin-member-actions {
+    justify-content: flex-end;
+  }
+}
+/* Number, avatar and name/email/badges share one centre line. */
 .admin-member-identity {
   display: flex;
   gap: 0.85rem;
-  align-items: flex-start;
+  align-items: center;
   min-width: 0;
+}
+.admin-member-number {
+  flex-shrink: 0;
+  min-width: 1.75rem;
+  align-self: center;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--dash-text-muted);
 }
 .admin-member-identity h3 {
   margin: 0;
   font-size: 1rem;
   color: var(--dash-text);
 }
+/* Name, email and join date sit at one even spacing; the badges follow after a slightly
+   larger, fixed gap, so every card has the same rhythm. */
+.admin-member-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
 .admin-member-identity p {
-  margin: 0.15rem 0 0.45rem;
+  margin: 0;
   color: var(--dash-text-muted);
   font-size: 0.85rem;
+  line-height: 1.45;
   word-break: break-all;
 }
-.admin-member-badges {
+.admin-member-name {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.4rem;
+}
+/* The date never splits mid-way when "email · joined date" wraps on narrow cards. */
+.admin-member-joined {
+  white-space: nowrap;
+}
+/* Same size for the VIP / suspended badge next to a name, centred. */
+.admin-member-name .doc-badge {
+  min-width: 4.75rem;
+  height: 1.5rem;
+  justify-content: center;
+  padding: 0 0.6rem;
 }
 .admin-member-role {
   display: flex;
@@ -6326,6 +6403,48 @@ html.dark {
   flex-direction: column;
 }
 
+/* Admin pages: jumps to a section (e.g. back to a list's top after paging) stop below the
+   sticky top bar instead of hiding behind it. */
+html:has(.dash-shell) {
+  scroll-padding-top: calc(var(--dash-header-height, 64px) + 1rem);
+}
+
+/* Floating "back to top" button (src/components/scroll-to-top.tsx). */
+.dash-scroll-top {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--dash-border);
+  background: var(--dash-card-bg);
+  color: var(--dash-text);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 12%);
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease;
+}
+.dash-scroll-top:hover {
+  transform: translateY(-2px);
+  border-color: var(--dash-primary);
+  color: var(--dash-primary);
+}
+.dash-scroll-top:focus-visible {
+  outline: 2px solid var(--dash-primary);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-scroll-top {
+    transition: none;
+  }
+}
+
 .dash-main {
   flex: 1;
   width: 100%;
@@ -7504,6 +7623,7 @@ html.dark .dash-legend-dot--secondary {
   --dov-green: #15803d;
   --dov-amber: #b45309;
   --dov-violet: #6d28d9;
+  --dov-teal: #0f766e;
   display: flex;
   width: 100%;
   max-width: 100%;
@@ -7514,6 +7634,7 @@ html.dark .dov {
   --dov-green: #4ade80;
   --dov-amber: #fbbf24;
   --dov-violet: #a78bfa;
+  --dov-teal: #2dd4bf;
 }
 
 .dov-head {
@@ -7580,6 +7701,10 @@ html.dark .dov-card {
   color: var(--dov-violet);
   background: color-mix(in srgb, var(--dov-violet) 12%, transparent);
 }
+.dov-tone-teal {
+  color: var(--dov-teal);
+  background: color-mix(in srgb, var(--dov-teal) 12%, transparent);
+}
 .dov-fill-blue {
   fill: var(--dov-blue);
   background: var(--dov-blue);
@@ -7597,10 +7722,16 @@ html.dark .dov-card {
 }
 
 /* KPI cards */
+/* Five cards: one row on wide screens, 3 + 2 below that (each card needs ~250px for its sparkline). */
 .dov-kpis {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
+}
+@media (max-width: 1639px) {
+  .dov-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .dov-kpi {
   display: flex;
@@ -8115,6 +8246,10 @@ a.dov-activity-row:hover {
 @media (max-width: 1100px) {
   .dov-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* An odd last card fills the row instead of leaving a gap. */
+  .dov-kpis > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
   .dov-grid {
     grid-template-columns: minmax(0, 1fr);

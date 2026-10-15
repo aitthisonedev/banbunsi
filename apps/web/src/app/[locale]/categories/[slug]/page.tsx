@@ -20,6 +20,18 @@ function findCategory(
   return undefined;
 }
 
+function findCategoryByCode(
+  items: CategoryNode[],
+  code: string,
+): CategoryNode | undefined {
+  for (const c of items) {
+    if (c.code === code) return c;
+    const child = findCategoryByCode(c.children || [], code);
+    if (child) return child;
+  }
+  return undefined;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -73,6 +85,11 @@ export default async function CategoryDetailPage({
 
   const cat = findCategory(cats.items, slug);
   if (!cat) {
+    // Links that only know a category's code (e.g. the footer's "Latest articles" → "knowledge")
+    // go to this language's slug for it.
+    const byCode = findCategoryByCode(cats.items, slug);
+    if (byCode)
+      redirect(`/${raw}/categories/${encodeURIComponent(byCode.slug)}`);
     // Category slugs differ per language (e.g. "accounting" / "kan-banchi"). When the language
     // switcher keeps the other language's slug, redirect to this language's slug instead of a 404.
     const other = raw === "lo" ? "en" : "lo";

@@ -183,7 +183,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
       <div className="site-header-inner">
         <div className="site-header-left">
           <BrandLogo locale={locale} priority />
-          <nav className="site-nav" aria-label="Main">
+          <nav className="site-nav" aria-label={t(locale, "mainNavigation")}>
             {navLinks}
           </nav>
         </div>
@@ -220,8 +220,9 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         title={t(locale, "menu")}
+        closeLabel={t(locale, "close")}
       >
-        <nav className="drawer-nav" aria-label="Mobile">
+        <nav className="drawer-nav" aria-label={t(locale, "mobileNavigation")}>
           {navLinks}
           <div className="drawer-auth">{drawerAuth}</div>
         </nav>

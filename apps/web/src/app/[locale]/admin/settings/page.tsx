@@ -25,7 +25,8 @@ type FieldDef = {
   label: Text;
   type?: string;
   hint?: Text;
-  placeholder?: string;
+  /** Grey example text inside an empty field; plain strings are the same in both languages. */
+  placeholder?: string | Text;
   required?: boolean;
   counter?: [number, number];
 };
@@ -38,6 +39,8 @@ type Section = {
 };
 
 const pick = (locale: Locale, text: Text) => text[locale];
+const pickPlaceholder = (locale: Locale, value?: string | Text) =>
+  typeof value === "string" ? value : value ? pick(locale, value) : "";
 
 // One scrolling page. The first section keeps the original settings layout (same fields, order and labels).
 const SECTIONS: Section[] = [
@@ -53,48 +56,84 @@ const SECTIONS: Section[] = [
         key: "site_name_lo",
         label: { lo: "ຊື່ເວັບໄຊ (ພາສາລາວ)", en: "Site name (Lao)" },
         required: true,
+        hint: {
+          lo: "ສະແດງໃນແຖບບຣາວເຊີ ແລະ ຜົນການຄົ້ນຫາ ໃນໜ້າພາສາລາວ.",
+          en: "Shown in the browser tab and search results on Lao pages.",
+        },
       },
       {
         key: "site_name_en",
         label: { lo: "ຊື່ເວັບໄຊ (ພາສາອັງກິດ)", en: "Site name (English)" },
         required: true,
+        hint: {
+          lo: "ສະແດງໃນແຖບບຣາວເຊີ ແລະ ຜົນການຄົ້ນຫາ ໃນໜ້າພາສາອັງກິດ.",
+          en: "Shown in the browser tab and search results on English pages.",
+        },
       },
       {
         key: "timezone",
         label: { lo: "ເຂດເວລາ", en: "Timezone" },
         required: true,
         placeholder: "Asia/Vientiane",
+        hint: {
+          lo: "ໃຊ້ນັບສະຖິຕິລາຍວັນໃນແຜງຄວບຄຸມ.",
+          en: "Used to count dashboard statistics by day.",
+        },
       },
       {
         key: "contact_email",
         label: { lo: "ອີເມວຕິດຕໍ່", en: "Contact email" },
         type: "email",
+        hint: {
+          lo: "ສະແດງໃນສ່ວນທ້າຍເວັບ, ໜ້າຕິດຕໍ່ ແລະ ໜ້າ VIP.",
+          en: "Shown in the footer, the Contact page and the VIP page.",
+        },
       },
       {
         key: "whatsapp_number",
         label: { lo: "WhatsApp", en: "WhatsApp" },
         type: "tel",
         placeholder: "+8562012345678",
+        hint: {
+          lo: "ຮູບແບບສາກົນ ເລີ່ມດ້ວຍ +856; ໃຊ້ສ້າງປຸ່ມ WhatsApp.",
+          en: "International format starting with +856; used for the WhatsApp button.",
+        },
       },
       {
         key: "facebook_url",
         label: { lo: "ລິ້ງ Facebook", en: "Facebook URL" },
         type: "url",
+        hint: {
+          lo: "ລິ້ງເຕັມທີ່ເລີ່ມດ້ວຍ https://; ສະແດງເປັນໄອຄອນໃນສ່ວນທ້າຍເວັບ.",
+          en: "Full link starting with https://; shown as an icon in the footer.",
+        },
       },
       {
         key: "tiktok_url",
         label: { lo: "ລິ້ງ TikTok", en: "TikTok URL" },
         type: "url",
+        hint: {
+          lo: "ລິ້ງເຕັມທີ່ເລີ່ມດ້ວຍ https://; ສະແດງເປັນໄອຄອນໃນສ່ວນທ້າຍເວັບ.",
+          en: "Full link starting with https://; shown as an icon in the footer.",
+        },
       },
       {
         key: "default_seo_title_lo",
         label: { lo: "ຫົວຂໍ້ SEO (ພາສາລາວ)", en: "SEO title (Lao)" },
         counter: [30, 60],
+        hint: {
+          lo: "ຫົວຂໍ້ຂອງໜ້າຫຼັກພາສາລາວ ໃນຜົນການຄົ້ນຫາ.",
+          en: "Title of the Lao home page in search results.",
+        },
       },
       {
         key: "default_seo_title_en",
         label: { lo: "ຫົວຂໍ້ SEO (ພາສາອັງກິດ)", en: "SEO title (English)" },
         counter: [30, 60],
+        hint: {
+          lo: "ຫົວຂໍ້ຂອງໜ້າຫຼັກພາສາອັງກິດ ໃນຜົນການຄົ້ນຫາ.",
+          en: "Title of the English home page in search results.",
+        },
       },
       {
         key: "default_meta_description_lo",
@@ -104,6 +143,10 @@ const SECTIONS: Section[] = [
         },
         type: "textarea",
         counter: [120, 160],
+        hint: {
+          lo: "ຂໍ້ຄວາມສັ້ນໃຕ້ຫົວຂໍ້ ໃນຜົນການຄົ້ນຫາ (ພາສາລາວ).",
+          en: "Short text under the title in search results (Lao).",
+        },
       },
       {
         key: "default_meta_description_en",
@@ -113,6 +156,10 @@ const SECTIONS: Section[] = [
         },
         type: "textarea",
         counter: [120, 160],
+        hint: {
+          lo: "ຂໍ້ຄວາມສັ້ນໃຕ້ຫົວຂໍ້ ໃນຜົນການຄົ້ນຫາ (ພາສາອັງກິດ).",
+          en: "Short text under the title in search results (English).",
+        },
       },
     ],
   },
@@ -127,8 +174,19 @@ const SECTIONS: Section[] = [
       {
         key: "organization_name",
         label: { lo: "ຊື່ອົງກອນ", en: "Organization name" },
+        hint: {
+          lo: "ສະແດງໃນສ່ວນທ້າຍເວັບ, ໜ້າຕິດຕໍ່ ແລະ ຂໍ້ຄວາມລິຂະສິດ.",
+          en: "Shown in the footer, the Contact page and the copyright line.",
+        },
       },
-      { key: "system_name", label: { lo: "ຊື່ລະບົບ", en: "System name" } },
+      {
+        key: "system_name",
+        label: { lo: "ຊື່ລະບົບ", en: "System name" },
+        hint: {
+          lo: "ຊື່ທີ່ໂປຣແກຣມອ່ານໜ້າຈໍອ່ານແທນໂລໂກ້.",
+          en: "Name that screen readers announce for the logo.",
+        },
+      },
       {
         key: "contact_phone",
         label: { lo: "ເບີໂທລະສັບ", en: "Phone" },
@@ -145,6 +203,14 @@ const SECTIONS: Section[] = [
         key: "address",
         label: { lo: "ທີ່ຢູ່", en: "Address" },
         type: "textarea",
+        placeholder: {
+          lo: "ເຊັ່ນ: ບ້ານ, ເມືອງ, ແຂວງ ຫຼື ນະຄອນຫຼວງວຽງຈັນ",
+          en: "e.g. Village, district, province or Vientiane Capital",
+        },
+        hint: {
+          lo: "ສະແດງໃນສ່ວນທ້າຍເວັບ ແລະ ໜ້າຕິດຕໍ່. ປ່ອຍວ່າງເພື່ອເຊື່ອງ.",
+          en: "Shown in the footer and on the Contact page. Leave blank to hide.",
+        },
       },
       {
         key: "description",
@@ -177,10 +243,18 @@ const SECTIONS: Section[] = [
       {
         key: "default_document_category",
         label: { lo: "ໝວດເອກະສານເລີ່ມຕົ້ນ", en: "Default document category" },
+        hint: {
+          lo: "ຖືກເລືອກໄວ້ກ່ອນ ເມື່ອສ້າງເອກະສານໃໝ່.",
+          en: "Preselected when you create a new document.",
+        },
       },
       {
         key: "default_document_status",
         label: { lo: "ສະຖານະເອກະສານເລີ່ມຕົ້ນ", en: "Default document status" },
+        hint: {
+          lo: "ສະຖານະທີ່ເອກະສານໃໝ່ເລີ່ມຕົ້ນ.",
+          en: "The status a new document starts with.",
+        },
       },
       {
         key: "allowed_file_types",
@@ -200,6 +274,10 @@ const SECTIONS: Section[] = [
         key: "document_number_format",
         label: { lo: "ຮູບແບບເລກທີເອກະສານ", en: "Document numbering format" },
         placeholder: "DOC-2026-0001",
+        hint: {
+          lo: "ເລກທີແນະນຳ ເມື່ອໝວດນັ້ນຍັງບໍ່ມີເອກະສານ.",
+          en: "Suggested number when a category has no documents yet.",
+        },
       },
     ],
   },
@@ -229,14 +307,30 @@ const SECTIONS: Section[] = [
       {
         key: "application_title",
         label: { lo: "ຊື່ແອັບພລິເຄຊັນ", en: "Application title" },
+        hint: {
+          lo: "ຫົວຂໍ້ໜ້າຫຼັກໃນແຖບບຣາວເຊີ ເມື່ອບໍ່ໄດ້ຕັ້ງຫົວຂໍ້ SEO.",
+          en: "Home page title in the browser tab when no SEO title is set.",
+        },
       },
       {
         key: "sidebar_title",
         label: { lo: "ຫົວຂໍ້ແຖບຂ້າງຂອງຜູ້ດູແລ", en: "Admin sidebar title" },
+        placeholder: {
+          lo: "ເຊັ່ນ: ລະບົບຈັດການເອກະສານ",
+          en: "e.g. Document management",
+        },
+        hint: {
+          lo: "ຂໍ້ຄວາມນ້ອຍໃຕ້ໂລໂກ້ ໃນເມນູດ້ານຊ້າຍຂອງຫຼັງບ້ານ. ປ່ອຍວ່າງເພື່ອເຊື່ອງ.",
+          en: "Small text under the logo in the admin side menu. Leave blank to hide.",
+        },
       },
       {
         key: "dashboard_title",
         label: { lo: "ຫົວຂໍ້ແຜງຄວບຄຸມ", en: "Dashboard title" },
+        hint: {
+          lo: "ຫົວຂໍ້ໃຫຍ່ຂອງໜ້າແຜງຄວບຄຸມຫຼັງບ້ານ.",
+          en: "Main heading of the admin dashboard.",
+        },
       },
       {
         key: "footer_text",
@@ -790,7 +884,9 @@ export default function AdminSettingsPage() {
       return (
         <textarea
           className="input min-h-24"
-          placeholder={field.placeholder || defaults[field.key]}
+          placeholder={
+            pickPlaceholder(locale, field.placeholder) || defaults[field.key]
+          }
           value={value}
           onChange={(event) => update(field.key, event.target.value)}
         />
@@ -823,7 +919,9 @@ export default function AdminSettingsPage() {
       <input
         className="input"
         type={field.type || "text"}
-        placeholder={field.placeholder || defaults[field.key]}
+        placeholder={
+          pickPlaceholder(locale, field.placeholder) || defaults[field.key]
+        }
         required={field.required}
         min={isSize ? "0.1" : undefined}
         max={isSize ? String(maxUploadMb) : undefined}

@@ -95,6 +95,7 @@ export default async function CategoriesPage({
               prevLabel={t(raw, "previous")}
               nextLabel={t(raw, "next")}
               perPageLabel={t(raw, "perPage")}
+              navLabel={t(raw, "pagination")}
               perPageSizes={PER_PAGE_OPTIONS}
               defaultPerPage={DEFAULT_PER_PAGE}
             />

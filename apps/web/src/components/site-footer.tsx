@@ -59,7 +59,13 @@ export function SiteFooter({
               </Link>
             </li>
             <li>
-              <span className="opacity-70">{t(locale, "latestArticles")}</span>
+              {/* Articles live in the "knowledge" category; its page redirects the code to this language's slug. */}
+              <Link
+                href={`/${locale}/categories/knowledge`}
+                className="hover:text-white"
+              >
+                {t(locale, "latestArticles")}
+              </Link>
             </li>
             <li>
               <Link href={`/${locale}/quizzes`} className="hover:text-white">

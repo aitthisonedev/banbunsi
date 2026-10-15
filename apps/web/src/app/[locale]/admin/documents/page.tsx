@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AccessBadge,
@@ -22,6 +22,8 @@ import {
   type AdminDocumentFilters,
 } from "@/lib/client-api";
 import { categoryCover } from "@/lib/category-covers";
+import { formatDate } from "@/lib/dashboard-stats";
+import { AdminPagination, usePagination } from "@/components/admin-pagination";
 import { isLocale, t } from "@/lib/i18n";
 import { usePublicSettings } from "@/components/public-settings-context";
 
@@ -41,11 +43,12 @@ type Row = {
 
 type Access = "all" | "public" | "member" | "vip";
 
+// Labels are dictionary keys, translated when rendered.
 const ACCESS_TABS: Array<{ value: Access; label: string }> = [
-  { value: "all", label: "All" },
-  { value: "public", label: "Public" },
-  { value: "member", label: "Members" },
-  { value: "vip", label: "VIP" },
+  { value: "all", label: "all" },
+  { value: "public", label: "badgePublic" },
+  { value: "member", label: "accessMembers" },
+  { value: "vip", label: "badgeVip" },
 ];
 
 const EMPTY_FILTERS: Required<
@@ -73,9 +76,14 @@ export default function AdminDocumentsPage() {
     tone: "success" | "error";
     text: string;
   } | null>(null);
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  // ?q= from the admin top-bar search; it fills the search box below.
+  const urlQuery = useSearchParams().get("q") || "";
+  const initialQuery = useRef(urlQuery);
+  const [seenQuery, setSeenQuery] = useState(urlQuery);
+  const [filters, setFilters] = useState({ ...EMPTY_FILTERS, q: urlQuery });
   const [access, setAccess] = useState<Access>("all");
   const [showMore, setShowMore] = useState(false);
+  const listTop = useRef<HTMLElement>(null);
   const [categories, setCategories] = useState<
     Array<{ slug: string; name: string }>
   >([]);
@@ -109,7 +117,7 @@ export default function AdminDocumentsPage() {
           user.staff_role === "admin" || user.staff_role === "owner",
         );
         // Load the list right away (no typing delay) while categories load in parallel.
-        void load(EMPTY_FILTERS);
+        void load({ ...EMPTY_FILTERS, q: initialQuery.current });
         clientListAdminCategories(locale)
           .then(({ items: values }) => setCategories(values))
           .catch(() => undefined);
@@ -141,13 +149,16 @@ export default function AdminDocumentsPage() {
     return () => window.clearTimeout(timer);
   }, [notice]);
 
+  // Any change to search or filters starts again from the first page.
   function setFilter(key: keyof typeof EMPTY_FILTERS, value: string) {
     setFilters((current) => ({ ...current, [key]: value }));
+    setPage(1);
   }
 
   function clearFilters() {
     setFilters(EMPTY_FILTERS);
     setAccess("all");
+    setPage(1);
   }
 
   async function onDelete(row: Row) {
@@ -163,12 +174,14 @@ export default function AdminDocumentsPage() {
       setItems(
         (current) => current?.filter((item) => item.id !== row.id) || current,
       );
-      setNotice({ tone: "success", text: "Document deleted." });
+      setNotice({ tone: "success", text: t(locale, "documentDeleted") });
     } catch (err) {
       setNotice({
         tone: "error",
         text:
-          err instanceof Error ? err.message : "Could not delete the document.",
+          err instanceof Error
+            ? err.message
+            : t(locale, "documentDeleteFailed"),
       });
     } finally {
       setDeletingId("");
@@ -186,12 +199,17 @@ export default function AdminDocumentsPage() {
     items?.filter(
       (item) => access === "all" || (item.read_access || "public") === access,
     ) || [];
-  const dateFormat = (value: string) =>
-    new Date(value).toLocaleDateString(locale === "lo" ? "lo-LA" : "en", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const pager = usePagination(visible);
+  const setPage = pager.setPage;
+
+  // A new top-bar search (?q= changed) fills the search box and starts at page 1; the filter
+  // effect above then reloads the list. Adjusted during render, as React recommends.
+  if (seenQuery !== urlQuery) {
+    setSeenQuery(urlQuery);
+    setFilters((current) => ({ ...current, q: urlQuery }));
+    setPage(1);
+  }
+  const dateFormat = (value: string) => formatDate(locale, value);
 
   return (
     <div className="w-full space-y-6">
@@ -199,8 +217,12 @@ export default function AdminDocumentsPage() {
         title={t(locale, "adminDocuments")}
         description={
           items
-            ? `${visible.length} ${visible.length === 1 ? "document" : "documents"}${filtersActive ? " match your filters" : ""}`
-            : "Create, edit and publish documents."
+            ? t(
+                locale,
+                `${filtersActive ? "docMatchCount" : "docCount"}${visible.length === 1 ? "One" : ""}`,
+                { count: visible.length },
+              )
+            : t(locale, "adminDocsLead")
         }
         actions={
           <Link href={`/${locale}/admin/documents/new`} className={btn.primary}>
@@ -225,7 +247,7 @@ export default function AdminDocumentsPage() {
           <span>{notice.text}</span>
           <button
             type="button"
-            aria-label="Dismiss"
+            aria-label={t(locale, "dismiss")}
             className="font-semibold"
             onClick={() => setNotice(null)}
           >
@@ -234,7 +256,7 @@ export default function AdminDocumentsPage() {
         </div>
       ) : null}
 
-      <section className={`${panelClass} overflow-hidden`}>
+      <section ref={listTop} className={`${panelClass} overflow-hidden`}>
         {/* Search and filters */}
         <div className="space-y-3 border-b border-bb-border p-4">
           <div className="flex flex-col gap-3 lg:flex-row">
@@ -252,7 +274,7 @@ export default function AdminDocumentsPage() {
               </svg>
               <input
                 type="text"
-                aria-label="Search documents"
+                aria-label={t(locale, "searchDocuments")}
                 className={`${fieldClass} pl-9 pr-9`}
                 value={filters.q}
                 onChange={(event) => setFilter("q", event.target.value)}
@@ -265,7 +287,7 @@ export default function AdminDocumentsPage() {
               {filters.q ? (
                 <button
                   type="button"
-                  aria-label="Clear search"
+                  aria-label={t(locale, "clearSearch")}
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded px-2 text-bb-text-muted hover:text-[var(--bb-text)]"
                   onClick={() => setFilter("q", "")}
                 >
@@ -275,23 +297,23 @@ export default function AdminDocumentsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3 sm:flex">
               <select
-                aria-label="Status"
+                aria-label={t(locale, "status")}
                 className={`${fieldClass} sm:w-40`}
                 value={filters.status}
                 onChange={(event) => setFilter("status", event.target.value)}
               >
-                <option value="">All statuses</option>
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-                <option value="archived">Archived</option>
+                <option value="">{t(locale, "allStatuses")}</option>
+                <option value="published">{t(locale, "published")}</option>
+                <option value="draft">{t(locale, "draft")}</option>
+                <option value="archived">{t(locale, "archived")}</option>
               </select>
               <select
-                aria-label="Category"
+                aria-label={t(locale, "category")}
                 className={`${fieldClass} sm:w-48`}
                 value={filters.category}
                 onChange={(event) => setFilter("category", event.target.value)}
               >
-                <option value="">All categories</option>
+                <option value="">{t(locale, "allCategories")}</option>
                 {categories.map((category) => (
                   <option key={category.slug} value={category.slug}>
                     {category.name}
@@ -304,7 +326,8 @@ export default function AdminDocumentsPage() {
                 aria-expanded={showMore}
                 onClick={() => setShowMore((open) => !open)}
               >
-                More filters{advancedCount ? ` (${advancedCount})` : ""}
+                {t(locale, "moreFilters")}
+                {advancedCount ? ` (${advancedCount})` : ""}
               </button>
             </div>
           </div>
@@ -316,7 +339,7 @@ export default function AdminDocumentsPage() {
                 <input
                   className={fieldClass}
                   inputMode="numeric"
-                  placeholder="e.g. 2026"
+                  placeholder={t(locale, "yearPlaceholder")}
                   value={filters.year}
                   onChange={(event) =>
                     setFilter(
@@ -327,7 +350,7 @@ export default function AdminDocumentsPage() {
                 />
               </label>
               <label className="grid gap-1 text-xs font-medium text-bb-text-muted">
-                Updated from
+                {t(locale, "updatedFrom")}
                 <input
                   className={fieldClass}
                   type="date"
@@ -338,7 +361,7 @@ export default function AdminDocumentsPage() {
                 />
               </label>
               <label className="grid gap-1 text-xs font-medium text-bb-text-muted">
-                Updated until
+                {t(locale, "updatedUntil")}
                 <input
                   className={fieldClass}
                   type="date"
@@ -355,17 +378,20 @@ export default function AdminDocumentsPage() {
             <div
               className="flex gap-1 overflow-x-auto rounded-lg bg-bb-muted p-1"
               role="group"
-              aria-label="Filter by access"
+              aria-label={t(locale, "filterByAccess")}
             >
               {ACCESS_TABS.map((tab) => (
                 <button
                   key={tab.value}
                   type="button"
                   aria-pressed={access === tab.value}
-                  onClick={() => setAccess(tab.value)}
+                  onClick={() => {
+                    setAccess(tab.value);
+                    setPage(1);
+                  }}
                   className={`min-h-8 shrink-0 rounded-md px-3 text-xs font-semibold transition ${access === tab.value ? "bg-[var(--bb-surface)] text-[var(--bb-text)] shadow-sm" : "text-bb-text-muted hover:text-[var(--bb-text)]"}`}
                 >
-                  {tab.label}
+                  {t(locale, tab.label)}
                 </button>
               ))}
             </div>
@@ -383,19 +409,20 @@ export default function AdminDocumentsPage() {
 
         {/* Column headings (desktop) */}
         <div
-          className={`${visible.length && !loadError ? "md:grid" : ""} hidden grid-cols-[minmax(0,1fr)_160px_110px_120px_150px] gap-4 border-b border-bb-border bg-bb-muted px-4 py-2 text-xs font-semibold uppercase tracking-wide text-bb-text-muted`}
+          className={`${visible.length && !loadError ? "md:grid" : ""} hidden grid-cols-[2.5rem_minmax(0,1fr)_160px_110px_120px_176px] gap-4 border-b border-bb-border bg-bb-muted px-4 py-2 text-xs font-semibold uppercase tracking-wide text-bb-text-muted`}
         >
-          <span>Document</span>
-          <span>Category</span>
-          <span>Status</span>
-          <span>Updated</span>
-          <span className="text-right">Actions</span>
+          <span className="text-center">{t(locale, "rowNumber")}</span>
+          <span>{t(locale, "colDocument")}</span>
+          <span>{t(locale, "category")}</span>
+          <span>{t(locale, "status")}</span>
+          <span>{t(locale, "colUpdated")}</span>
+          <span className="text-center">{t(locale, "colActions")}</span>
         </div>
 
         {loadError ? (
           <StatePanel
             tone="error"
-            title="Documents could not be loaded"
+            title={t(locale, "documentsLoadFailed")}
             description={loadError}
             action={
               <button
@@ -405,17 +432,17 @@ export default function AdminDocumentsPage() {
                   ready ? load(filters) : window.location.reload()
                 }
               >
-                Try again
+                {t(locale, "retry")}
               </button>
             }
           />
         ) : !items ? (
-          <DocumentRowsSkeleton />
+          <DocumentRowsSkeleton locale={locale} />
         ) : visible.length === 0 ? (
           filtersActive ? (
             <StatePanel
-              title="No documents match your filters"
-              description="Try a different search term or clear the filters."
+              title={t(locale, "noDocumentsMatch")}
+              description={t(locale, "noDocumentsMatchHint")}
               action={
                 <button
                   type="button"
@@ -428,8 +455,8 @@ export default function AdminDocumentsPage() {
             />
           ) : (
             <StatePanel
-              title="No documents yet"
-              description="Create your first document to get started."
+              title={t(locale, "noDocumentsYet")}
+              description={t(locale, "noDocumentsYetHint")}
               action={
                 <Link
                   href={`/${locale}/admin/documents/new`}
@@ -442,23 +469,28 @@ export default function AdminDocumentsPage() {
           )
         ) : (
           <ul className="divide-y divide-[var(--bb-border)]">
-            {visible.map((row) => {
+            {pager.rows.map((row, index) => {
               const href = `/${locale}/admin/documents/${row.id}`;
-              const title = row.title || "Untitled document";
+              const title = row.title || t(locale, "untitledDocument");
               const fileCount = row.files?.length || 0;
               return (
                 <li
                   key={row.id}
-                  className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-3 p-4 transition hover:bg-bb-muted/60 md:grid-cols-[minmax(0,1fr)_160px_110px_120px_150px] md:items-center"
+                  className="grid grid-cols-[1.75rem_auto_minmax(0,1fr)] gap-x-4 gap-y-3 p-4 transition hover:bg-bb-muted/60 md:grid-cols-[2.5rem_minmax(0,1fr)_160px_110px_120px_176px] md:items-center"
                 >
+                  {/* Position in the filtered list (not the database id), continuing across pages. */}
+                  <span className="row-span-2 pt-1 text-center text-sm font-medium tabular-nums text-bb-text-muted md:row-span-1 md:pt-0">
+                    {pager.offset + index + 1}
+                  </span>
                   {/* Cover + title */}
                   <div className="contents md:flex md:min-w-0 md:items-center md:gap-4">
                     <Link
                       href={href}
-                      aria-label={`Open ${title}`}
+                      aria-label={t(locale, "openItem", { title })}
                       className="row-span-2 md:row-span-1"
                     >
                       <DocumentCover
+                        locale={locale}
                         src={row.cover_image_url || defaultCover}
                         fallbackSrc={categoryCover(row, row.id)}
                         title={title}
@@ -475,20 +507,27 @@ export default function AdminDocumentsPage() {
                         {row.document_number || "—"}
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-bb-text-muted">
-                        <AccessBadge access={row.read_access} />
+                        <AccessBadge locale={locale} access={row.read_access} />
                         <span className="md:hidden">
-                          <StatusBadge status={row.status} />
+                          <StatusBadge locale={locale} status={row.status} />
                         </span>
                         {row.year ? <span>· {row.year}</span> : null}
                         <span>
-                          · {fileCount} {fileCount === 1 ? "file" : "files"}
+                          ·{" "}
+                          {t(
+                            locale,
+                            fileCount === 1 ? "fileCountOne" : "fileCount",
+                            { count: fileCount },
+                          )}
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-bb-text-muted md:hidden">
                         {[
                           row.category_name,
                           row.updated_at
-                            ? `Updated ${dateFormat(row.updated_at)}`
+                            ? t(locale, "updatedOn", {
+                                date: dateFormat(row.updated_at),
+                              })
                             : "",
                         ]
                           .filter(Boolean)
@@ -500,24 +539,27 @@ export default function AdminDocumentsPage() {
                     {row.category_name || "—"}
                   </span>
                   <span className="hidden md:block">
-                    <StatusBadge status={row.status} />
+                    <StatusBadge locale={locale} status={row.status} />
                   </span>
                   <span className="hidden text-sm text-bb-text-muted md:block">
                     {row.updated_at ? dateFormat(row.updated_at) : "—"}
                   </span>
-                  <div className="col-start-2 flex flex-wrap gap-2 md:col-start-auto md:justify-end">
-                    <Link href={`${href}/edit`} className={btn.secondarySm}>
+                  <div className="col-start-3 flex flex-wrap gap-2 md:col-start-auto md:justify-center">
+                    <Link
+                      href={`${href}/edit`}
+                      className={`${btn.secondarySm} min-w-[4.5rem]`}
+                    >
                       {t(locale, "edit")}
                     </Link>
                     {canDelete ? (
                       <button
                         type="button"
-                        className={btn.dangerSm}
+                        className={`${btn.dangerOutlineSm} min-w-[4.5rem]`}
                         disabled={deletingId === row.id}
                         onClick={() => onDelete(row)}
                       >
                         {deletingId === row.id
-                          ? "Deleting…"
+                          ? t(locale, "deleting")
                           : t(locale, "delete")}
                       </button>
                     ) : null}
@@ -527,6 +569,18 @@ export default function AdminDocumentsPage() {
             })}
           </ul>
         )}
+
+        {!loadError ? (
+          <AdminPagination
+            locale={locale}
+            page={pager.page}
+            pageCount={pager.pageCount}
+            total={pager.total}
+            onPageChange={setPage}
+            scrollTarget={listTop}
+            className="border-t border-bb-border"
+          />
+        ) : null}
       </section>
     </div>
   );
