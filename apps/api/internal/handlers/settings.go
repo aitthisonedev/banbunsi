@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"net/mail"
 	"net/url"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/banbunsi/banbunsi/apps/api/internal/config"
 	"github.com/banbunsi/banbunsi/apps/api/internal/models"
@@ -131,6 +133,8 @@ func (h *SettingsHandler) PublicGet(c *fiber.Ctx) error {
 		"secondary_color":             s.SecondaryColor,
 		"accent_color":                s.AccentColor,
 		"application_title":           s.ApplicationTitle,
+		"sidebar_title":               s.SidebarTitle,
+		"dashboard_title":             s.DashboardTitle,
 		"footer_text":                 s.FooterText,
 		"site_name_lo":                s.SiteNameLo,
 		"site_name_en":                s.SiteNameEn,
@@ -141,6 +145,8 @@ func (h *SettingsHandler) PublicGet(c *fiber.Ctx) error {
 		"tiktok_url":                  s.TiktokURL,
 		"default_meta_description_lo": s.DefaultMetaDescriptionLo,
 		"default_meta_description_en": s.DefaultMetaDescriptionEn,
+		"default_seo_title_lo":        s.DefaultSEOTitleLo,
+		"default_seo_title_en":        s.DefaultSEOTitleEn,
 	})
 }
 
@@ -192,34 +198,39 @@ func (h *SettingsHandler) AdminPatch(c *fiber.Ctx) error {
 	set(&s.DefaultSEOTitleEn, body.DefaultSEOTitleEn)
 	if body.ContactEmail != nil {
 		email := normalizeEmail(*body.ContactEmail)
-		if _, err := mail.ParseAddress(email); err != nil {
-			return errJSON(c, fiber.StatusBadRequest, "Invalid contact email")
+		if email != "" {
+			if _, err := mail.ParseAddress(email); err != nil {
+				return errJSON(c, fiber.StatusBadRequest, "Contact email is not a valid email address")
+			}
 		}
 		s.ContactEmail = email
 	}
 	if body.WhatsappNumber != nil {
 		number := strings.ReplaceAll(strings.TrimSpace(*body.WhatsappNumber), " ", "")
-		if !e164Re.MatchString(number) {
-			return errJSON(c, fiber.StatusBadRequest, "WhatsApp number must be E.164")
+		if number != "" && !e164Re.MatchString(number) {
+			return errJSON(c, fiber.StatusBadRequest, "WhatsApp number must be in international format, e.g. +8562012345678")
 		}
 		s.WhatsappNumber = number
 	}
 	if body.FacebookURL != nil {
 		if err := validateOptionalHTTPS(*body.FacebookURL); err != nil {
-			return errJSON(c, fiber.StatusBadRequest, "Facebook URL must be https")
+			return errJSON(c, fiber.StatusBadRequest, "Facebook URL must be a full https:// address")
 		}
 		s.FacebookURL = strings.TrimSpace(*body.FacebookURL)
 	}
 	if body.TiktokURL != nil {
 		if err := validateOptionalHTTPS(*body.TiktokURL); err != nil {
-			return errJSON(c, fiber.StatusBadRequest, "TikTok URL must be https")
+			return errJSON(c, fiber.StatusBadRequest, "TikTok URL must be a full https:// address")
 		}
 		s.TiktokURL = strings.TrimSpace(*body.TiktokURL)
 	}
 	if body.Website != nil {
 		if err := validateOptionalHTTPS(*body.Website); err != nil {
-			return errJSON(c, fiber.StatusBadRequest, "Website must be https")
+			return errJSON(c, fiber.StatusBadRequest, "Website must be a full https:// address")
 		}
+	}
+	if message := settingsLengthError(s); message != "" {
+		return errJSON(c, fiber.StatusBadRequest, message)
 	}
 	for _, color := range []*string{body.PrimaryColor, body.SecondaryColor, body.AccentColor} {
 		if color != nil && strings.TrimSpace(*color) != "" && !colorRe.MatchString(strings.TrimSpace(*color)) {
@@ -254,6 +265,43 @@ func (h *SettingsHandler) AdminPatch(c *fiber.Ctx) error {
 		return errJSON(c, fiber.StatusInternalServerError, "Could not save settings")
 	}
 	return c.JSON(h.payload(s))
+}
+
+// settingsLengthError reports the first text field that exceeds its database column size,
+// so admins get a clear message instead of a generic save failure.
+func settingsLengthError(s *models.SiteSettings) string {
+	limits := []struct {
+		label string
+		value string
+		max   int
+	}{
+		{"Organization name", s.OrganizationName, 200},
+		{"System name", s.SystemName, 200},
+		{"Description", s.Description, 1000},
+		{"Phone", s.ContactPhone, 32},
+		{"Address", s.Address, 500},
+		{"Website", s.Website, 500},
+		{"Document numbering format", s.DocumentNumberFormat, 120},
+		{"Application title", s.ApplicationTitle, 200},
+		{"Sidebar title", s.SidebarTitle, 200},
+		{"Footer text", s.FooterText, 500},
+		{"Dashboard title", s.DashboardTitle, 200},
+		{"Site name (Lao)", s.SiteNameLo, 200},
+		{"Site name (English)", s.SiteNameEn, 200},
+		{"Contact email", s.ContactEmail, 320},
+		{"Facebook URL", s.FacebookURL, 500},
+		{"TikTok URL", s.TiktokURL, 500},
+		{"Meta description (Lao)", s.DefaultMetaDescriptionLo, 500},
+		{"Meta description (English)", s.DefaultMetaDescriptionEn, 500},
+		{"SEO title (Lao)", s.DefaultSEOTitleLo, 255},
+		{"SEO title (English)", s.DefaultSEOTitleEn, 255},
+	}
+	for _, limit := range limits {
+		if utf8.RuneCountInString(limit.value) > limit.max {
+			return fmt.Sprintf("%s must be %d characters or fewer", limit.label, limit.max)
+		}
+	}
+	return ""
 }
 
 func normalizeAllowedFileTypes(raw string) (string, error) {

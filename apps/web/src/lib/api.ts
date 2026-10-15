@@ -38,6 +38,8 @@ export type PublicSettings = {
   allowed_file_types?: string;
   max_file_size_bytes?: number;
   document_number_format?: string;
+  default_seo_title_lo?: string;
+  default_seo_title_en?: string;
 };
 
 export type CategoryNode = {

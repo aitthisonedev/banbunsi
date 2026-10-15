@@ -4,6 +4,8 @@ import { DocumentList } from "@/components/document-list";
 import { EmptyState, ErrorState } from "@/components/ui";
 import { getCategories, getDocuments, type CategoryNode } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
 function findCategory(items: CategoryNode[], slug: string): CategoryNode | undefined {
   for (const c of items) {
@@ -12,6 +14,14 @@ function findCategory(items: CategoryNode[], slug: string): CategoryNode | undef
     if (child) return child;
   }
   return undefined;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+  const { locale, slug } = await params;
+  if (!isLocale(locale)) return {};
+  const cats = await getCategories(locale).catch(() => null);
+  const category = cats ? findCategory(cats.items, slug) : undefined;
+  return pageMetadata(locale, `/categories/${encodeURIComponent(slug)}`, category?.name || t(locale, "categories"), category?.description || undefined);
 }
 
 export default async function CategoryDetailPage({

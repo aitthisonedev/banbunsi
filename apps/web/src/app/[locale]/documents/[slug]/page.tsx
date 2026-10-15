@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getDocument } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/sanitize-html";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
 function accessLabel(locale: "lo" | "en", access: string) {
   if (access === "vip") return t(locale, "badgeVip");
@@ -73,6 +75,13 @@ function DownloadIcon(props: React.SVGProps<SVGSVGElement>) {
       <line x1="12" x2="12" y1="15" y2="3" />
     </svg>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+  const { locale, slug } = await params;
+  if (!isLocale(locale)) return {};
+  const doc = await getDocument(locale, slug).catch(() => null);
+  return pageMetadata(locale, `/documents/${encodeURIComponent(slug)}`, doc?.title || t(locale, "documents"), doc?.summary || undefined);
 }
 
 export default async function DocumentDetailPage({

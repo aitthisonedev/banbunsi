@@ -26,5 +26,10 @@ export default function AdminEditCategoryPage() {
 
   if (error) return <ErrorState title={error} />;
   if (!cat) return <LoadingState label={t(locale, "loading")} />;
-  return <AdminCategoryForm locale={locale} initial={cat} />;
+  return (
+    <div className="w-full space-y-5">
+      <h1 className="text-2xl font-bold">{t(locale, "editCategory")}</h1>
+      <AdminCategoryForm locale={locale} initial={cat} />
+    </div>
+  );
 }

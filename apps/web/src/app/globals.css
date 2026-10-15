@@ -53,6 +53,17 @@ html.dark {
   color-scheme: dark;
 }
 
+/* Brand colors set in Settings (inline --brand-* vars on the locale wrapper). Light mode only:
+   dark mode keeps its own palette so text stays readable (WCAG 1.4.3). */
+html:not(.dark) [data-brand] {
+  --bb-blue: var(--brand-primary, #0036ad);
+  --bb-blue-hover: var(--brand-primary, #002c8e);
+  --bb-navy: var(--brand-secondary, #061644);
+  --bb-footer-bg: var(--brand-secondary, #0b1f6b);
+  --bb-green: var(--brand-accent, #27ae60);
+  --bb-green-hover: var(--brand-accent, #219150);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -761,6 +772,13 @@ html.dark .theme-icon-sun {
 .hero-search button:hover {
   background: var(--bb-blue-hover);
   transform: translateY(-1px);
+}
+/* The dark theme blue is too light behind white text; use a deeper blue (5.6:1, WCAG AA). */
+html.dark .hero-search button {
+  background: #2f5fd6;
+}
+html.dark .hero-search button:hover {
+  background: #3463d9;
 }
 
 .hero-tags {
@@ -1476,6 +1494,9 @@ html.dark .doc-badge--public {
   color: #0036ad;
   border: 1px solid rgba(0, 54, 173, 0.28);
   backdrop-filter: blur(6px);
+}
+html.dark .doc-badge {
+  color: #93c5fd;
 }
 html.dark .doc-badge--member {
   background: rgba(91, 140, 255, 0.2);
@@ -3316,7 +3337,7 @@ html.dark .admin-tier-pill {
   border: 1px solid var(--dash-border);
 }
 .admin-perm-grid strong {
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
   text-transform: capitalize;
   font-size: 0.9rem;
 }
@@ -3365,7 +3386,7 @@ html.dark .admin-tier-pill {
 }
 .admin-filter-tab.is-active {
   background: var(--dash-primary-soft);
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
 }
 .admin-member-list {
   display: grid;
@@ -3459,7 +3480,7 @@ html.dark .admin-tier-pill {
   color: var(--dash-text-muted);
 }
 .dash-shell .section-link {
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
 }
 .dash-shell .form-field-label {
   color: var(--dash-text-muted);
@@ -4968,6 +4989,44 @@ html.dark .quiz-result-badge.is-fail {
   font-size: 1.05rem;
   line-height: 1.8;
 }
+/* Long-form content pages (About, FAQ, Privacy, Terms). */
+.page-static--content section {
+  margin-top: 2rem;
+}
+.page-static--content h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--bb-text);
+  line-height: 1.45;
+}
+.page-static--content p {
+  margin: 0.5rem 0 0;
+  color: var(--bb-text);
+  line-height: 1.8;
+}
+.page-static--content ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.4rem;
+  list-style: disc;
+  color: var(--bb-text);
+  line-height: 1.8;
+}
+.page-static--content li + li {
+  margin-top: 0.35rem;
+}
+.page-static--content a {
+  color: var(--bb-blue);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.page-static--content .page-static-updated {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--bb-text-muted);
+}
+
 .contact-list {
   margin: 2rem 0 0;
   padding: 0;
@@ -5901,17 +5960,19 @@ html.dark .account-membership-promo {
   --dash-sidebar-bg: #ffffff;
   --dash-border: #e5e9f2;
   --dash-text: #364a63;
-  --dash-text-muted: #8094ae;
+  /* Text colors below meet WCAG 2.1 AA contrast (4.5:1) on the light surfaces. */
+  --dash-text-muted: #58667a;
   --dash-text-light: #b6c6e3;
   --dash-primary: #794bef;
+  --dash-primary-text: #794bef;
   --dash-primary-soft: rgba(121, 75, 239, 0.08);
   --dash-primary-hover: #6739e3;
-  --dash-success: #1ee0ac;
+  --dash-success: #128465;
   --dash-success-soft: #eafbf7;
   --dash-danger: #e85347;
   --dash-danger-soft: #fceceb;
-  --dash-info: #09c2de;
-  --dash-warning: #f4bd0e;
+  --dash-info: #0e7490;
+  --dash-warning: #b45309;
 }
 
 html.dark {
@@ -5923,13 +5984,15 @@ html.dark {
   --dash-text-muted: #8094ae;
   --dash-text-light: #526484;
   --dash-primary: #794bef;
+  /* Lighter purple for text on dark surfaces (WCAG AA); buttons keep --dash-primary. */
+  --dash-primary-text: #a383f4;
   --dash-primary-soft: rgba(121, 75, 239, 0.18);
   --dash-primary-hover: #8f67f5;
   --dash-success: #1ee0ac;
   --dash-success-soft: rgba(30, 224, 172, 0.15);
   --dash-danger: #e85347;
   --dash-danger-soft: rgba(232, 83, 71, 0.15);
-  --dash-info: #09c2de;
+  --dash-info: #0e7490;
   --dash-warning: #f4bd0e;
 }
 
@@ -6003,7 +6066,7 @@ html.dark {
 
 .dash-sidebar-subbadge {
   background: var(--dash-primary-soft);
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
   font-size: 0.65rem;
   font-weight: 700;
   padding: 0.15rem 0.45rem;
@@ -6073,12 +6136,12 @@ html.dark {
 
 .dash-nav-link:hover {
   background: var(--dash-primary-soft);
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
 }
 
 .dash-nav-link.is-active {
   background: var(--dash-primary-soft);
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
   font-weight: 600;
 }
 
@@ -6094,7 +6157,7 @@ html.dark {
 
 .dash-nav-link:hover .dash-nav-icon,
 .dash-nav-link.is-active .dash-nav-icon {
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
 }
 
 .dash-nav-text {
@@ -6121,7 +6184,7 @@ html.dark {
 }
 
 .dash-sidebar-site-link:hover {
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
 }
 
 /* Workspace: Topbar + Main Body */
@@ -6334,7 +6397,7 @@ html.dark {
 .dash-user-role-label {
   font-size: 0.65rem;
   font-weight: 700;
-  color: #f4bd0e;
+  color: var(--dash-warning);
   text-transform: capitalize;
 }
 
@@ -6433,7 +6496,7 @@ html.dark {
   padding: 0.1rem 0.4rem;
   border-radius: 3px;
   background: var(--dash-primary-soft);
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
 }
 
 .dash-badge--owner {
@@ -6486,7 +6549,7 @@ html.dark {
 
 .dash-dropdown-item:hover {
   background: var(--dash-bg);
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
 }
 
 .dash-dropdown-item--danger {
@@ -6595,7 +6658,7 @@ html.dark {
   align-items: center;
   gap: 0.35rem;
   background: var(--dash-primary-soft);
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
   border: 1px solid transparent;
   border-radius: 5px;
   padding: 0.3rem 0.65rem;
@@ -6796,10 +6859,18 @@ html.dark .dash-alert--danger {
 }
 
 .dash-legend-dot--primary {
-  color: #798bff;
+  color: #5e6cc7;
 }
 
 .dash-legend-dot--secondary {
+  color: #c34f4f;
+}
+
+html.dark .dash-legend-dot--primary {
+  color: #798bff;
+}
+
+html.dark .dash-legend-dot--secondary {
   color: #f46363;
 }
 
@@ -7050,7 +7121,7 @@ html.dark .dash-alert--danger {
 
 .dash-tag-self {
   background: var(--dash-primary-soft);
-  color: var(--dash-primary);
+  color: var(--dash-primary-text);
   font-size: 0.65rem;
   font-weight: 700;
   padding: 0.05rem 0.35rem;

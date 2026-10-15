@@ -3,21 +3,13 @@
 import { useEffect, useState } from "react";
 import type { Locale, User } from "@/lib/api";
 import {
-  avatarSrc,
   clientListAdminMembers,
   clientPatchAdminMember,
   type AdminMember,
 } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
+import { MemberAvatar } from "@/components/member-avatar";
 
-function memberInitials(name: string, email: string): string {
-  const base = (name || email || "?").trim();
-  const parts = base.split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return base.slice(0, 2).toUpperCase();
-}
 
 export function AdminAddPermissionModal({
   locale,
@@ -207,7 +199,6 @@ export function AdminAddPermissionModal({
               ) : (
                 filteredMembers.map((m) => {
                   const isSelected = selectedMember?.id === m.id;
-                  const photo = avatarSrc(m.avatar_url);
                   const isCurrentStaff = m.staff_role !== "member";
 
                   return (
@@ -218,20 +209,7 @@ export function AdminAddPermissionModal({
                       onClick={() => setSelectedMember(m)}
                     >
                       <span className="admin-profile-avatar admin-profile-avatar--sm">
-                        {photo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={photo}
-                            alt=""
-                            width={32}
-                            height={32}
-                            className="admin-profile-avatar-img"
-                          />
-                        ) : (
-                          <span className="admin-profile-avatar-initials">
-                            {memberInitials(m.name, m.email)}
-                          </span>
-                        )}
+                        <MemberAvatar avatarUrl={m.avatar_url} size={32} />
                       </span>
                       <div className="admin-user-option-info">
                         <div className="admin-user-option-line">

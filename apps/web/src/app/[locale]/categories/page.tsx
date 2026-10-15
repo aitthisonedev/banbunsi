@@ -5,6 +5,8 @@ import { EmptyState, ErrorState, Pagination } from "@/components/ui";
 import { getCategories, getDocuments } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
 const PER_PAGE_OPTIONS = [8, 12, 16, 24, 50, 100];
 const DEFAULT_PER_PAGE = 8;
@@ -14,6 +16,12 @@ function parsePerPage(raw: string | undefined) {
   if (PER_PAGE_OPTIONS.includes(n)) return n;
   if (Number.isFinite(n) && n >= 4 && n <= 100) return Math.floor(n);
   return DEFAULT_PER_PAGE;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  return pageMetadata(locale, "/categories", t(locale, "categories"), t(locale, "homeCatsLead"));
 }
 
 export default async function CategoriesPage({

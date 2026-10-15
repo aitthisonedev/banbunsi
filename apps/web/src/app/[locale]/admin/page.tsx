@@ -7,7 +7,6 @@ import type { User } from "@/lib/api";
 import { AdminAddPermissionModal } from "@/components/admin-add-permission-modal";
 import { LoadingState, ErrorState } from "@/components/ui";
 import {
-  avatarSrc,
   clientGetAdminDashboard,
   clientGetPublicSettings,
   clientListAdminMembers,
@@ -16,29 +15,9 @@ import {
   type AdminMember,
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
+import { MemberAvatar } from "@/components/member-avatar";
 
-function memberInitials(name: string, email: string): string {
-  const base = (name || email || "?").trim();
-  const parts = base.split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return base.slice(0, 2).toUpperCase();
-}
 
-function getAvatarBgColor(name: string): string {
-  const colors = [
-    "#798bff",
-    "#09c2de",
-    "#f4bd0e",
-    "#e85347",
-    "#854fff",
-    "#1ee0ac",
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
-  return colors[hash % colors.length];
-}
 
 export default function AdminDashboardPage() {
   const params = useParams();
@@ -677,7 +656,6 @@ export default function AdminDashboardPage() {
                   </tr>
                 ) : (
                   staffList.map((row) => {
-                    const photo = avatarSrc(row.avatar_url);
                     const isSelf = row.id === currentUser.id;
                     const isRowOwner = row.staff_role === "owner";
                     const canModify =
@@ -688,28 +666,8 @@ export default function AdminDashboardPage() {
                         {/* Member Identity */}
                         <td>
                           <div className="dash-user-cell">
-                            <span
-                              className="dash-cell-avatar"
-                              style={{
-                                background: photo
-                                  ? "transparent"
-                                  : getAvatarBgColor(row.name || row.email),
-                              }}
-                            >
-                              {photo ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={photo}
-                                  alt=""
-                                  width={32}
-                                  height={32}
-                                  className="dash-cell-avatar-img"
-                                />
-                              ) : (
-                                <span>
-                                  {memberInitials(row.name, row.email)}
-                                </span>
-                              )}
+                            <span className="dash-cell-avatar">
+                              <MemberAvatar avatarUrl={row.avatar_url} size={32} />
                             </span>
                             <div className="dash-user-cell-meta">
                               <strong className="dash-user-cell-name">

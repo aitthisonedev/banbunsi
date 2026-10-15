@@ -7,6 +7,15 @@ import {
   getQuiz as getQuizDemo,
   type QuizDifficulty,
 } from "@/lib/quizzes";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+  const { locale, slug } = await params;
+  if (!isLocale(locale)) return {};
+  const quiz = (await getQuizApi(locale, slug).catch(() => null)) || getQuizDemo(locale, slug);
+  return pageMetadata(locale, `/quizzes/${encodeURIComponent(slug)}`, quiz?.title || t(locale, "quizzes"), quiz?.description || undefined);
+}
 
 export default async function QuizDetailPage({
   params,

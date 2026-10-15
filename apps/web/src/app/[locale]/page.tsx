@@ -6,6 +6,8 @@ import { DocumentList } from "@/components/document-list";
 import { getCategories, getDocuments } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
 function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -44,6 +46,12 @@ function CrownIcon(props: React.SVGProps<SVGSVGElement>) {
       <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
     </svg>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  return pageMetadata(locale, "");
 }
 
 export default async function HomePage({

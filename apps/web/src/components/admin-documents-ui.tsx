@@ -10,11 +10,11 @@ const BTN_BASE =
   "inline-flex items-center justify-center gap-1.5 rounded-lg text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bb-blue)] disabled:cursor-not-allowed disabled:opacity-60";
 
 export const btn = {
-  primary: `${BTN_BASE} min-h-10 px-4 bg-bb-blue text-white hover:bg-bb-blue-hover`,
+  primary: `${BTN_BASE} min-h-10 px-4 bg-bb-blue text-white hover:bg-bb-blue-hover dark:bg-[#2f5fd6] dark:hover:bg-[#3463d9]`,
   secondary: `${BTN_BASE} min-h-10 px-4 border border-bb-border bg-[var(--bb-surface)] hover:bg-bb-muted`,
   secondarySm: `${BTN_BASE} min-h-9 px-3 border border-bb-border bg-[var(--bb-surface)] hover:bg-bb-muted`,
-  dangerSm: `${BTN_BASE} min-h-9 px-3 border border-transparent text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40`,
-  danger: `${BTN_BASE} min-h-10 px-4 border border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:hover:bg-rose-950/40`,
+  dangerSm: `${BTN_BASE} min-h-9 px-3 border border-transparent text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40`,
+  danger: `${BTN_BASE} min-h-10 px-4 border border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40`,
 };
 
 export const panelClass =
@@ -162,7 +162,7 @@ export function DocumentRowsSkeleton({ rows = 5 }: { rows?: number }) {
 /** Page-level loading placeholder for detail and form pages. */
 export function PageSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-5xl animate-pulse space-y-6" role="status" aria-label="Loading">
+    <div className="w-full max-w-7xl animate-pulse space-y-6" role="status" aria-label="Loading">
       <div className="h-4 w-32 rounded bg-bb-muted" />
       <div className="h-8 w-2/3 rounded bg-bb-muted" />
       <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">

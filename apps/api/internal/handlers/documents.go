@@ -221,19 +221,27 @@ func (h *DocumentHandler) DownloadFile(c *fiber.Ctx) error {
 	if err != nil {
 		return errJSON(c, fiber.StatusNotFound, "File not found")
 	}
-	defer source.Close()
+	// The body is streamed after this handler returns and fasthttp closes the file when done,
+	// so it is only closed here on the early-return error paths.
+	info, err := source.Stat()
+	if err != nil || info.IsDir() {
+		_ = source.Close()
+		return errJSON(c, fiber.StatusNotFound, "File not found")
+	}
 	var sniff [512]byte
 	read, readErr := source.Read(sniff[:])
 	if readErr != nil && readErr != io.EOF {
+		_ = source.Close()
 		return errJSON(c, fiber.StatusInternalServerError, "Could not read file")
 	}
 	if _, err := source.Seek(0, io.SeekStart); err != nil {
+		_ = source.Close()
 		return errJSON(c, fiber.StatusInternalServerError, "Could not read file")
 	}
 	c.Set(fiber.HeaderContentType, http.DetectContentType(sniff[:read]))
 	c.Set(fiber.HeaderContentDisposition, mime.FormatMediaType("attachment", map[string]string{"filename": filepath.Base(file.FileName)}))
 	c.Set("X-Content-Type-Options", "nosniff")
-	return c.SendStream(source)
+	return c.SendStream(source, int(info.Size()))
 }
 
 func categoryName(cat models.Category, locale string) (slug, name string) {
@@ -779,18 +787,18 @@ func storeImageAsset(cfg *config.Config, directory string, source io.Reader, siz
 	}
 	data, err := io.ReadAll(io.LimitReader(source, maxDocumentCoverBytes+1))
 	if err != nil || len(data) == 0 || len(data) > maxDocumentCoverBytes {
-		return "", fmt.Errorf("invalid cover image")
+		return "", fmt.Errorf("could not read the image")
 	}
 	imageConfig, format, err := image.DecodeConfig(bytes.NewReader(data))
 	if err != nil {
-		return "", fmt.Errorf("unsupported or invalid cover image")
+		return "", fmt.Errorf("the file is not a valid JPEG, PNG, or WebP image")
 	}
 	if imageConfig.Width < 1 || imageConfig.Height < 1 || imageConfig.Width > maxDocumentCoverSide || imageConfig.Height > maxDocumentCoverSide || int64(imageConfig.Width)*int64(imageConfig.Height) > maxDocumentCoverPixels {
-		return "", fmt.Errorf("cover image dimensions are too large")
+		return "", fmt.Errorf("image dimensions are too large (max 8000 px per side)")
 	}
 	extension := map[string]string{"jpeg": ".jpg", "png": ".png", "webp": ".webp"}[format]
 	if extension == "" {
-		return "", fmt.Errorf("cover must be JPEG, PNG, or WebP")
+		return "", fmt.Errorf("image must be JPEG, PNG, or WebP")
 	}
 	if err := os.MkdirAll(filepath.Join(cfg.UploadDir, directory), 0o755); err != nil {
 		return "", fmt.Errorf("could not create image directory")
@@ -798,7 +806,7 @@ func storeImageAsset(cfg *config.Config, directory string, source io.Reader, siz
 	relativePath := filepath.ToSlash(filepath.Join(directory, uuid.NewString()+extension))
 	absolutePath := filepath.Join(cfg.UploadDir, filepath.FromSlash(relativePath))
 	if err := os.WriteFile(absolutePath, data, 0o644); err != nil {
-		return "", fmt.Errorf("could not store cover image")
+		return "", fmt.Errorf("could not store the image")
 	}
 	return relativePath, nil
 }

@@ -6,7 +6,7 @@ import { AdminDocumentForm } from "@/components/admin-document-form";
 import Link from "next/link";
 import { btn, PageHeader, PageSkeleton, panelClass, StatePanel } from "@/components/admin-documents-ui";
 import type { CategoryNode, PublicSettings } from "@/lib/api";
-import { clientGetPublicSettings, clientMe } from "@/lib/client-api";
+import { clientGetPublicSettings, clientListAdminDocuments, clientMe } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -18,6 +18,7 @@ export default function AdminNewDocumentPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<CategoryNode[] | null>(null);
   const [defaults, setDefaults] = useState<PublicSettings | null>(null);
+  const [existingDocuments, setExistingDocuments] = useState<Array<{ document_number?: string; category_id?: string }>>([]);
   const [isAdminPlus, setIsAdminPlus] = useState(false);
   const [loadError, setLoadError] = useState("");
 
@@ -34,7 +35,7 @@ export default function AdminNewDocumentPage() {
           return;
         }
         setIsAdminPlus(u.staff_role === "admin" || u.staff_role === "owner");
-        const [response, settings] = await Promise.all([
+        const [response, settings, documents] = await Promise.all([
           fetch(`${API_URL}/api/v1/admin/categories?locale=${locale}`, {
             credentials: "include",
           }).then(async (res) => {
@@ -42,9 +43,12 @@ export default function AdminNewDocumentPage() {
             return res.json();
           }),
           clientGetPublicSettings(),
+          // Used to suggest the next document number; the form still works without it.
+          clientListAdminDocuments(locale).then((data) => data.items as Array<{ document_number?: string; category_id?: string }>).catch(() => []),
         ]);
         setCategories(response.items || []);
         setDefaults(settings);
+        setExistingDocuments(documents);
       })
       .catch((reason) => setLoadError(reason instanceof Error ? reason.message : t(locale, "loadError")));
   }, [locale, router]);
@@ -57,7 +61,7 @@ export default function AdminNewDocumentPage() {
 
   if (loadError) {
     return (
-      <div className="mx-auto w-full max-w-5xl space-y-4">
+      <div className="w-full max-w-7xl space-y-4">
         {backLink}
         <section className={panelClass}>
           <StatePanel
@@ -73,7 +77,7 @@ export default function AdminNewDocumentPage() {
   if (!categories || !defaults) return <PageSkeleton />;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6">
+    <div className="w-full max-w-7xl space-y-6">
       <PageHeader
         back={backLink}
         title={t(locale, "newDocument")}
@@ -84,6 +88,7 @@ export default function AdminNewDocumentPage() {
         categories={categories}
         isAdminPlus={isAdminPlus}
         defaults={defaults}
+        existingDocuments={existingDocuments}
       />
     </div>
   );

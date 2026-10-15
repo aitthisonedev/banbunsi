@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getQuizzes } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import { listQuizzes, type QuizDifficulty } from "@/lib/quizzes";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
 const COVER_BY_TOPIC: Array<{ match: RegExp; src: string }> = [
   { match: /tax|phasi|ພາສີ/i, src: "/brand/categories/cat-tax.jpg" },
@@ -28,6 +30,12 @@ function coverFor(slug: string, category: string, index: number) {
     if (row.match.test(key)) return row.src;
   }
   return COVER_FALLBACK[index % COVER_FALLBACK.length];
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  return pageMetadata(locale, "/quizzes", t(locale, "quizzes"), t(locale, "quizzesLead"));
 }
 
 export default async function QuizzesPage({

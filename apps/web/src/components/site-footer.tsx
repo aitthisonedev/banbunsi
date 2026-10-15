@@ -73,7 +73,9 @@ export function SiteFooter({
               </Link>
             </li>
             <li>
-              <span className="opacity-70">{t(locale, "faq")}</span>
+              <Link href={`/${locale}/faq`} className="hover:text-white">
+                {t(locale, "faq")}
+              </Link>
             </li>
             <li>
               <Link href={`/${locale}/vip`} className="hover:text-white">
@@ -89,40 +91,66 @@ export function SiteFooter({
           </h3>
           <div className="footer-contact-row">
             <ul className="space-y-3 text-sm text-white/85">
-              <li>
-                <a
-                  className="inline-flex items-center gap-2.5 hover:text-white"
-                  href={`mailto:${settings.contact_email}`}
-                >
-                  <IconMail />
-                  {settings.contact_email}
-                </a>
-              </li>
-              <li>
-                <a
-                  className="inline-flex items-center gap-2.5 hover:text-white"
-                  href={whatsappLink(settings.whatsapp_number)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <IconPhone />
-                  {formatPhone(settings.whatsapp_number)}
-                </a>
-              </li>
+              {settings.contact_email ? (
+                <li>
+                  <a className="inline-flex items-center gap-2.5 break-all hover:text-white" href={`mailto:${settings.contact_email}`}>
+                    <IconMail />
+                    {settings.contact_email}
+                  </a>
+                </li>
+              ) : null}
+              {settings.contact_phone ? (
+                <li>
+                  <a className="inline-flex items-center gap-2.5 hover:text-white" href={`tel:${settings.contact_phone.replace(/[^\d+]/g, "")}`}>
+                    <IconPhone />
+                    {settings.contact_phone}
+                  </a>
+                </li>
+              ) : null}
+              {settings.whatsapp_number ? (
+                <li>
+                  <a
+                    className="inline-flex items-center gap-2.5 hover:text-white"
+                    href={whatsappLink(settings.whatsapp_number)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <IconWhatsApp />
+                    {formatPhone(settings.whatsapp_number)}
+                  </a>
+                </li>
+              ) : null}
+              {settings.address ? (
+                <li className="flex items-start gap-2.5">
+                  <IconPin />
+                  <span className="whitespace-pre-line">{settings.address}</span>
+                </li>
+              ) : null}
+              {settings.website ? (
+                <li>
+                  <a className="inline-flex items-center gap-2.5 break-all hover:text-white" href={settings.website} target="_blank" rel="noreferrer">
+                    <IconGlobe />
+                    {settings.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                  </a>
+                </li>
+              ) : null}
             </ul>
             <div className="footer-socials">
-              <SocialLink href={settings.facebook_url} label="Facebook">
-                <IconFacebook />
-              </SocialLink>
-              <SocialLink href={settings.tiktok_url} label="TikTok">
-                <IconTikTok />
-              </SocialLink>
-              <SocialLink
-                href={whatsappLink(settings.whatsapp_number)}
-                label="WhatsApp"
-              >
-                <IconWhatsApp />
-              </SocialLink>
+              {settings.facebook_url ? (
+                <SocialLink href={settings.facebook_url} label="Facebook">
+                  <IconFacebook />
+                </SocialLink>
+              ) : null}
+              {settings.tiktok_url ? (
+                <SocialLink href={settings.tiktok_url} label="TikTok">
+                  <IconTikTok />
+                </SocialLink>
+              ) : null}
+              {settings.whatsapp_number ? (
+                <SocialLink href={whatsappLink(settings.whatsapp_number)} label="WhatsApp">
+                  <IconWhatsApp />
+                </SocialLink>
+              ) : null}
             </div>
           </div>
         </div>
@@ -133,9 +161,14 @@ export function SiteFooter({
           <p>
             {settings.footer_text || `© ${year} ${organizationName}. ${t(locale, "allRights")}`}
           </p>
-          <Link href={`/${locale}/privacy`} className="hover:text-white">
-            {t(locale, "privacy")}
-          </Link>
+          <nav aria-label={t(locale, "usefulLinks")} className="flex flex-wrap gap-4">
+            <Link href={`/${locale}/terms`} className="hover:text-white">
+              {t(locale, "termsOfService")}
+            </Link>
+            <Link href={`/${locale}/privacy`} className="hover:text-white">
+              {t(locale, "privacy")}
+            </Link>
+          </nav>
         </div>
       </div>
     </footer>
@@ -180,6 +213,24 @@ function IconPhone() {
         d="M7.5 4.5h3l1.5 4-2 1.2a10 10 0 0 0 4.3 4.3l1.2-2 4 1.5v3a1.5 1.5 0 0 1-1.6 1.5A13.5 13.5 0 0 1 6 6.1a1.5 1.5 0 0 1 1.5-1.6z"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function IconPin() {
+  return (
+    <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" strokeLinejoin="round" />
+      <circle cx="12" cy="10" r="2.3" />
+    </svg>
+  );
+}
+
+function IconGlobe() {
+  return (
+    <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17M12 3.5c2.3 2.4 3.5 5.3 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.3-3.5-8.5s1.2-6.1 3.5-8.5z" strokeLinejoin="round" />
     </svg>
   );
 }

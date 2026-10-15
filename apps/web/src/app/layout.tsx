@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Noto_Sans, Noto_Sans_Lao } from "next/font/google";
+import { headers } from "next/headers";
 import { ThemeScript } from "@/components/theme-script";
+import { LOCALE_HEADER } from "@/lib/locale-header";
 import "./globals.css";
 
 const noto = Noto_Sans({
@@ -38,12 +40,14 @@ export const metadata: Metadata = {
   manifest: undefined,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Page language comes from the URL (/lo or /en), set by src/proxy.ts.
+  const lang = (await headers()).get(LOCALE_HEADER) === "en" ? "en" : "lo";
   return (
     <html
-      lang="lo"
+      lang={lang}
       className={`${noto.variable} ${phetsarathFallback.variable} h-full`}
       suppressHydrationWarning
     >

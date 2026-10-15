@@ -4,7 +4,6 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Badge, EmptyState, ErrorState, LoadingState } from "@/components/ui";
 import {
-  avatarSrc,
   clientListAdminMembers,
   clientMe,
   clientPatchAdminMember,
@@ -12,15 +11,8 @@ import {
   type AdminMember,
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
+import { MemberAvatar } from "@/components/member-avatar";
 
-function memberInitials(name: string, email: string): string {
-  const base = (name || email || "?").trim();
-  const parts = base.split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return base.slice(0, 2).toUpperCase();
-}
 
 export default function AdminMembersPage() {
   const params = useParams();
@@ -115,6 +107,7 @@ export default function AdminMembersPage() {
     <div className="w-full">
       <div className="admin-page-head">
         <div>
+          <h1 className="text-2xl font-bold">{t(locale, "adminMembers")}</h1>
           <p>{t(locale, "adminMembersLead")}</p>
         </div>
       </div>
@@ -160,6 +153,8 @@ export default function AdminMembersPage() {
         <div className="admin-filter-tabs" role="tablist">
           <button
             type="button"
+            role="tab"
+            aria-selected={filter === "all"}
             className={`admin-filter-tab${filter === "all" ? " is-active" : ""}`}
             onClick={() => setFilter("all")}
           >
@@ -167,6 +162,8 @@ export default function AdminMembersPage() {
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={filter === "staff"}
             className={`admin-filter-tab${filter === "staff" ? " is-active" : ""}`}
             onClick={() => setFilter("staff")}
           >
@@ -180,25 +177,11 @@ export default function AdminMembersPage() {
           <EmptyState title={t(locale, "noMembers")} />
         ) : (
           visible.map((row) => {
-            const photo = avatarSrc(row.avatar_url);
             return (
               <article key={row.id} className="admin-member-card">
                 <div className="admin-member-identity">
                   <span className="admin-profile-avatar">
-                    {photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={photo}
-                        alt=""
-                        width={44}
-                        height={44}
-                        className="admin-profile-avatar-img"
-                      />
-                    ) : (
-                      <span className="admin-profile-avatar-initials">
-                        {memberInitials(row.name, row.email)}
-                      </span>
-                    )}
+                    <MemberAvatar avatarUrl={row.avatar_url} size={44} />
                   </span>
                   <div>
                     <h3>{row.name}</h3>

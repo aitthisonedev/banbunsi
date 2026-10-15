@@ -1,17 +1,15 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { isLocale, t } from "@/lib/i18n";
+import { StaticPage, staticPageMetadata } from "@/components/static-page";
+import { isLocale } from "@/lib/i18n";
 
-export default async function PrivacyPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale: raw } = await params;
-  if (!isLocale(raw)) notFound();
-  return (
-    <div className="page-static">
-      <h1>{t(raw, "privacy")}</h1>
-      <p className="lead">{t(raw, "privacyBody")}</p>
-    </div>
-  );
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return isLocale(locale) ? staticPageMetadata(locale, "privacy") : {};
+}
+
+export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  return <StaticPage locale={locale} id="privacy" />;
 }

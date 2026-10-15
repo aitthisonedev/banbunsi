@@ -492,6 +492,10 @@ export default function RegisterPage() {
 
             <p className="auth-terms-note">
               <span>{t(locale, "termsNotice")} </span>
+              <Link href={`/${locale}/terms`}>
+                {t(locale, "termsOfService")}
+              </Link>
+              <span> {t(locale, "and")} </span>
               <Link href={`/${locale}/privacy`}>
                 {t(locale, "privacyPolicy")}
               </Link>

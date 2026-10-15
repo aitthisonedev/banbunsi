@@ -63,6 +63,7 @@ export default function AdminQuizzesPage() {
     <div className="w-full">
       <div className="admin-page-head">
         <div>
+          <h1 className="text-2xl font-bold">{t(locale, "adminQuizzes")}</h1>
           <p>{t(locale, "adminQuizzesLead")}</p>
         </div>
         <Link href={`/${locale}/admin/quizzes/new`} className="btn-primary">

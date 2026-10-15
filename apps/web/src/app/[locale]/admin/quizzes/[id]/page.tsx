@@ -31,6 +31,9 @@ export default function AdminEditQuizPage() {
   if (error) return <ErrorState title={error} />;
   if (!quiz) return <LoadingState label={t(locale, "loading")} />;
   return (
-    <AdminQuizForm locale={locale} initial={quiz} canPublish={canPublish} />
+    <div className="w-full space-y-5">
+      <h1 className="text-2xl font-bold">{t(locale, "editQuiz")}</h1>
+      <AdminQuizForm locale={locale} initial={quiz} canPublish={canPublish} />
+    </div>
   );
 }

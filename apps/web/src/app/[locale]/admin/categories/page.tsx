@@ -71,6 +71,7 @@ export default function AdminCategoriesPage() {
     <div className="w-full">
       <div className="admin-page-head">
         <div>
+          <h1 className="text-2xl font-bold">{t(locale, "adminCategories")}</h1>
           <p>{t(locale, "adminCatsLead")}</p>
         </div>
         <Link href={`/${locale}/admin/categories/new`} className="btn-primary">

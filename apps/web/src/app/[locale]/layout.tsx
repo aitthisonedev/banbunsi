@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import { SiteChrome } from "@/components/site-chrome";
 import { getPublicSettings, type PublicSettings } from "@/lib/api";
 import { isLocale } from "@/lib/i18n";
+import { siteOrigin } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -15,11 +16,18 @@ export async function generateMetadata({
   const siteName = locale === "en"
     ? settings?.site_name_en || "BAN BUNSI"
     : settings?.site_name_lo || "BAN BUNSI";
+  const homeTitle = (locale === "en" ? settings?.default_seo_title_en : settings?.default_seo_title_lo)
+    || settings?.application_title
+    || siteName;
   return {
-    title: settings?.application_title || siteName,
-    description: locale === "en"
+    metadataBase: new URL(await siteOrigin()),
+    // Pages set their own title ("Documents") and get " | Site name"; pages without one use the home title.
+    title: { absolute: homeTitle, template: `%s | ${siteName}` },
+    description: (locale === "en"
       ? settings?.default_meta_description_en
-      : settings?.default_meta_description_lo,
+      : settings?.default_meta_description_lo) || undefined,
+    applicationName: siteName,
+    openGraph: { siteName },
     icons: settings?.favicon_url ? { icon: settings.favicon_url } : undefined,
   };
 }
@@ -48,13 +56,12 @@ export default async function LocaleLayout({
   return (
     <div
       lang={raw}
+      data-brand=""
       style={{
-        "--bb-blue": settings.primary_color || "#0036ad",
-        "--bb-blue-hover": settings.primary_color || "#002c8e",
-        "--bb-navy": settings.secondary_color || "#061644",
-        "--bb-footer-bg": settings.secondary_color || "#0b1f6b",
-        "--bb-green": settings.accent_color || "#27ae60",
-        "--bb-green-hover": settings.accent_color || "#219150",
+        // Brand colors from Settings; globals.css applies them in light mode only so dark mode keeps accessible contrast.
+        ...(settings.primary_color ? { "--brand-primary": settings.primary_color } : {}),
+        ...(settings.secondary_color ? { "--brand-secondary": settings.secondary_color } : {}),
+        ...(settings.accent_color ? { "--brand-accent": settings.accent_color } : {}),
       } as CSSProperties}
       className={
         raw === "lo"

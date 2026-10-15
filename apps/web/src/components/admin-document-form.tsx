@@ -7,6 +7,39 @@ import { FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import type { CategoryNode, Locale, PublicSettings } from "@/lib/api";
 import { Select } from "@/components/ui";
 import { btn, panelClass } from "@/components/admin-documents-ui";
+import { categoryCover } from "@/lib/category-covers";
+import { suggestDocumentNumber } from "@/lib/form-defaults";
+
+/** Guidance at the top of each form section, in the admin's language. */
+const SECTION_GUIDE = {
+  lo: {
+    basic: "ເລກທີ, ໝວດ ແລະ ປີ ຖືກຕື່ມໃຫ້ແລ້ວ. ກວດສອບ ແລະ ປ່ຽນຖ້າຈຳເປັນ.",
+    number: "ແນະນຳເລກທີຖັດໄປ ຕາມເອກະສານໃນໝວດທີ່ເລືອກ. ພິມເອງເພື່ອປ່ຽນ.",
+    publishing: "ເລີ່ມເປັນສະບັບຮ່າງ; ເຜີຍແຜ່ເມື່ອເນື້ອຫາພ້ອມ. ສິດອ່ານກຳນົດວ່າໃຜອ່ານເນື້ອຫາເຕັມໄດ້.",
+    content: "ໃສ່ຊື່ ແລະ ສະຫຼຸບໃນທັງສອງພາສາ ເພື່ອໃຫ້ເອກະສານສະແດງຖືກຕ້ອງໃນແຕ່ລະພາສາ.",
+  },
+  en: {
+    basic: "Number, category and year are filled in for you. Check them and change if needed.",
+    number: "Suggested next number, following documents in the selected category. Type to change it.",
+    publishing: "Start as a draft and publish when the content is ready. Read access controls who can read the full text.",
+    content: "Add a title and summary in both languages so the document shows correctly in each.",
+  },
+} as const;
+import { RichTextField } from "@/components/rich-text-field";
+
+/** Instructions shown inside empty content fields, written in the language of each section. */
+const CONTENT_GUIDE = {
+  lo: {
+    title: "ຊື່ເອກະສານທີ່ຊັດເຈນ ເຊັ່ນ: ແບບຟອມໃບລາຍງານການເງິນ ປະຈຳໄຕມາດ",
+    summary: "ສະຫຼຸບ 1–2 ປະໂຫຍກ: ເອກະສານນີ້ແມ່ນຫຍັງ ແລະ ໃຊ້ເພື່ອຫຍັງ.",
+    body: "ຂຽນເນື້ອຫາເຕັມຂອງເອກະສານ: ຈຸດປະສົງ, ໃຜຄວນໃຊ້, ຂັ້ນຕອນ ຫຼື ລາຍລະອຽດສຳຄັນ ແລະ ແຫຼ່ງອ້າງອີງ. ໃຊ້ຫົວຂໍ້ ແລະ ລາຍການ ເພື່ອໃຫ້ອ່ານງ່າຍ.",
+  },
+  en: {
+    title: "A clear document title, e.g. Quarterly financial statement template",
+    summary: "One or two sentences: what this document is and what it is used for.",
+    body: "Write the full document content: its purpose, who should use it, the key steps or details, and any references. Use headings and lists to make it easy to read.",
+  },
+} as const;
 import {
   clientCreateAdminDocument,
   clientDeleteAdminDocumentCover,
@@ -20,8 +53,10 @@ type Props = {
   locale: Locale;
   categories: CategoryNode[];
   isAdminPlus: boolean;
-  defaults?: Pick<PublicSettings, "default_document_category" | "default_document_status" | "allowed_file_types" | "max_file_size_bytes" | "document_number_format">;
+  defaults?: Pick<PublicSettings, "default_document_category" | "default_document_status" | "allowed_file_types" | "max_file_size_bytes" | "document_number_format" | "default_cover_url">;
   initial?: Partial<AdminDocumentPayload> & { id?: string };
+  /** Existing documents (number + category), used to suggest the next document number. */
+  existingDocuments?: Array<{ document_number?: string; category_id?: string }>;
 };
 
 function slugify(v: string) {
@@ -39,6 +74,7 @@ export function AdminDocumentForm({
   isAdminPlus,
   defaults,
   initial,
+  existingDocuments = [],
 }: Props) {
   const router = useRouter();
   const flatCats = useMemo(() => {
@@ -49,6 +85,22 @@ export function AdminDocumentForm({
     }
     return out;
   }, [categories]);
+
+  const initialCategoryId = initial?.category_id || defaults?.default_document_category || flatCats[0]?.id || "";
+  // Tracks the category picker so the default cover preview follows the selected category.
+  const [categoryId, setCategoryId] = useState(initialCategoryId);
+  const guide = SECTION_GUIDE[locale];
+  // New documents get a suggested number that follows the selected category, until the admin types their own.
+  const [docNumber, setDocNumber] = useState(
+    initial?.document_number || (initial?.id ? "" : suggestDocumentNumber(existingDocuments, initialCategoryId, defaults?.document_number_format)),
+  );
+  const [autoNumber, setAutoNumber] = useState(!initial?.id);
+
+  function onCategoryChange(value: string) {
+    setCategoryId(value);
+    if (autoNumber) setDocNumber(suggestDocumentNumber(existingDocuments, value, defaults?.document_number_format));
+  }
+  const [fallbackFailed, setFallbackFailed] = useState("");
 
   const lo = initial?.translations?.find((x) => x.locale === "lo");
   const en = initial?.translations?.find((x) => x.locale === "en");
@@ -212,6 +264,15 @@ export function AdminDocumentForm({
 
   const cancelHref = initial?.id ? `/${locale}/admin/documents/${initial.id}` : `/${locale}/admin/documents`;
   const coverSrc = coverPreview || (!removeCover ? initial?.cover_image_url || "" : "");
+  // Same fallback as the document list and detail page: default cover from Settings, then the category image.
+  const selectedCategory = flatCats.find((c) => c.id === categoryId);
+  const fallbackCover = defaults?.default_cover_url
+    || categoryCover({ category_slug: selectedCategory?.slug, category_name: selectedCategory?.name }, initial?.id || categoryId || "new");
+  const showUploaded = Boolean(coverSrc) && !coverFailed;
+  // New documents start without any image and ask for one; existing documents preview the default/category cover.
+  const isNewDocument = !initial?.id;
+  const showFallback = !isNewDocument && !showUploaded && fallbackFailed !== fallbackCover;
+  const addImagePrompt = locale === "lo" ? "ກະລຸນາເພີ່ມຮູບພາບ" : "Please add an image";
   const fileAccept = (defaults?.allowed_file_types || "pdf,doc,docx,xls,xlsx,csv,txt,zip")
     .split(",")
     .map((extension) => `.${extension.trim().replace(/^\./, "")}`)
@@ -222,22 +283,27 @@ export function AdminDocumentForm({
     <form onSubmit={onSubmit} className="space-y-6 pb-4">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
         <div className="lg:col-start-1 lg:row-start-1">
-          <FormSection title="Basic information">
+          <FormSection title="Basic information" description={guide.basic}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={`${t(locale, "documentNumber")} *`}>
+              <Field label={`${t(locale, "documentNumber")} *`} hint={autoNumber ? guide.number : undefined}>
                 <input
                   className="input"
                   name="document_number"
                   required
                   placeholder={defaults?.document_number_format || "DOC-2026-0001"}
-                  defaultValue={initial?.document_number || ""}
+                  value={docNumber}
+                  onChange={(event) => {
+                    setAutoNumber(false);
+                    setDocNumber(event.target.value);
+                  }}
                 />
               </Field>
               <Field label="Category *">
                 <Select
                   name="category_id"
                   required
-                  defaultValue={initial?.category_id || defaults?.default_document_category || flatCats[0]?.id || ""}
+                  defaultValue={initialCategoryId}
+                  onChange={onCategoryChange}
                   options={flatCats.map((c) => ({ value: c.id, label: c.name }))}
                 />
               </Field>
@@ -262,7 +328,7 @@ export function AdminDocumentForm({
         </div>
 
         <div className="space-y-6 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <FormSection title="Publishing">
+          <FormSection title="Publishing" description={guide.publishing}>
             <Field label={t(locale, "status")} hint={isAdminPlus ? undefined : "Only admins can change the status."}>
               {!isAdminPlus ? (
                 <input type="hidden" name="status" value={initial?.status || defaults?.default_document_status || "draft"} />
@@ -294,7 +360,7 @@ export function AdminDocumentForm({
           <FormSection title="Cover image" description="JPG, PNG or WebP, up to 2 MB. Best size: 1200 × 1600 px.">
             <div className="flex items-start gap-4 lg:flex-col lg:items-stretch">
               <div className="relative aspect-[3/4] w-28 shrink-0 overflow-hidden rounded-md border border-bb-border bg-bb-muted lg:mx-auto lg:w-44">
-                {coverSrc && !coverFailed ? (
+                {showUploaded ? (
                   <Image
                     src={coverSrc}
                     alt="Document cover preview"
@@ -304,6 +370,33 @@ export function AdminDocumentForm({
                     onError={() => setCoverFailed(true)}
                     className="object-cover"
                   />
+                ) : showFallback ? (
+                  <>
+                    <Image
+                      src={fallbackCover}
+                      alt="Default cover preview"
+                      fill
+                      sizes="(min-width: 1024px) 176px, 112px"
+                      unoptimized
+                      onError={() => setFallbackFailed(fallbackCover)}
+                      className="object-cover"
+                    />
+                    <span className="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1 text-center text-[11px] font-medium text-white">
+                      Default image
+                    </span>
+                  </>
+                ) : isNewDocument && !coverSrc ? (
+                  <label
+                    htmlFor="document-cover-input"
+                    className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-bb-border px-2 text-center text-xs font-medium text-bb-text-muted hover:border-[var(--bb-blue)] hover:text-bb-blue"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                      <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+                      <circle cx="9" cy="10" r="1.6" />
+                      <path d="M4 17l4.5-4.5 3.5 3.5 2.5-2.5L20 18.5" strokeLinejoin="round" />
+                    </svg>
+                    {addImagePrompt}
+                  </label>
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center gap-1 px-2 text-center text-xs text-bb-text-muted">
                     {coverSrc ? "Preview unavailable" : "No cover"}
@@ -317,6 +410,7 @@ export function AdminDocumentForm({
                 <label className={`${btn.secondarySm} cursor-pointer`}>
                   {coverSrc ? "Replace image" : "Choose image"}
                   <input
+                    id="document-cover-input"
                     className="sr-only"
                     type="file"
                     accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
@@ -344,6 +438,12 @@ export function AdminDocumentForm({
             </div>
             {removeCover && initial?.cover_image_url ? (
               <p className="text-xs text-bb-text-muted">The cover will be removed when you save.</p>
+            ) : !showUploaded ? (
+              <p className="text-xs text-bb-text-muted">
+                {isNewDocument
+                  ? `${addImagePrompt}. ${locale === "lo" ? "ຮູບນີ້ຈະເປັນໜ້າປົກຂອງເອກະສານ." : "It will be used as the document cover."}`
+                  : "No cover uploaded yet. The website shows this default image until you choose one."}
+              </p>
             ) : null}
           </FormSection>
 
@@ -395,19 +495,27 @@ export function AdminDocumentForm({
         </div>
         <div className="space-y-6 lg:col-start-1 lg:row-start-2">
           {[
-            { code: "lo", heading: "Content — Lao", values: lo },
-            { code: "en", heading: "Content — English", values: en },
+            { code: "lo" as const, heading: "Content — Lao", values: lo },
+            { code: "en" as const, heading: "Content — English", values: en },
           ].map(({ code, heading, values }) => (
-            <FormSection key={code} title={heading}>
+            <FormSection key={code} title={heading} description={guide.content}>
               <Field label="Title *">
-                <input className="input" name={`${code}_title`} required defaultValue={values?.title || ""} />
+                <input className="input" name={`${code}_title`} required placeholder={CONTENT_GUIDE[code].title} defaultValue={values?.title || ""} />
               </Field>
               <Field label="Summary" hint="A short description shown in document lists.">
-                <textarea className="input min-h-20" name={`${code}_summary`} defaultValue={values?.summary || ""} />
+                <textarea className="input min-h-20" name={`${code}_summary`} placeholder={CONTENT_GUIDE[code].summary} defaultValue={values?.summary || ""} />
               </Field>
-              <Field label="Body">
-                <textarea className="input min-h-40 font-mono text-sm" name={`${code}_body`} defaultValue={values?.body_html || ""} />
-              </Field>
+              <div className="text-sm">
+                <span id={`${code}-body-label`} className="mb-1 block font-medium">Body</span>
+                <RichTextField
+                  name={`${code}_body`}
+                  locale={locale}
+                  labelId={`${code}-body-label`}
+                  defaultValue={values?.body_html || ""}
+                  placeholder={CONTENT_GUIDE[code].body}
+                />
+                <span className="mt-1 block text-xs text-bb-text-muted">The full text readers see on the document page. Use headings and lists to organize it.</span>
+              </div>
               <details className="group rounded-lg border border-bb-border px-3 py-2">
                 <summary className="cursor-pointer text-sm font-medium text-bb-text-muted">Web address (optional)</summary>
                 <div className="mt-3">
