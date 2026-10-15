@@ -12,72 +12,105 @@ import {
   clientPatchAdminSettings,
   clientUploadAdminSettingsAsset,
 } from "@/lib/client-api";
+import type { Locale } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 
 type SettingsForm = Record<string, string>;
 type AssetKind =
   "logo" | "login-logo" | "system-logo" | "favicon" | "default-cover";
+/** Text in both page languages; Lao pages show `lo`, English pages show `en`. */
+type Text = { lo: string; en: string };
 type FieldDef = {
   key: string;
-  label: string;
+  label: Text;
   type?: string;
-  hint?: string;
+  hint?: Text;
   placeholder?: string;
   required?: boolean;
   counter?: [number, number];
 };
 type Section = {
   id: string;
-  title?: string;
-  description?: string;
+  title?: Text;
+  description?: Text;
   fields?: FieldDef[];
   assets?: boolean;
 };
+
+const pick = (locale: Locale, text: Text) => text[locale];
 
 // One scrolling page. The first section keeps the original settings layout (same fields, order and labels).
 const SECTIONS: Section[] = [
   {
     id: "general",
-    title: "General",
-    description:
-      "Site names and SEO text appear in browser tabs and search results. Keep SEO titles to about 50–60 characters and meta descriptions to 120–160 characters, unique and descriptive. WhatsApp uses international format (+856…); links must start with https://.",
+    title: { lo: "ທົ່ວໄປ", en: "General" },
+    description: {
+      lo: "ຊື່ເວັບໄຊ ແລະ ຂໍ້ຄວາມ SEO ຈະສະແດງຢູ່ແຖບຂອງບຣາວເຊີ ແລະ ໃນຜົນການຄົ້ນຫາ. ຫົວຂໍ້ SEO ຄວນຍາວປະມານ 50–60 ຕົວອັກສອນ ແລະ ຄຳອະທິບາຍ Meta 120–160 ຕົວອັກສອນ, ບໍ່ຊ້ຳກັນ ແລະ ອະທິບາຍໄດ້ຊັດເຈນ. WhatsApp ໃຊ້ຮູບແບບສາກົນ (+856…); ລິ້ງຕ້ອງຂຶ້ນຕົ້ນດ້ວຍ https://.",
+      en: "Site names and SEO text appear in browser tabs and search results. Keep SEO titles to about 50–60 characters and meta descriptions to 120–160 characters, unique and descriptive. WhatsApp uses international format (+856…); links must start with https://.",
+    },
     fields: [
-      { key: "site_name_lo", label: "Site name (Lao)", required: true },
-      { key: "site_name_en", label: "Site name (English)", required: true },
+      {
+        key: "site_name_lo",
+        label: { lo: "ຊື່ເວັບໄຊ (ພາສາລາວ)", en: "Site name (Lao)" },
+        required: true,
+      },
+      {
+        key: "site_name_en",
+        label: { lo: "ຊື່ເວັບໄຊ (ພາສາອັງກິດ)", en: "Site name (English)" },
+        required: true,
+      },
       {
         key: "timezone",
-        label: "Timezone",
+        label: { lo: "ເຂດເວລາ", en: "Timezone" },
         required: true,
         placeholder: "Asia/Vientiane",
       },
-      { key: "contact_email", label: "Contact email", type: "email" },
+      {
+        key: "contact_email",
+        label: { lo: "ອີເມວຕິດຕໍ່", en: "Contact email" },
+        type: "email",
+      },
       {
         key: "whatsapp_number",
-        label: "WhatsApp",
+        label: { lo: "WhatsApp", en: "WhatsApp" },
         type: "tel",
         placeholder: "+8562012345678",
       },
-      { key: "facebook_url", label: "Facebook URL", type: "url" },
-      { key: "tiktok_url", label: "TikTok URL", type: "url" },
+      {
+        key: "facebook_url",
+        label: { lo: "ລິ້ງ Facebook", en: "Facebook URL" },
+        type: "url",
+      },
+      {
+        key: "tiktok_url",
+        label: { lo: "ລິ້ງ TikTok", en: "TikTok URL" },
+        type: "url",
+      },
       {
         key: "default_seo_title_lo",
-        label: "SEO title (Lao)",
+        label: { lo: "ຫົວຂໍ້ SEO (ພາສາລາວ)", en: "SEO title (Lao)" },
         counter: [30, 60],
       },
       {
         key: "default_seo_title_en",
-        label: "SEO title (English)",
+        label: { lo: "ຫົວຂໍ້ SEO (ພາສາອັງກິດ)", en: "SEO title (English)" },
         counter: [30, 60],
       },
       {
         key: "default_meta_description_lo",
-        label: "Meta description (Lao)",
+        label: {
+          lo: "ຄຳອະທິບາຍ Meta (ພາສາລາວ)",
+          en: "Meta description (Lao)",
+        },
         type: "textarea",
         counter: [120, 160],
       },
       {
         key: "default_meta_description_en",
-        label: "Meta description (English)",
+        label: {
+          lo: "ຄຳອະທິບາຍ Meta (ພາສາອັງກິດ)",
+          en: "Meta description (English)",
+        },
         type: "textarea",
         counter: [120, 160],
       },
@@ -85,146 +118,227 @@ const SECTIONS: Section[] = [
   },
   {
     id: "organization",
-    title: "Organization & contact",
-    description:
-      "Shown in the footer, on the Contact page and in the Privacy Policy and Terms. Leave a contact field blank to hide it; provide at least one way to reach you.",
+    title: { lo: "ອົງກອນ ແລະ ການຕິດຕໍ່", en: "Organization & contact" },
+    description: {
+      lo: "ສະແດງຢູ່ສ່ວນທ້າຍເວັບ, ໜ້າຕິດຕໍ່, ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ ແລະ ເງື່ອນໄຂການນຳໃຊ້. ປ່ອຍຊ່ອງຕິດຕໍ່ໃດໜຶ່ງໃຫ້ວ່າງເພື່ອເຊື່ອງມັນ; ຄວນມີຢ່າງໜ້ອຍໜຶ່ງຊ່ອງທາງໃຫ້ຕິດຕໍ່ໄດ້.",
+      en: "Shown in the footer, on the Contact page and in the Privacy Policy and Terms. Leave a contact field blank to hide it; provide at least one way to reach you.",
+    },
     fields: [
-      { key: "organization_name", label: "Organization name" },
-      { key: "system_name", label: "System name" },
+      {
+        key: "organization_name",
+        label: { lo: "ຊື່ອົງກອນ", en: "Organization name" },
+      },
+      { key: "system_name", label: { lo: "ຊື່ລະບົບ", en: "System name" } },
       {
         key: "contact_phone",
-        label: "Phone",
+        label: { lo: "ເບີໂທລະສັບ", en: "Phone" },
         type: "tel",
         placeholder: "+856 21 123 456",
       },
       {
         key: "website",
-        label: "Website",
+        label: { lo: "ເວັບໄຊ", en: "Website" },
         type: "url",
         placeholder: "https://example.com",
       },
-      { key: "address", label: "Address", type: "textarea" },
+      {
+        key: "address",
+        label: { lo: "ທີ່ຢູ່", en: "Address" },
+        type: "textarea",
+      },
       {
         key: "description",
-        label: "Description",
+        label: { lo: "ຄຳອະທິບາຍ", en: "Description" },
         type: "textarea",
-        hint: "Shown under the logo in the footer.",
+        hint: {
+          lo: "ສະແດງຢູ່ລຸ່ມໂລໂກ້ໃນສ່ວນທ້າຍເວັບ.",
+          en: "Shown under the logo in the footer.",
+        },
       },
     ],
   },
   {
     id: "branding",
-    title: "Logo & images",
-    description:
-      "Use PNG or WebP. Logos look sharpest at twice their display size (e.g. 480 × 160 px) with a transparent background; the favicon should be square, at least 512 × 512 px. Max 2 MB each. Changes are previewed here and applied when you save.",
+    title: { lo: "ໂລໂກ້ ແລະ ຮູບພາບ", en: "Logo & images" },
+    description: {
+      lo: "ໃຊ້ໄຟລ໌ PNG ຫຼື WebP. ໂລໂກ້ຈະຄົມຊັດທີ່ສຸດເມື່ອມີຂະໜາດສອງເທົ່າຂອງຂະໜາດທີ່ສະແດງ (ເຊັ່ນ 480 × 160 px) ແລະ ມີພື້ນຫຼັງໂປ່ງໃສ; Favicon ຄວນເປັນຮູບສີ່ຫຼ່ຽມຈະຕຸລັດ ຢ່າງໜ້ອຍ 512 × 512 px. ບໍ່ເກີນ 2 MB ຕໍ່ຮູບ. ເບິ່ງຕົວຢ່າງໄດ້ທີ່ນີ້ ແລະ ຈະນຳໃຊ້ເມື່ອທ່ານບັນທຶກ.",
+      en: "Use PNG or WebP. Logos look sharpest at twice their display size (e.g. 480 × 160 px) with a transparent background; the favicon should be square, at least 512 × 512 px. Max 2 MB each. Changes are previewed here and applied when you save.",
+    },
     assets: true,
   },
   {
     id: "documents",
-    title: "Documents",
-    description:
-      "Defaults used when creating documents. Allow only the file types you need; PDF is recommended for published documents because it opens the same on every device.",
+    title: { lo: "ເອກະສານ", en: "Documents" },
+    description: {
+      lo: "ຄ່າເລີ່ມຕົ້ນທີ່ໃຊ້ເມື່ອສ້າງເອກະສານ. ອະນຸຍາດສະເພາະປະເພດໄຟລ໌ທີ່ຈຳເປັນ; ແນະນຳໃຫ້ໃຊ້ PDF ສຳລັບເອກະສານທີ່ເຜີຍແຜ່ ເພາະເປີດໄດ້ຄືກັນໃນທຸກອຸປະກອນ.",
+      en: "Defaults used when creating documents. Allow only the file types you need; PDF is recommended for published documents because it opens the same on every device.",
+    },
     fields: [
-      { key: "default_document_category", label: "Default document category" },
-      { key: "default_document_status", label: "Default document status" },
+      {
+        key: "default_document_category",
+        label: { lo: "ໝວດເອກະສານເລີ່ມຕົ້ນ", en: "Default document category" },
+      },
+      {
+        key: "default_document_status",
+        label: { lo: "ສະຖານະເອກະສານເລີ່ມຕົ້ນ", en: "Default document status" },
+      },
       {
         key: "allowed_file_types",
-        label: "Allowed file types",
+        label: { lo: "ປະເພດໄຟລ໌ທີ່ອະນຸຍາດ", en: "Allowed file types" },
         placeholder: "pdf,docx,xlsx",
-        hint: "Comma-separated: pdf, doc, docx, xls, xlsx, csv, txt, zip, jpg, jpeg, png, webp.",
+        hint: {
+          lo: "ຂັ້ນດ້ວຍເຄື່ອງໝາຍຈຸດ (,): pdf, doc, docx, xls, xlsx, csv, txt, zip, jpg, jpeg, png, webp.",
+          en: "Comma-separated: pdf, doc, docx, xls, xlsx, csv, txt, zip, jpg, jpeg, png, webp.",
+        },
       },
       {
         key: "max_file_size_mb",
-        label: "Maximum file size (MB)",
+        label: { lo: "ຂະໜາດໄຟລ໌ສູງສຸດ (MB)", en: "Maximum file size (MB)" },
         type: "number",
       },
       {
         key: "document_number_format",
-        label: "Document numbering format",
+        label: { lo: "ຮູບແບບເລກທີເອກະສານ", en: "Document numbering format" },
         placeholder: "DOC-2026-0001",
       },
     ],
   },
   {
     id: "appearance",
-    title: "Appearance",
-    description:
-      "Brand colors apply in light mode; dark mode keeps its own accessible palette. Primary and secondary colors sit behind white text (buttons, footer), so they need at least 4.5:1 contrast with white; the accent color is used for icons and highlights and needs at least 3:1 against white (WCAG 2.1 AA). The ratio is checked under each color.",
+    title: { lo: "ຮູບແບບການສະແດງຜົນ", en: "Appearance" },
+    description: {
+      lo: "ສີຂອງແບຣນໃຊ້ໃນໂໝດແຈ້ງ; ໂໝດມືດໃຊ້ຊຸດສີຂອງຕົນເອງທີ່ອ່ານງ່າຍ. ສີຫຼັກ ແລະ ສີຮອງຢູ່ຫຼັງຕົວໜັງສືສີຂາວ (ປຸ່ມ, ສ່ວນທ້າຍເວັບ) ຈຶ່ງຕ້ອງມີຄວາມຄົມຊັດກັບສີຂາວຢ່າງໜ້ອຍ 4.5:1; ສີເນັ້ນໃຊ້ກັບໄອຄອນ ແລະ ຈຸດເດັ່ນ ຈຶ່ງຕ້ອງມີຢ່າງໜ້ອຍ 3:1 ເມື່ອທຽບກັບພື້ນສີຂາວ (WCAG 2.1 AA). ອັດຕາສ່ວນຈະຖືກກວດຢູ່ລຸ່ມແຕ່ລະສີ.",
+      en: "Brand colors apply in light mode; dark mode keeps its own accessible palette. Primary and secondary colors sit behind white text (buttons, footer), so they need at least 4.5:1 contrast with white; the accent color is used for icons and highlights and needs at least 3:1 against white (WCAG 2.1 AA). The ratio is checked under each color.",
+    },
     fields: [
-      { key: "primary_color", label: "Primary color", type: "color" },
-      { key: "secondary_color", label: "Secondary color", type: "color" },
-      { key: "accent_color", label: "Accent color", type: "color" },
-      { key: "application_title", label: "Application title" },
-      { key: "sidebar_title", label: "Admin sidebar title" },
-      { key: "dashboard_title", label: "Dashboard title" },
+      {
+        key: "primary_color",
+        label: { lo: "ສີຫຼັກ", en: "Primary color" },
+        type: "color",
+      },
+      {
+        key: "secondary_color",
+        label: { lo: "ສີຮອງ", en: "Secondary color" },
+        type: "color",
+      },
+      {
+        key: "accent_color",
+        label: { lo: "ສີເນັ້ນ", en: "Accent color" },
+        type: "color",
+      },
+      {
+        key: "application_title",
+        label: { lo: "ຊື່ແອັບພລິເຄຊັນ", en: "Application title" },
+      },
+      {
+        key: "sidebar_title",
+        label: { lo: "ຫົວຂໍ້ແຖບຂ້າງຂອງຜູ້ດູແລ", en: "Admin sidebar title" },
+      },
+      {
+        key: "dashboard_title",
+        label: { lo: "ຫົວຂໍ້ແຜງຄວບຄຸມ", en: "Dashboard title" },
+      },
       {
         key: "footer_text",
-        label: "Footer text",
-        hint: "Leave blank to use “© year organization name”.",
+        label: { lo: "ຂໍ້ຄວາມສ່ວນທ້າຍເວັບ", en: "Footer text" },
+        hint: {
+          lo: "ປ່ອຍວ່າງໄວ້ເພື່ອໃຊ້ “© ປີ ຊື່ອົງກອນ”.",
+          en: "Leave blank to use “© year organization name”.",
+        },
       },
     ],
   },
 ];
 
-type BuiltInImage = { src: string; dark?: boolean; note: string };
+type BuiltInImage = { src: string; dark?: boolean; note: Text };
 
 // Images the website uses when nothing has been uploaded (see brand-logo.tsx, site-footer.tsx, app/layout.tsx).
 const ASSETS: Array<{
   kind: AssetKind;
-  label: string;
+  label: Text;
   key: string;
-  hint: string;
+  hint: Text;
   builtIn: BuiltInImage;
 }> = [
   {
     kind: "logo",
-    label: "Site logo",
+    label: { lo: "ໂລໂກ້ເວັບໄຊ", en: "Site logo" },
     key: "logo_url",
-    hint: "Main logo, used everywhere unless a specific logo below is set.",
+    hint: {
+      lo: "ໂລໂກ້ຫຼັກ, ໃຊ້ທຸກບ່ອນ ເວັ້ນເສຍແຕ່ໄດ້ຕັ້ງໂລໂກ້ສະເພາະຂ້າງລຸ່ມ.",
+      en: "Main logo, used everywhere unless a specific logo below is set.",
+    },
     builtIn: {
       src: "/brand/logo-light.png",
-      note: "In use now: the built-in BAN BUNSI logo.",
+      note: {
+        lo: "ກຳລັງໃຊ້ຢູ່: ໂລໂກ້ BAN BUNSI ມາດຕະຖານຂອງລະບົບ.",
+        en: "In use now: the built-in BAN BUNSI logo.",
+      },
     },
   },
   {
     kind: "system-logo",
-    label: "Header & admin logo",
+    label: { lo: "ໂລໂກ້ສ່ວນຫົວ ແລະ ໜ້າຜູ້ດູແລ", en: "Header & admin logo" },
     key: "system_logo_url",
-    hint: "Website header, admin sidebar and footer.",
+    hint: {
+      lo: "ສ່ວນຫົວເວັບໄຊ, ແຖບຂ້າງຂອງຜູ້ດູແລ ແລະ ສ່ວນທ້າຍເວັບ.",
+      en: "Website header, admin sidebar and footer.",
+    },
     builtIn: {
       src: "/brand/logo-light.png",
-      note: "In use now: the site logo above (built-in if none is uploaded).",
+      note: {
+        lo: "ກຳລັງໃຊ້ຢູ່: ໂລໂກ້ເວັບໄຊຂ້າງເທິງ (ໂລໂກ້ມາດຕະຖານ ຖ້າບໍ່ໄດ້ອັບໂຫຼດ).",
+        en: "In use now: the site logo above (built-in if none is uploaded).",
+      },
     },
   },
   {
     kind: "login-logo",
-    label: "Login page logo",
+    label: { lo: "ໂລໂກ້ໜ້າເຂົ້າສູ່ລະບົບ", en: "Login page logo" },
     key: "login_logo_url",
-    hint: "Sign-in and registration pages (dark background).",
+    hint: {
+      lo: "ໜ້າເຂົ້າສູ່ລະບົບ ແລະ ລົງທະບຽນ (ພື້ນຫຼັງສີເຂັ້ມ).",
+      en: "Sign-in and registration pages (dark background).",
+    },
     builtIn: {
       src: "/brand/logo-dark.png",
       dark: true,
-      note: "In use now: the built-in logo for dark backgrounds.",
+      note: {
+        lo: "ກຳລັງໃຊ້ຢູ່: ໂລໂກ້ມາດຕະຖານສຳລັບພື້ນຫຼັງສີເຂັ້ມ.",
+        en: "In use now: the built-in logo for dark backgrounds.",
+      },
     },
   },
   {
     kind: "favicon",
-    label: "Favicon",
+    label: { lo: "Favicon (ໄອຄອນແຖບບຣາວເຊີ)", en: "Favicon" },
     key: "favicon_url",
-    hint: "Browser tab icon. Use a square PNG, e.g. 512 × 512 px.",
+    hint: {
+      lo: "ໄອຄອນໃນແຖບບຣາວເຊີ. ໃຊ້ PNG ຮູບສີ່ຫຼ່ຽມຈະຕຸລັດ, ເຊັ່ນ 512 × 512 px.",
+      en: "Browser tab icon. Use a square PNG, e.g. 512 × 512 px.",
+    },
     builtIn: {
       src: "/favicon-192.png",
-      note: "In use now: the built-in BAN BUNSI icon.",
+      note: {
+        lo: "ກຳລັງໃຊ້ຢູ່: ໄອຄອນ BAN BUNSI ມາດຕະຖານ.",
+        en: "In use now: the built-in BAN BUNSI icon.",
+      },
     },
   },
   {
     kind: "default-cover",
-    label: "Default document cover",
+    label: { lo: "ໜ້າປົກເອກະສານເລີ່ມຕົ້ນ", en: "Default document cover" },
     key: "default_cover_url",
-    hint: "Shown for documents without their own cover.",
+    hint: {
+      lo: "ສະແດງສຳລັບເອກະສານທີ່ບໍ່ມີໜ້າປົກຂອງຕົນເອງ.",
+      en: "Shown for documents without their own cover.",
+    },
     builtIn: {
       src: "/brand/categories/cat-accounting.jpg",
-      note: "In use now: each document shows the image of its category.",
+      note: {
+        lo: "ກຳລັງໃຊ້ຢູ່: ແຕ່ລະເອກະສານສະແດງຮູບຂອງໝວດຂອງມັນ.",
+        en: "In use now: each document shows the image of its category.",
+      },
     },
   },
 ];
@@ -248,18 +362,26 @@ const ASSET_TYPES = ["image/jpeg", "image/png", "image/webp"];
 /** A staged image change: a new file to upload, or removal of the saved image. */
 type PendingAsset = { file: File; preview: string } | "remove";
 
-function assetFileError(file: File) {
+function assetFileError(locale: Locale, file: File) {
   if (
     !ASSET_TYPES.includes(file.type) &&
     !/\.(jpe?g|png|webp)$/i.test(file.name)
   ) {
-    return "Choose a JPG, PNG, or WebP image.";
+    return pick(locale, {
+      lo: "ກະລຸນາເລືອກຮູບ JPG, PNG ຫຼື WebP.",
+      en: "Choose a JPG, PNG, or WebP image.",
+    });
   }
-  if (file.size > MAX_ASSET_BYTES) return "Image must be 2 MiB or smaller.";
+  if (file.size > MAX_ASSET_BYTES)
+    return pick(locale, {
+      lo: "ຮູບຕ້ອງມີຂະໜາດບໍ່ເກີນ 2 MiB.",
+      en: "Image must be 2 MiB or smaller.",
+    });
   return "";
 }
 
 function AssetControl({
+  locale,
   kind,
   label,
   hint,
@@ -271,6 +393,7 @@ function AssetControl({
   onRemove,
   onUndo,
 }: {
+  locale: Locale;
   kind: AssetKind;
   label: string;
   hint: string;
@@ -288,6 +411,7 @@ function AssetControl({
   const usingBuiltIn = !src;
   const shown = src || builtIn.src;
   const isCover = kind === "default-cover";
+  const L = (lo: string, en: string) => pick(locale, { lo, en });
   return (
     <section className="grid gap-4 border-b border-bb-border py-4 last:border-0 sm:grid-cols-[120px_minmax(0,1fr)]">
       <div
@@ -296,7 +420,7 @@ function AssetControl({
         {failedSrc !== shown ? (
           <Image
             src={shown}
-            alt={`${label} preview`}
+            alt={L(`ຕົວຢ່າງ: ${label}`, `${label} preview`)}
             fill
             sizes="112px"
             unoptimized={!shown.startsWith("/")}
@@ -305,12 +429,12 @@ function AssetControl({
           />
         ) : (
           <span className="text-xs text-bb-text-muted">
-            Preview unavailable
+            {L("ບໍ່ສາມາດສະແດງຕົວຢ່າງ", "Preview unavailable")}
           </span>
         )}
         {usingBuiltIn ? (
           <span className="absolute inset-x-0 bottom-0 bg-black/60 py-0.5 text-center text-[10px] font-medium text-white">
-            Built-in
+            {L("ມາດຕະຖານ", "Built-in")}
           </span>
         ) : null}
       </div>
@@ -320,7 +444,9 @@ function AssetControl({
             {label}
             {pending ? (
               <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">
-                {pending === "remove" ? "Will be removed" : "Unsaved"}
+                {pending === "remove"
+                  ? L("ຈະຖືກລຶບ", "Will be removed")
+                  : L("ຍັງບໍ່ໄດ້ບັນທຶກ", "Unsaved")}
               </span>
             ) : null}
           </h3>
@@ -328,19 +454,25 @@ function AssetControl({
           {usingBuiltIn ? (
             <p className="mt-0.5 text-xs text-bb-text-muted">
               {pending === "remove"
-                ? "After saving, the website goes back to the built-in image."
-                : `${builtIn.note} Upload an image to replace it.`}
+                ? L(
+                    "ຫຼັງຈາກບັນທຶກ, ເວັບໄຊຈະກັບໄປໃຊ້ຮູບມາດຕະຖານ.",
+                    "After saving, the website goes back to the built-in image.",
+                  )
+                : `${pick(locale, builtIn.note)} ${L("ອັບໂຫຼດຮູບເພື່ອປ່ຽນແທນ.", "Upload an image to replace it.")}`}
             </p>
           ) : null}
           <p className="mt-0.5 text-xs text-bb-text-muted">
-            JPG, PNG, or WebP · up to 2 MB
+            {L(
+              "JPG, PNG ຫຼື WebP · ບໍ່ເກີນ 2 MB",
+              "JPG, PNG, or WebP · up to 2 MB",
+            )}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <label
             className={`btn-secondary ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
           >
-            {src ? "Replace" : "Upload"}
+            {src ? L("ປ່ຽນຮູບ", "Replace") : L("ອັບໂຫຼດ", "Upload")}
             <input
               className="sr-only"
               type="file"
@@ -360,7 +492,7 @@ function AssetControl({
               disabled={disabled}
               onClick={() => onUndo(kind)}
             >
-              Undo
+              {L("ຍົກເລີກການປ່ຽນ", "Undo")}
             </button>
           ) : null}
           {savedSrc && pending !== "remove" ? (
@@ -370,7 +502,7 @@ function AssetControl({
               disabled={disabled}
               onClick={() => onRemove(kind)}
             >
-              Remove
+              {L("ລຶບ", "Remove")}
             </button>
           ) : null}
         </div>
@@ -396,6 +528,7 @@ export default function AdminSettingsPage() {
   const localeRaw = String(params.locale || "lo");
   const locale = isLocale(localeRaw) ? localeRaw : "lo";
   const router = useRouter();
+  const L = (lo: string, en: string) => pick(locale, { lo, en });
   const [form, setForm] = useState<SettingsForm | null>(null);
   const [savedForm, setSavedForm] = useState<SettingsForm | null>(null);
   const [categories, setCategories] = useState<
@@ -453,7 +586,7 @@ export default function AdminSettingsPage() {
   }
 
   function selectAsset(kind: AssetKind, file: File) {
-    const problem = assetFileError(file);
+    const problem = assetFileError(locale, file);
     if (problem) {
       setMessage("");
       setError(problem);
@@ -484,7 +617,7 @@ export default function AdminSettingsPage() {
     setPendingAssets({});
     setForm(savedForm);
     setError("");
-    setMessage("Changes discarded.");
+    setMessage(L("ຍົກເລີກການປ່ຽນແປງແລ້ວ.", "Changes discarded."));
   }
 
   async function onSubmit(event: FormEvent) {
@@ -507,8 +640,8 @@ export default function AdminSettingsPage() {
       for (const [kind, pending] of Object.entries(pendingAssets) as Array<
         [AssetKind, PendingAsset]
       >) {
-        const label =
-          ASSETS.find((asset) => asset.kind === kind)?.label || kind;
+        const asset = ASSETS.find((item) => item.kind === kind);
+        const label = asset ? pick(locale, asset.label) : kind;
         try {
           if (pending === "remove") await clientDeleteAdminSettingsAsset(kind);
           else await clientUploadAdminSettingsAsset(kind, pending.file);
@@ -516,7 +649,7 @@ export default function AdminSettingsPage() {
         } catch (reason) {
           remaining[kind] = pending;
           failures.push(
-            `${label}: ${reason instanceof Error ? reason.message : "upload failed"}`,
+            `${label}: ${reason instanceof Error ? reason.message : L("ອັບໂຫຼດບໍ່ສຳເລັດ", "upload failed")}`,
           );
         }
       }
@@ -528,8 +661,13 @@ export default function AdminSettingsPage() {
       window.dispatchEvent(new Event("brand-settings-updated"));
       router.refresh();
       if (failures.length)
-        setError(`Some images were not saved. ${failures.join(" ")}`);
-      else setMessage("Settings saved successfully.");
+        setError(
+          `${L("ບາງຮູບບໍ່ໄດ້ຖືກບັນທຶກ.", "Some images were not saved.")} ${failures.join(" ")}`,
+        );
+      else
+        setMessage(
+          L("ບັນທຶກການຕັ້ງຄ່າສຳເລັດແລ້ວ.", "Settings saved successfully."),
+        );
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : t(locale, "loadError"),
@@ -572,19 +710,31 @@ export default function AdminSettingsPage() {
 
   function fieldHint(field: FieldDef) {
     const value = form?.[field.key] || "";
-    const parts = [field.hint];
+    const parts = [field.hint && pick(locale, field.hint)];
     if (defaults[field.key] && !value)
-      parts.push(`Blank uses the default: “${defaults[field.key]}”.`);
+      parts.push(
+        L(
+          `ຖ້າປ່ອຍວ່າງ ຈະໃຊ້ຄ່າເລີ່ມຕົ້ນ: “${defaults[field.key]}”.`,
+          `Blank uses the default: “${defaults[field.key]}”.`,
+        ),
+      );
     if (field.key === "max_file_size_mb") {
       parts.push(
-        `Per file, up to ${maxUploadMb} MB (the server's upload limit).`,
+        L(
+          `ຕໍ່ໄຟລ໌, ບໍ່ເກີນ ${maxUploadMb} MB (ຂີດຈຳກັດການອັບໂຫຼດຂອງເຊີບເວີ).`,
+          `Per file, up to ${maxUploadMb} MB (the server's upload limit).`,
+        ),
       );
     }
     if (field.counter) {
       const [min, max] = field.counter;
       const length = [...value].length;
+      const outside = length && (length < min || length > max);
       parts.push(
-        `${length} characters${length && (length < min || length > max) ? ` (recommended ${min}–${max})` : ""}.`,
+        L(
+          `${length} ຕົວອັກສອນ${outside ? ` (ແນະນຳ ${min}–${max})` : ""}.`,
+          `${length} characters${outside ? ` (recommended ${min}–${max})` : ""}.`,
+        ),
       );
     }
     if (field.type === "color") {
@@ -593,13 +743,13 @@ export default function AdminSettingsPage() {
       const isAccent = field.key === "accent_color";
       const minimum = isAccent ? 3 : 4.5;
       const subject = isAccent
-        ? "against a white background"
-        : "with white text";
+        ? L("ຄວາມຄົມຊັດກັບພື້ນສີຂາວ", "Contrast against a white background")
+        : L("ຄວາມຄົມຊັດກັບຕົວໜັງສືສີຂາວ", "Contrast with white text");
       if (ratio)
         parts.push(
           ratio >= minimum
-            ? `Contrast ${subject} ${ratio.toFixed(1)}:1 — meets WCAG AA.`
-            : `Contrast ${subject} ${ratio.toFixed(1)}:1 — below the ${minimum}:1 minimum; choose a darker color.`,
+            ? `${subject} ${ratio.toFixed(1)}:1 — ${L("ຜ່ານມາດຕະຖານ WCAG AA.", "meets WCAG AA.")}`
+            : `${subject} ${ratio.toFixed(1)}:1 — ${L(`ຕ່ຳກວ່າຂັ້ນຕ່ຳ ${minimum}:1; ກະລຸນາເລືອກສີທີ່ເຂັ້ມກວ່ານີ້.`, `below the ${minimum}:1 minimum; choose a darker color.`)}`,
         );
     }
     return parts.filter(Boolean).join(" ") || undefined;
@@ -614,7 +764,7 @@ export default function AdminSettingsPage() {
           value={value}
           onChange={(event) => update(field.key, event.target.value)}
         >
-          <option value="">No default</option>
+          <option value="">{L("ບໍ່ມີຄ່າເລີ່ມຕົ້ນ", "No default")}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -630,9 +780,9 @@ export default function AdminSettingsPage() {
           value={value || "draft"}
           onChange={(event) => update(field.key, event.target.value)}
         >
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-          <option value="archived">Archived</option>
+          <option value="draft">{t(locale, "draft")}</option>
+          <option value="published">{t(locale, "published")}</option>
+          <option value="archived">{L("ເກັບໄວ້ໃນຄັງ", "Archived")}</option>
         </select>
       );
     }
@@ -650,7 +800,10 @@ export default function AdminSettingsPage() {
       return (
         <div className="flex gap-2">
           <input
-            aria-label={`${field.label} picker`}
+            aria-label={L(
+              `ເລືອກ${pick(locale, field.label)}`,
+              `${field.label.en} picker`,
+            )}
             className="h-[2.85rem] w-16 shrink-0 cursor-pointer rounded-lg border border-bb-border bg-transparent p-1"
             type="color"
             value={value || defaults[field.key] || "#0036ad"}
@@ -686,8 +839,10 @@ export default function AdminSettingsPage() {
       <header className="mb-6">
         <h1 className="text-2xl font-bold">{t(locale, "settings")}</h1>
         <p className="mt-1 text-sm text-bb-text-muted">
-          Changes apply across the website after you save. Fields marked as
-          required cannot be left blank.
+          {L(
+            "ການປ່ຽນແປງຈະນຳໃຊ້ທົ່ວທັງເວັບໄຊຫຼັງຈາກທ່ານບັນທຶກ. ຊ່ອງທີ່ໝາຍວ່າຈຳເປັນ ບໍ່ສາມາດປ່ອຍວ່າງໄດ້.",
+            "Changes apply across the website after you save. Fields marked as required cannot be left blank.",
+          )}
         </p>
       </header>
       <form onSubmit={onSubmit} className="space-y-4">
@@ -706,11 +861,11 @@ export default function AdminSettingsPage() {
             {section.title ? (
               <div>
                 <h2 id={`settings-${section.id}`} className="text-lg font-bold">
-                  {section.title}
+                  {pick(locale, section.title)}
                 </h2>
                 {section.description ? (
                   <p className="mt-0.5 text-sm text-bb-text-muted">
-                    {section.description}
+                    {pick(locale, section.description)}
                   </p>
                 ) : null}
               </div>
@@ -719,7 +874,9 @@ export default function AdminSettingsPage() {
               <FormField
                 key={field.key}
                 label={
-                  field.required ? `${field.label} (required)` : field.label
+                  field.required
+                    ? `${pick(locale, field.label)} ${L("(ຈຳເປັນ)", "(required)")}`
+                    : pick(locale, field.label)
                 }
                 hint={fieldHint(field)}
               >
@@ -731,9 +888,10 @@ export default function AdminSettingsPage() {
                 {ASSETS.map((asset) => (
                   <AssetControl
                     key={asset.kind}
+                    locale={locale}
                     kind={asset.kind}
-                    label={asset.label}
-                    hint={asset.hint}
+                    label={pick(locale, asset.label)}
+                    hint={pick(locale, asset.hint)}
                     builtIn={asset.builtIn}
                     savedSrc={savedForm?.[asset.key] || ""}
                     pending={pendingAssets[asset.kind]}
@@ -749,7 +907,12 @@ export default function AdminSettingsPage() {
         ))}
         <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 border-t border-bb-border bg-[var(--bb-bg-muted)] py-4">
           <p className="text-sm text-bb-text-muted" aria-live="polite">
-            {dirty ? "You have unsaved changes." : "All changes saved."}
+            {dirty
+              ? L(
+                  "ທ່ານມີການປ່ຽນແປງທີ່ຍັງບໍ່ໄດ້ບັນທຶກ.",
+                  "You have unsaved changes.",
+                )
+              : L("ບັນທຶກການປ່ຽນແປງທັງໝົດແລ້ວ.", "All changes saved.")}
           </p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -780,7 +943,7 @@ export default function AdminSettingsPage() {
             <button
               type="button"
               className="font-semibold"
-              aria-label="Dismiss"
+              aria-label={L("ປິດ", "Dismiss")}
               onClick={() => setError("")}
             >
               ×
