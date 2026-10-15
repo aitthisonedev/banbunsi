@@ -166,8 +166,14 @@ export function AuthPanel({
     <div className="auth-shell">
       <div className="auth-layout">
         <aside className="auth-aside">
-          <div className="auth-aside-glow auth-aside-glow-1" aria-hidden="true" />
-          <div className="auth-aside-glow auth-aside-glow-2" aria-hidden="true" />
+          <div
+            className="auth-aside-glow auth-aside-glow-1"
+            aria-hidden="true"
+          />
+          <div
+            className="auth-aside-glow auth-aside-glow-2"
+            aria-hidden="true"
+          />
 
           <div className="auth-aside-top">
             <div className="auth-aside-brand-row">
@@ -189,8 +195,12 @@ export function AuthPanel({
                   <DocumentIcon />
                 </div>
                 <div className="auth-feature-content">
-                  <h3 className="auth-feature-title">{t(locale, "feature1Title")}</h3>
-                  <p className="auth-feature-desc">{t(locale, "feature1Desc")}</p>
+                  <h3 className="auth-feature-title">
+                    {t(locale, "feature1Title")}
+                  </h3>
+                  <p className="auth-feature-desc">
+                    {t(locale, "feature1Desc")}
+                  </p>
                 </div>
               </div>
 
@@ -199,8 +209,12 @@ export function AuthPanel({
                   <DownloadIcon />
                 </div>
                 <div className="auth-feature-content">
-                  <h3 className="auth-feature-title">{t(locale, "feature2Title")}</h3>
-                  <p className="auth-feature-desc">{t(locale, "feature2Desc")}</p>
+                  <h3 className="auth-feature-title">
+                    {t(locale, "feature2Title")}
+                  </h3>
+                  <p className="auth-feature-desc">
+                    {t(locale, "feature2Desc")}
+                  </p>
                 </div>
               </div>
 
@@ -209,8 +223,12 @@ export function AuthPanel({
                   <ShieldIcon />
                 </div>
                 <div className="auth-feature-content">
-                  <h3 className="auth-feature-title">{t(locale, "feature3Title")}</h3>
-                  <p className="auth-feature-desc">{t(locale, "feature3Desc")}</p>
+                  <h3 className="auth-feature-title">
+                    {t(locale, "feature3Title")}
+                  </h3>
+                  <p className="auth-feature-desc">
+                    {t(locale, "feature3Desc")}
+                  </p>
                 </div>
               </div>
             </div>

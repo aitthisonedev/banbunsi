@@ -7,7 +7,10 @@ import { isLocale, t } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 
-function findCategory(items: CategoryNode[], slug: string): CategoryNode | undefined {
+function findCategory(
+  items: CategoryNode[],
+  slug: string,
+): CategoryNode | undefined {
   for (const c of items) {
     if (c.slug === slug) return c;
     const child = findCategory(c.children || [], slug);
@@ -16,12 +19,21 @@ function findCategory(items: CategoryNode[], slug: string): CategoryNode | undef
   return undefined;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
   const cats = await getCategories(locale).catch(() => null);
   const category = cats ? findCategory(cats.items, slug) : undefined;
-  return pageMetadata(locale, `/categories/${encodeURIComponent(slug)}`, category?.name || t(locale, "categories"), category?.description || undefined);
+  return pageMetadata(
+    locale,
+    `/categories/${encodeURIComponent(slug)}`,
+    category?.name || t(locale, "categories"),
+    category?.description || undefined,
+  );
 }
 
 export default async function CategoryDetailPage({
@@ -36,7 +48,10 @@ export default async function CategoryDetailPage({
   if (!cats) {
     return (
       <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-5">
-        <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+        <ErrorState
+          title={t(raw, "loadError")}
+          description={t(raw, "tryAgain")}
+        />
       </div>
     );
   }
@@ -57,14 +72,20 @@ export default async function CategoryDetailPage({
         </Link>
       </p>
       <h1 className="mt-2 text-3xl font-bold">{cat.name}</h1>
-      {cat.description ? <p className="mt-4 text-bb-text-muted">{cat.description}</p> : null}
+      {cat.description ? (
+        <p className="mt-4 text-bb-text-muted">{cat.description}</p>
+      ) : null}
       <div className="mt-8 surface-panel">
         {!docs ? (
           <ErrorState title={t(raw, "loadError")} />
         ) : docs.items.length === 0 ? (
           <EmptyState title={t(raw, "noDocuments")} />
         ) : (
-          <DocumentList locale={raw} items={docs.items} emptyText={t(raw, "noDocuments")} />
+          <DocumentList
+            locale={raw}
+            items={docs.items}
+            emptyText={t(raw, "noDocuments")}
+          />
         )}
       </div>
     </div>

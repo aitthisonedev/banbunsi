@@ -281,7 +281,10 @@ export function clientDeleteAdminDocumentCover(id: string) {
   );
 }
 
-export function clientDeleteAdminDocumentFile(documentId: string, fileId: string) {
+export function clientDeleteAdminDocumentFile(
+  documentId: string,
+  fileId: string,
+) {
   return clientFetch<{ message: string }>(
     `/admin/documents/${documentId}/files/${fileId}`,
     { method: "DELETE" },

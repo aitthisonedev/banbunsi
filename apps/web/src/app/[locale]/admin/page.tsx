@@ -17,8 +17,6 @@ import {
 import { isLocale, t } from "@/lib/i18n";
 import { MemberAvatar } from "@/components/member-avatar";
 
-
-
 export default function AdminDashboardPage() {
   const params = useParams();
   const localeRaw = String(params.locale || "lo");
@@ -105,7 +103,9 @@ export default function AdminDashboardPage() {
       {/* 1. Dashboard Page Header (DashLite Style) */}
       <div className="dash-head">
         <div className="dash-head-content">
-          <h1 className="dash-title">{dashboardTitle || t(locale, "dashboard")}</h1>
+          <h1 className="dash-title">
+            {dashboardTitle || t(locale, "dashboard")}
+          </h1>
           <p className="dash-subtitle">
             {locale === "lo"
               ? "ຍິນດີຕ້ອນຮັບກັບຄືນ, ແຜງຄວບຄຸມລະບົບ BAN BUNSI"
@@ -667,7 +667,10 @@ export default function AdminDashboardPage() {
                         <td>
                           <div className="dash-user-cell">
                             <span className="dash-cell-avatar">
-                              <MemberAvatar avatarUrl={row.avatar_url} size={32} />
+                              <MemberAvatar
+                                avatarUrl={row.avatar_url}
+                                size={32}
+                              />
                             </span>
                             <div className="dash-user-cell-meta">
                               <strong className="dash-user-cell-name">

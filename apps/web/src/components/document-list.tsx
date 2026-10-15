@@ -31,7 +31,10 @@ export function DocumentList({
       <ul className="doc-list">
         {items.map((doc, index) => (
           <li key={doc.id}>
-            <Link href={`/${locale}/documents/${doc.slug}`} className="doc-card">
+            <Link
+              href={`/${locale}/documents/${doc.slug}`}
+              className="doc-card"
+            >
               <span className="doc-card-thumb" aria-hidden>
                 <Image
                   src={categoryCover(doc, index)}
@@ -44,9 +47,13 @@ export function DocumentList({
               <span className="doc-card-body">
                 <span className="doc-card-title">{doc.title}</span>
                 <span className="doc-card-meta">
-                  {doc.category_name ? <span className="doc-card-cat">{doc.category_name}</span> : null}
+                  {doc.category_name ? (
+                    <span className="doc-card-cat">{doc.category_name}</span>
+                  ) : null}
                   {doc.year ? <span>· {doc.year}</span> : null}
-                  {doc.document_number ? <span>· {doc.document_number}</span> : null}
+                  {doc.document_number ? (
+                    <span>· {doc.document_number}</span>
+                  ) : null}
                 </span>
               </span>
               <span className="doc-card-badges">

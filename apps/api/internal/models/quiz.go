@@ -9,16 +9,16 @@ import (
 )
 
 type Quiz struct {
-	ID           uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
-	Code         string         `gorm:"size:64;uniqueIndex;not null" json:"code"`
-	Difficulty   string         `gorm:"size:16;not null;default:easy" json:"difficulty"`
-	PassPercent  int            `gorm:"not null;default:60" json:"pass_percent"`
-	SortOrder    int            `gorm:"not null;default:0" json:"sort_order"`
-	IsPublished  bool           `gorm:"not null;default:true;index" json:"is_published"`
+	ID            uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
+	Code          string         `gorm:"size:64;uniqueIndex;not null" json:"code"`
+	Difficulty    string         `gorm:"size:16;not null;default:easy" json:"difficulty"`
+	PassPercent   int            `gorm:"not null;default:60" json:"pass_percent"`
+	SortOrder     int            `gorm:"not null;default:0" json:"sort_order"`
+	IsPublished   bool           `gorm:"not null;default:true;index" json:"is_published"`
 	QuestionsJSON datatypes.JSON `gorm:"type:jsonb;not null" json:"-"`
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
-	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
 
 	Translations []QuizTranslation `gorm:"foreignKey:QuizID" json:"translations,omitempty"`
 }

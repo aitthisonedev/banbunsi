@@ -18,7 +18,10 @@ export default function AdminNewCategoryPage() {
     // Place the new category after the existing ones (top-level and sub-categories).
     clientListAdminCategories(locale)
       .then(({ items }) => {
-        const all = items.flatMap((item) => [item, ...((item.children || []) as Array<{ sort_order?: number }>)]);
+        const all = items.flatMap((item) => [
+          item,
+          ...((item.children || []) as Array<{ sort_order?: number }>),
+        ]);
         setSortOrder(nextSortOrder(all));
       })
       .catch(() => setSortOrder(1));

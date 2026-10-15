@@ -77,11 +77,20 @@ function DownloadIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
   const doc = await getDocument(locale, slug).catch(() => null);
-  return pageMetadata(locale, `/documents/${encodeURIComponent(slug)}`, doc?.title || t(locale, "documents"), doc?.summary || undefined);
+  return pageMetadata(
+    locale,
+    `/documents/${encodeURIComponent(slug)}`,
+    doc?.title || t(locale, "documents"),
+    doc?.summary || undefined,
+  );
 }
 
 export default async function DocumentDetailPage({
@@ -214,7 +223,9 @@ export default async function DocumentDetailPage({
                       <span>{file.file_name}</span>
                       {file.version ? <span>· v{file.version}</span> : null}
                       <span>·</span>
-                      <span className={`doc-badge doc-badge--${file.download_access}`}>
+                      <span
+                        className={`doc-badge doc-badge--${file.download_access}`}
+                      >
                         {accessLabel(raw, file.download_access)}
                       </span>
                     </p>
@@ -222,7 +233,12 @@ export default async function DocumentDetailPage({
                 </div>
 
                 {file.file_url ? (
-                  <a href={file.file_url} className="doc-file-btn" target="_blank" rel="noreferrer">
+                  <a
+                    href={file.file_url}
+                    className="doc-file-btn"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <DownloadIcon />
                     <span>{t(raw, "download") || "Download"}</span>
                   </a>

@@ -32,10 +32,19 @@ function coverFor(slug: string, category: string, index: number) {
   return COVER_FALLBACK[index % COVER_FALLBACK.length];
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  return pageMetadata(locale, "/quizzes", t(locale, "quizzes"), t(locale, "quizzesLead"));
+  return pageMetadata(
+    locale,
+    "/quizzes",
+    t(locale, "quizzes"),
+    t(locale, "quizzesLead"),
+  );
 }
 
 export default async function QuizzesPage({
@@ -47,24 +56,23 @@ export default async function QuizzesPage({
   if (!isLocale(raw)) notFound();
 
   const api = await getQuizzes(raw).catch(() => null);
-  const quizzes =
-    api?.items?.length
-      ? api.items.map((q) => ({
-          slug: q.slug,
-          title: q.title,
-          description: q.description,
-          category: q.category,
-          difficulty: q.difficulty as QuizDifficulty,
-          questionCount: q.question_count,
-        }))
-      : listQuizzes(raw).map((q) => ({
-          slug: q.slug,
-          title: q.title,
-          description: q.description,
-          category: q.category,
-          difficulty: q.difficulty,
-          questionCount: q.questions.length,
-        }));
+  const quizzes = api?.items?.length
+    ? api.items.map((q) => ({
+        slug: q.slug,
+        title: q.title,
+        description: q.description,
+        category: q.category,
+        difficulty: q.difficulty as QuizDifficulty,
+        questionCount: q.question_count,
+      }))
+    : listQuizzes(raw).map((q) => ({
+        slug: q.slug,
+        title: q.title,
+        description: q.description,
+        category: q.category,
+        difficulty: q.difficulty,
+        questionCount: q.questions.length,
+      }));
 
   return (
     <div className="page-listing page-quizzes">

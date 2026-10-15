@@ -9,7 +9,11 @@ import { BrandLogo } from "@/components/brand-logo";
 import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoadingState, ErrorState } from "@/components/ui";
-import { clientGetPublicSettings, clientLogout, clientMe } from "@/lib/client-api";
+import {
+  clientGetPublicSettings,
+  clientLogout,
+  clientMe,
+} from "@/lib/client-api";
 import { t } from "@/lib/i18n";
 
 type NavItem = {
@@ -33,10 +37,15 @@ export function AdminShell({
   const [error, setError] = useState("");
   const [navOpen, setNavOpen] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
-  const [publicSettings, setPublicSettings] = useState<PublicSettings | null>(null);
+  const [publicSettings, setPublicSettings] = useState<PublicSettings | null>(
+    null,
+  );
 
   useEffect(() => {
-    const loadSettings = () => clientGetPublicSettings().then(setPublicSettings).catch(() => undefined);
+    const loadSettings = () =>
+      clientGetPublicSettings()
+        .then(setPublicSettings)
+        .catch(() => undefined);
     loadSettings();
     window.addEventListener("brand-settings-updated", loadSettings);
     clientMe()
@@ -51,7 +60,8 @@ export function AdminShell({
         setError(t(locale, "staffSignInRequired"));
         router.replace(`/${locale}/auth/login?next=/${locale}/admin`);
       });
-    return () => window.removeEventListener("brand-settings-updated", loadSettings);
+    return () =>
+      window.removeEventListener("brand-settings-updated", loadSettings);
   }, [locale, router]);
 
   async function onLogout() {
@@ -208,7 +218,9 @@ export function AdminShell({
           <div className="dash-sidebar-brand">
             <BrandLogo locale={locale} className="dash-brand-logo" />
             {publicSettings?.sidebar_title ? (
-              <p className="mt-1 text-xs font-semibold text-bb-text-muted">{publicSettings.sidebar_title}</p>
+              <p className="mt-1 text-xs font-semibold text-bb-text-muted">
+                {publicSettings.sidebar_title}
+              </p>
             ) : null}
           </div>
           <button

@@ -18,10 +18,19 @@ function parsePerPage(raw: string | undefined) {
   return DEFAULT_PER_PAGE;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  return pageMetadata(locale, "/documents", t(locale, "documents"), t(locale, "documentsLead"));
+  return pageMetadata(
+    locale,
+    "/documents",
+    t(locale, "documents"),
+    t(locale, "documentsLead"),
+  );
 }
 
 export default async function DocumentsPage({
@@ -138,7 +147,10 @@ export default async function DocumentsPage({
 
         <div className="page-listing-body">
           {!docsResult.ok ? (
-            <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+            <ErrorState
+              title={t(raw, "loadError")}
+              description={t(raw, "tryAgain")}
+            />
           ) : docsResult.data.items.length === 0 ? (
             <EmptyState title={t(raw, "noDocuments")} />
           ) : (

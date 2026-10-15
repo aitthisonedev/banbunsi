@@ -8,13 +8,18 @@ import { clientCreateAdminQuiz, clientUpdateAdminQuiz } from "@/lib/client-api";
 import type { Locale } from "@/lib/api";
 import { slugsFromNames } from "@/lib/form-defaults";
 import { t } from "@/lib/i18n";
-import { cleanQuestions, questionErrors, QuizQuestionsEditor } from "@/components/quiz-questions-editor";
+import {
+  cleanQuestions,
+  questionErrors,
+  QuizQuestionsEditor,
+} from "@/components/quiz-questions-editor";
 
 /** Guidance shown with each part of the form, in the admin's language. */
 const GUIDE = {
   lo: {
     settings: "ການຕັ້ງຄ່າແບບທົດສອບ",
-    settingsIntro: "ຄ່າເລີ່ມຕົ້ນຖືກຕື່ມໃຫ້ແລ້ວ: ລະດັບງ່າຍ, ຜ່ານ 60% ແລະ ລຳດັບຕໍ່ຈາກແບບທົດສອບທີ່ມີ.",
+    settingsIntro:
+      "ຄ່າເລີ່ມຕົ້ນຖືກຕື່ມໃຫ້ແລ້ວ: ລະດັບງ່າຍ, ຜ່ານ 60% ແລະ ລຳດັບຕໍ່ຈາກແບບທົດສອບທີ່ມີ.",
     code: "ລະຫັດພາຍໃນ (ໂຕພິມນ້ອຍ, ບໍ່ມີຍະຫວ່າງ). ຕື່ມໃຫ້ຈາກຊື່ພາສາອັງກິດ.",
     difficulty: "ຊ່ວຍໃຫ້ຜູ້ໃຊ້ເລືອກແບບທົດສອບທີ່ເໝາະສົມ.",
     pass: "ເປີເຊັນຄຳຕອບຖືກທີ່ຕ້ອງການເພື່ອຜ່ານ (ແນະນຳ 60–80%).",
@@ -28,17 +33,22 @@ const GUIDE = {
     category: "ປ້າຍຫົວຂໍ້ທີ່ສະແດງເທິງບັດແບບທົດສອບ.",
     categoryPlaceholder: { lo: "ເຊັ່ນ: ພາສີ", en: "e.g. Tax" },
     description: "1–2 ປະໂຫຍກ: ແບບທົດສອບນີ້ກວດສອບຄວາມຮູ້ຫຍັງ.",
-    descriptionPlaceholder: { lo: "ເຊັ່ນ: ຄຳຖາມພື້ນຖານກ່ຽວກັບປະເພດພາສີ ແລະ ການແຈ້ງພາສີ.", en: "e.g. Basic questions about tax types and filing." },
+    descriptionPlaceholder: {
+      lo: "ເຊັ່ນ: ຄຳຖາມພື້ນຖານກ່ຽວກັບປະເພດພາສີ ແລະ ການແຈ້ງພາສີ.",
+      en: "e.g. Basic questions about tax types and filing.",
+    },
     langName: { lo: "ພາສາລາວ", en: "ພາສາອັງກິດ" },
   },
   en: {
     settings: "Quiz settings",
-    settingsIntro: "Defaults are filled in: Easy, 60% to pass, and placed after the existing quizzes.",
+    settingsIntro:
+      "Defaults are filled in: Easy, 60% to pass, and placed after the existing quizzes.",
     code: "Internal identifier (lowercase, no spaces). Filled from the English title.",
     difficulty: "Helps users pick a quiz at the right level.",
     pass: "Percentage of correct answers needed to pass (60–80% is typical).",
     sort: "Lower numbers appear first. New quizzes are placed last.",
-    published: "Show on the website. Leave unticked until the questions are ready.",
+    published:
+      "Show on the website. Leave unticked until the questions are ready.",
     draftOnly: "An admin publishes it when it is ready.",
     blockIntro: "What users see in this language.",
     title: "A short, clear title shown in the quiz list.",
@@ -47,7 +57,10 @@ const GUIDE = {
     category: "Topic label shown on the quiz card.",
     categoryPlaceholder: { lo: "ເຊັ່ນ: ພາສີ", en: "e.g. Tax" },
     description: "One or two sentences on what the quiz tests.",
-    descriptionPlaceholder: { lo: "ເຊັ່ນ: ຄຳຖາມພື້ນຖານກ່ຽວກັບປະເພດພາສີ ແລະ ການແຈ້ງພາສີ.", en: "e.g. Basic questions about tax types and filing." },
+    descriptionPlaceholder: {
+      lo: "ເຊັ່ນ: ຄຳຖາມພື້ນຖານກ່ຽວກັບປະເພດພາສີ ແລະ ການແຈ້ງພາສີ.",
+      en: "e.g. Basic questions about tax types and filing.",
+    },
     langName: { lo: "Lao", en: "English" },
   },
 } as const;
@@ -131,9 +144,16 @@ export function AdminQuizForm({
   );
   const guide = GUIDE[locale];
   // New quizzes fill code and slugs from the titles until the admin edits them; existing ones never change automatically.
-  const [auto, setAuto] = useState({ code: !initial, lo: !initial, en: !initial });
+  const [auto, setAuto] = useState({
+    code: !initial,
+    lo: !initial,
+    en: !initial,
+  });
 
-  function updateTranslation(idx: number, patch: Partial<AdminQuizPayload["translations"][number]>) {
+  function updateTranslation(
+    idx: number,
+    patch: Partial<AdminQuizPayload["translations"][number]>,
+  ) {
     setForm((f) => {
       const translations = [...f.translations];
       translations[idx] = { ...translations[idx], ...patch };
@@ -145,7 +165,11 @@ export function AdminQuizForm({
       return {
         ...f,
         code: auto.code ? slugs.en.slice(0, 64) : f.code,
-        translations: translations.map((tr) => (auto[tr.locale as "lo" | "en"] ? { ...tr, slug: slugs[tr.locale as "lo" | "en"] } : tr)),
+        translations: translations.map((tr) =>
+          auto[tr.locale as "lo" | "en"]
+            ? { ...tr, slug: slugs[tr.locale as "lo" | "en"] }
+            : tr,
+        ),
       };
     });
   }
@@ -164,9 +188,11 @@ export function AdminQuizForm({
     const problems = questionErrors(form.questions, locale);
     if (Object.keys(problems).length) {
       setShowQuestionErrors(true);
-      setError(locale === "en"
-        ? `${Object.keys(problems).length} question(s) need attention before saving. They are marked in red below.`
-        : `ມີ ${Object.keys(problems).length} ຄຳຖາມທີ່ຕ້ອງແກ້ໄຂກ່ອນບັນທຶກ. ໝາຍສີແດງຢູ່ດ້ານລຸ່ມ.`);
+      setError(
+        locale === "en"
+          ? `${Object.keys(problems).length} question(s) need attention before saving. They are marked in red below.`
+          : `ມີ ${Object.keys(problems).length} ຄຳຖາມທີ່ຕ້ອງແກ້ໄຂກ່ອນບັນທຶກ. ໝາຍສີແດງຢູ່ດ້ານລຸ່ມ.`,
+      );
       setLoading(false);
       return;
     }
@@ -200,7 +226,9 @@ export function AdminQuizForm({
 
       <section className="space-y-3" aria-labelledby="quiz-settings-heading">
         <div>
-          <h2 id="quiz-settings-heading" className="text-lg font-bold">{guide.settings}</h2>
+          <h2 id="quiz-settings-heading" className="text-lg font-bold">
+            {guide.settings}
+          </h2>
           <p className="text-sm text-bb-text-muted">{guide.settingsIntro}</p>
         </div>
         <div className="admin-form-grid cols-2">
@@ -212,7 +240,10 @@ export function AdminQuizForm({
               value={form.code}
               onChange={(e) => {
                 setAuto((a) => ({ ...a, code: false }));
-                setForm((f) => ({ ...f, code: e.target.value.toLowerCase().replace(/\s+/g, "-") }));
+                setForm((f) => ({
+                  ...f,
+                  code: e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                }));
               }}
             />
           </FormField>
@@ -272,11 +303,15 @@ export function AdminQuizForm({
             />
             <span>
               <span className="font-semibold">{t(locale, "published")}</span>
-              <span className="block text-bb-text-muted">{guide.published}</span>
+              <span className="block text-bb-text-muted">
+                {guide.published}
+              </span>
             </span>
           </label>
         ) : (
-          <p className="text-sm text-bb-text-muted">{t(locale, "draft")} — {guide.draftOnly}</p>
+          <p className="text-sm text-bb-text-muted">
+            {t(locale, "draft")} — {guide.draftOnly}
+          </p>
         )}
       </section>
 
@@ -285,14 +320,18 @@ export function AdminQuizForm({
         return (
           <div key={tr.locale} className="admin-locale-block">
             <h3>{guide.langName[lang]}</h3>
-            <p className="-mt-1 mb-2 text-sm text-bb-text-muted">{guide.blockIntro}</p>
+            <p className="-mt-1 mb-2 text-sm text-bb-text-muted">
+              {guide.blockIntro}
+            </p>
             <FormField label={t(locale, "title")} hint={guide.title}>
               <input
                 className="input"
                 required
                 placeholder={guide.titlePlaceholder[lang]}
                 value={tr.title}
-                onChange={(e) => updateTranslation(idx, { title: e.target.value })}
+                onChange={(e) =>
+                  updateTranslation(idx, { title: e.target.value })
+                }
               />
             </FormField>
             <FormField label={t(locale, "slug")} hint={guide.slug}>
@@ -312,16 +351,23 @@ export function AdminQuizForm({
                 className="input"
                 placeholder={guide.categoryPlaceholder[lang]}
                 value={tr.category}
-                onChange={(e) => updateTranslation(idx, { category: e.target.value })}
+                onChange={(e) =>
+                  updateTranslation(idx, { category: e.target.value })
+                }
               />
             </FormField>
-            <FormField label={t(locale, "description")} hint={guide.description}>
+            <FormField
+              label={t(locale, "description")}
+              hint={guide.description}
+            >
               <textarea
                 className="input"
                 rows={3}
                 placeholder={guide.descriptionPlaceholder[lang]}
                 value={tr.description}
-                onChange={(e) => updateTranslation(idx, { description: e.target.value })}
+                onChange={(e) =>
+                  updateTranslation(idx, { description: e.target.value })
+                }
               />
             </FormField>
           </div>
@@ -332,11 +378,15 @@ export function AdminQuizForm({
         locale={locale}
         value={form.questions}
         onChange={(questions) => setForm((f) => ({ ...f, questions }))}
-        errors={showQuestionErrors ? questionErrors(form.questions, locale) : {}}
+        errors={
+          showQuestionErrors ? questionErrors(form.questions, locale) : {}
+        }
       />
 
       {error ? (
-        <p className="text-sm font-semibold text-red-600" role="alert">{error}</p>
+        <p className="text-sm font-semibold text-red-600" role="alert">
+          {error}
+        </p>
       ) : null}
 
       <div className="admin-actions-row">

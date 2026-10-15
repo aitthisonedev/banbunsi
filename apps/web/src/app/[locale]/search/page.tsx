@@ -7,10 +7,16 @@ import { isLocale, t } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  return pageMetadata(locale, "/search", t(locale, "search"), undefined, { noindex: true });
+  return pageMetadata(locale, "/search", t(locale, "search"), undefined, {
+    noindex: true,
+  });
 }
 
 export default async function SearchPage({
@@ -53,7 +59,10 @@ export default async function SearchPage({
         {!query ? (
           <EmptyState title={t(raw, "searchHint")} />
         ) : !result?.ok ? (
-          <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+          <ErrorState
+            title={t(raw, "loadError")}
+            description={t(raw, "tryAgain")}
+          />
         ) : result.data.items.length === 0 ? (
           <EmptyState title={t(raw, "noDocuments")} />
         ) : (

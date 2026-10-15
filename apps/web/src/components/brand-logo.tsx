@@ -53,12 +53,13 @@ export function BrandLogo({
   }, []);
 
   const brandName = logos.name || "BAN BUNSI";
-  const configuredLogo = variant === "dark"
-    ? logos.login || logos.logo
-    : logos.system || logos.logo;
+  const configuredLogo =
+    variant === "dark" ? logos.login || logos.logo : logos.system || logos.logo;
   const activeLogo = configuredLogo === failedLogo ? "" : configuredLogo;
   // Uploaded logos are plain URLs, which next/image cannot size on its own; CSS sets the rendered height.
-  const remoteSize = activeLogo ? { width: 240, height: 96, unoptimized: true } : {};
+  const remoteSize = activeLogo
+    ? { width: 240, height: 96, unoptimized: true }
+    : {};
 
   if (variant === "light" || variant === "dark") {
     return (

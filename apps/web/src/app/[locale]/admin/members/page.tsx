@@ -13,7 +13,6 @@ import {
 import { isLocale, t } from "@/lib/i18n";
 import { MemberAvatar } from "@/components/member-avatar";
 
-
 export default function AdminMembersPage() {
   const params = useParams();
   const localeRaw = String(params.locale || "lo");

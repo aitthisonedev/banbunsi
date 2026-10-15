@@ -3,12 +3,20 @@ import { notFound } from "next/navigation";
 import { StaticPage, staticPageMetadata } from "@/components/static-page";
 import { isLocale } from "@/lib/i18n";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   return isLocale(locale) ? staticPageMetadata(locale, "terms") : {};
 }
 
-export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function TermsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   return <StaticPage locale={locale} id="terms" />;

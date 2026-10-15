@@ -42,7 +42,9 @@ export function DocumentCover({
   size?: keyof typeof COVER_SIZES;
 }) {
   const [failed, setFailed] = useState<string[]>([]);
-  const src = [primarySrc, fallbackSrc].find((candidate) => candidate && !failed.includes(candidate));
+  const src = [primarySrc, fallbackSrc].find(
+    (candidate) => candidate && !failed.includes(candidate),
+  );
   const showImage = Boolean(src);
   return (
     <div
@@ -60,11 +62,20 @@ export function DocumentCover({
         />
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-bb-text-muted">
-          <svg viewBox="0 0 24 24" className={size === "lg" ? "h-10 w-10" : "h-5 w-5"} fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            className={size === "lg" ? "h-10 w-10" : "h-5 w-5"}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+          >
             <path d="M7 3h7l5 5v13H7z" strokeLinejoin="round" />
             <path d="M14 3v5h5M10 13h6M10 17h4" strokeLinecap="round" />
           </svg>
-          {size === "lg" ? <span className="text-sm">No cover image</span> : null}
+          {size === "lg" ? (
+            <span className="text-sm">No cover image</span>
+          ) : null}
         </div>
       )}
     </div>
@@ -72,9 +83,12 @@ export function DocumentCover({
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  published: "bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/40 dark:text-emerald-300",
-  draft: "bg-amber-50 text-amber-800 ring-amber-600/20 dark:bg-amber-950/40 dark:text-amber-300",
-  archived: "bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-800 dark:text-slate-300",
+  published:
+    "bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/40 dark:text-emerald-300",
+  draft:
+    "bg-amber-50 text-amber-800 ring-amber-600/20 dark:bg-amber-950/40 dark:text-amber-300",
+  archived:
+    "bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-800 dark:text-slate-300",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -86,7 +100,9 @@ const STATUS_LABEL: Record<string, string> = {
 export function StatusBadge({ status }: { status?: string }) {
   const value = status || "draft";
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${STATUS_STYLE[value] || STATUS_STYLE.draft}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${STATUS_STYLE[value] || STATUS_STYLE.draft}`}
+    >
       {STATUS_LABEL[value] || value}
     </span>
   );
@@ -120,23 +136,48 @@ export function StatePanel({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center px-6 py-14 text-center" role={tone === "error" ? "alert" : undefined}>
-      <div className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full ${tone === "error" ? "bg-rose-50 text-rose-600 dark:bg-rose-950/40" : "bg-bb-tint text-bb-blue"}`}>
+    <div
+      className="flex flex-col items-center px-6 py-14 text-center"
+      role={tone === "error" ? "alert" : undefined}
+    >
+      <div
+        className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full ${tone === "error" ? "bg-rose-50 text-rose-600 dark:bg-rose-950/40" : "bg-bb-tint text-bb-blue"}`}
+      >
         {tone === "error" ? (
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            aria-hidden="true"
+          >
             <path d="M12 8v5M12 16.5v.5" strokeLinecap="round" />
             <circle cx="12" cy="12" r="9" />
           </svg>
         ) : (
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            aria-hidden="true"
+          >
             <path d="M7 3h7l5 5v13H7z" strokeLinejoin="round" />
             <path d="M14 3v5h5" />
           </svg>
         )}
       </div>
       <p className="font-semibold">{title}</p>
-      {description ? <p className="mt-1 max-w-sm text-sm text-bb-text-muted">{description}</p> : null}
-      {action ? <div className="mt-5 flex flex-wrap justify-center gap-2">{action}</div> : null}
+      {description ? (
+        <p className="mt-1 max-w-sm text-sm text-bb-text-muted">
+          {description}
+        </p>
+      ) : null}
+      {action ? (
+        <div className="mt-5 flex flex-wrap justify-center gap-2">{action}</div>
+      ) : null}
     </div>
   );
 }
@@ -144,7 +185,11 @@ export function StatePanel({
 /** Placeholder rows shown while the document list loads. */
 export function DocumentRowsSkeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="divide-y divide-[var(--bb-border)]" role="status" aria-label="Loading documents">
+    <div
+      className="divide-y divide-[var(--bb-border)]"
+      role="status"
+      aria-label="Loading documents"
+    >
       {Array.from({ length: rows }, (_, index) => (
         <div key={index} className="flex animate-pulse items-center gap-4 p-4">
           <div className="aspect-[3/4] w-14 shrink-0 rounded-md bg-bb-muted sm:w-16" />
@@ -162,13 +207,19 @@ export function DocumentRowsSkeleton({ rows = 5 }: { rows?: number }) {
 /** Page-level loading placeholder for detail and form pages. */
 export function PageSkeleton() {
   return (
-    <div className="w-full max-w-7xl animate-pulse space-y-6" role="status" aria-label="Loading">
+    <div
+      className="w-full max-w-7xl animate-pulse space-y-6"
+      role="status"
+      aria-label="Loading"
+    >
       <div className="h-4 w-32 rounded bg-bb-muted" />
       <div className="h-8 w-2/3 rounded bg-bb-muted" />
       <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
         <div className="aspect-[3/4] w-full max-w-[280px] rounded-lg bg-bb-muted" />
         <div className="space-y-3">
-          {Array.from({ length: 6 }, (_, index) => <div key={index} className="h-10 rounded bg-bb-muted" />)}
+          {Array.from({ length: 6 }, (_, index) => (
+            <div key={index} className="h-10 rounded bg-bb-muted" />
+          ))}
         </div>
       </div>
     </div>
@@ -196,12 +247,22 @@ export function PageHeader({
       {back}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          {eyebrow ? <p className="font-mono text-xs text-bb-text-muted">{eyebrow}</p> : null}
-          <h1 className="break-words text-2xl font-bold leading-tight">{title}</h1>
-          {badges ? <div className="mt-2 flex flex-wrap gap-2">{badges}</div> : null}
-          {description ? <p className="mt-1 text-sm text-bb-text-muted">{description}</p> : null}
+          {eyebrow ? (
+            <p className="font-mono text-xs text-bb-text-muted">{eyebrow}</p>
+          ) : null}
+          <h1 className="break-words text-2xl font-bold leading-tight">
+            {title}
+          </h1>
+          {badges ? (
+            <div className="mt-2 flex flex-wrap gap-2">{badges}</div>
+          ) : null}
+          {description ? (
+            <p className="mt-1 text-sm text-bb-text-muted">{description}</p>
+          ) : null}
         </div>
-        {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
+        {actions ? (
+          <div className="flex shrink-0 flex-wrap gap-2">{actions}</div>
+        ) : null}
       </div>
     </header>
   );

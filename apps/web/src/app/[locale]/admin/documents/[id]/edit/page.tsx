@@ -4,9 +4,19 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminDocumentForm } from "@/components/admin-document-form";
-import { btn, PageHeader, PageSkeleton, panelClass, StatePanel } from "@/components/admin-documents-ui";
+import {
+  btn,
+  PageHeader,
+  PageSkeleton,
+  panelClass,
+  StatePanel,
+} from "@/components/admin-documents-ui";
 import type { CategoryNode, PublicSettings } from "@/lib/api";
-import { clientGetAdminDocument, clientGetPublicSettings, clientMe } from "@/lib/client-api";
+import {
+  clientGetAdminDocument,
+  clientGetPublicSettings,
+  clientMe,
+} from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -35,7 +45,9 @@ export default function AdminEditDocumentPage() {
           router.replace(`/${locale}`);
           return;
         }
-        setIsAdminPlus(user.staff_role === "admin" || user.staff_role === "owner");
+        setIsAdminPlus(
+          user.staff_role === "admin" || user.staff_role === "owner",
+        );
         const [document, categoryResponse, settings] = await Promise.all([
           clientGetAdminDocument(id, locale),
           fetch(`${API_URL}/api/v1/admin/categories?locale=${locale}`, {
@@ -50,11 +62,18 @@ export default function AdminEditDocumentPage() {
         setCategories(categoryResponse.items || []);
         setDefaults(settings);
       })
-      .catch((reason) => setLoadError(reason instanceof Error ? reason.message : t(locale, "loadError")));
+      .catch((reason) =>
+        setLoadError(
+          reason instanceof Error ? reason.message : t(locale, "loadError"),
+        ),
+      );
   }, [id, locale, router]);
 
   const backLink = (
-    <Link href={`/${locale}/admin/documents/${id}`} className="inline-flex items-center gap-1 text-sm text-bb-text-muted hover:text-[var(--bb-text)]">
+    <Link
+      href={`/${locale}/admin/documents/${id}`}
+      className="inline-flex items-center gap-1 text-sm text-bb-text-muted hover:text-[var(--bb-text)]"
+    >
       ← Back to document
     </Link>
   );
@@ -68,7 +87,15 @@ export default function AdminEditDocumentPage() {
             tone="error"
             title="This document could not be opened for editing"
             description={loadError}
-            action={<button type="button" className={btn.secondary} onClick={() => window.location.reload()}>Try again</button>}
+            action={
+              <button
+                type="button"
+                className={btn.secondary}
+                onClick={() => window.location.reload()}
+              >
+                Try again
+              </button>
+            }
           />
         </section>
       </div>

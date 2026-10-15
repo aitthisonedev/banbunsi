@@ -6,7 +6,11 @@ import type { Locale } from "@/lib/api";
 export async function siteOrigin() {
   const h = await headers();
   const host = h.get("x-forwarded-host") || h.get("host") || "localhost:3000";
-  const proto = h.get("x-forwarded-proto") || (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
+  const proto =
+    h.get("x-forwarded-proto") ||
+    (host.startsWith("localhost") || host.startsWith("127.")
+      ? "http"
+      : "https");
   return `${proto.split(",")[0].trim()}://${host}`;
 }
 
@@ -26,7 +30,11 @@ export function pageMetadata(
     ...(description ? { description } : {}),
     alternates: {
       canonical: `/${locale}${path}`,
-      languages: { lo: `/lo${path}`, en: `/en${path}`, "x-default": `/lo${path}` },
+      languages: {
+        lo: `/lo${path}`,
+        en: `/en${path}`,
+        "x-default": `/lo${path}`,
+      },
     },
     openGraph: {
       ...(title ? { title } : {}),

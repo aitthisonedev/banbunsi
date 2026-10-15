@@ -5,10 +5,20 @@ import type { Metadata } from "next";
 import { isLocale, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  return pageMetadata(locale, "/auth/login", t(locale, "login"), t(locale, "loginLead"), { noindex: true });
+  return pageMetadata(
+    locale,
+    "/auth/login",
+    t(locale, "login"),
+    t(locale, "loginLead"),
+    { noindex: true },
+  );
 }
 
 export default function LoginPage() {

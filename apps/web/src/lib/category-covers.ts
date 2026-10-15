@@ -34,14 +34,24 @@ export function categoryCover(
     if (slug.includes(code) || name.includes(code)) return src;
   }
   // Lao slug heuristics from seed
-  if (slug.includes("phasi") || slug.includes("tax")) return COVER_BY_CATEGORY.tax;
-  if (slug.includes("banchi") || slug.includes("account")) return COVER_BY_CATEGORY.accounting;
-  if (slug.includes("ngen") || slug.includes("financ")) return COVER_BY_CATEGORY.finance;
-  if (slug.includes("kotmai") || slug.includes("law")) return COVER_BY_CATEGORY.law;
-  if (slug.includes("kuat") || slug.includes("audit")) return COVER_BY_CATEGORY.audit;
-  if (slug.includes("akon") || slug.includes("dut")) return COVER_BY_CATEGORY.duties;
-  const index = typeof key === "number"
-    ? key
-    : [...key].reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 0);
+  if (slug.includes("phasi") || slug.includes("tax"))
+    return COVER_BY_CATEGORY.tax;
+  if (slug.includes("banchi") || slug.includes("account"))
+    return COVER_BY_CATEGORY.accounting;
+  if (slug.includes("ngen") || slug.includes("financ"))
+    return COVER_BY_CATEGORY.finance;
+  if (slug.includes("kotmai") || slug.includes("law"))
+    return COVER_BY_CATEGORY.law;
+  if (slug.includes("kuat") || slug.includes("audit"))
+    return COVER_BY_CATEGORY.audit;
+  if (slug.includes("akon") || slug.includes("dut"))
+    return COVER_BY_CATEGORY.duties;
+  const index =
+    typeof key === "number"
+      ? key
+      : [...key].reduce(
+          (sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0,
+          0,
+        );
   return COVER_FALLBACKS[index % COVER_FALLBACKS.length];
 }

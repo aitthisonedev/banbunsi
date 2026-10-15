@@ -23,7 +23,9 @@ export function slugsFromNames(names: { lo: string; en: string }) {
 
 /** Next sort position after the existing items (so new items appear last). */
 export function nextSortOrder(items: Array<{ sort_order?: number }>) {
-  return items.reduce((max, item) => Math.max(max, item.sort_order ?? 0), 0) + 1;
+  return (
+    items.reduce((max, item) => Math.max(max, item.sort_order ?? 0), 0) + 1
+  );
 }
 
 /**
@@ -32,25 +34,37 @@ export function nextSortOrder(items: Array<{ sort_order?: number }>) {
  * Falls back to the numbering format from Settings, then DOC-<year>-0001.
  */
 export function suggestDocumentNumber(
-  documents: Array<{ document_number?: string; category_id?: string; updated_at?: string }>,
+  documents: Array<{
+    document_number?: string;
+    category_id?: string;
+    updated_at?: string;
+  }>,
   categoryId: string,
   format?: string,
 ) {
   const year = new Date().getFullYear();
   const numbered = documents
-    .map((doc) => ({ ...doc, match: (doc.document_number || "").match(/^(.*?)(\d+)$/) }))
+    .map((doc) => ({
+      ...doc,
+      match: (doc.document_number || "").match(/^(.*?)(\d+)$/),
+    }))
     .filter((doc) => doc.match);
   const taken = new Set(documents.map((doc) => doc.document_number));
-  const template = numbered.find((doc) => doc.category_id === categoryId) || numbered[0];
+  const template =
+    numbered.find((doc) => doc.category_id === categoryId) || numbered[0];
   if (!template?.match) {
     const base = format && /\d+$/.test(format) ? format : `DOC-${year}-0001`;
     return base.replace(/\b(19|20)\d{2}\b/, String(year));
   }
   const [, prefix, digits] = template.match;
-  const highest = numbered.reduce((max, doc) => Math.max(max, Number(doc.match![2])), 0);
+  const highest = numbered.reduce(
+    (max, doc) => Math.max(max, Number(doc.match![2])),
+    0,
+  );
   const withYear = prefix.replace(/\b(19|20)\d{2}\b/, String(year));
   let sequence = highest + 1;
   let candidate = `${withYear}${String(sequence).padStart(digits.length, "0")}`;
-  while (taken.has(candidate)) candidate = `${withYear}${String(++sequence).padStart(digits.length, "0")}`;
+  while (taken.has(candidate))
+    candidate = `${withYear}${String(++sequence).padStart(digits.length, "0")}`;
   return candidate;
 }

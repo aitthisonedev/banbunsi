@@ -33,7 +33,11 @@ export default function AdminNewQuizPage() {
   return (
     <div className="w-full space-y-5">
       <h1 className="text-2xl font-bold">{t(locale, "newQuiz")}</h1>
-      <AdminQuizForm locale={locale} canPublish={canPublish} nextSortOrder={sortOrder} />
+      <AdminQuizForm
+        locale={locale}
+        canPublish={canPublish}
+        nextSortOrder={sortOrder}
+      />
     </div>
   );
 }

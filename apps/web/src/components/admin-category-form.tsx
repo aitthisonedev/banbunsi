@@ -25,22 +25,31 @@ const GUIDE = {
     namePlaceholder: { lo: "ເຊັ່ນ: ພາສີ", en: "e.g. Tax" },
     slug: "ສ່ວນຂອງທີ່ຢູ່ເວັບ. ຕື່ມໃຫ້ຈາກຊື່; ໃຊ້ໂຕອັກສອນ, ຕົວເລກ ແລະ ຂີດ (-).",
     description: "1–2 ປະໂຫຍກ ອະທິບາຍວ່າໝວດນີ້ມີເອກະສານຫຍັງ.",
-    descriptionPlaceholder: { lo: "ເຊັ່ນ: ກົດໝາຍ, ແບບຟອມ ແລະ ຄູ່ມືກ່ຽວກັບພາສີ.", en: "e.g. Tax laws, forms and filing guides." },
+    descriptionPlaceholder: {
+      lo: "ເຊັ່ນ: ກົດໝາຍ, ແບບຟອມ ແລະ ຄູ່ມືກ່ຽວກັບພາສີ.",
+      en: "e.g. Tax laws, forms and filing guides.",
+    },
     seo: "ຊື່ໃນແຖບບຣາວເຊີ ແລະ ຜົນການຄົ້ນຫາ (ປະມານ 50–60 ໂຕອັກສອນ). ປ່ອຍວ່າງເພື່ອໃຊ້ຊື່ໝວດ.",
     langName: { lo: "ພາສາລາວ", en: "ພາສາອັງກິດ" },
   },
   en: {
     settings: "Category settings",
-    settingsIntro: "Code and sort order are filled in for you. Change them if needed.",
+    settingsIntro:
+      "Code and sort order are filled in for you. Change them if needed.",
     code: "Internal identifier (lowercase, no spaces). Filled from the English name.",
     sort: "Lower numbers appear first. New categories are placed last.",
-    active: "Active: show this category on the website. Untick to hide it for now.",
+    active:
+      "Active: show this category on the website. Untick to hide it for now.",
     blockIntro: "What readers see in this language.",
     name: "Shown in menus and on documents.",
     namePlaceholder: { lo: "ເຊັ່ນ: ພາສີ", en: "e.g. Tax" },
     slug: "Part of the web address. Filled from the name; letters, numbers and hyphens only.",
-    description: "One or two sentences on what documents this category contains.",
-    descriptionPlaceholder: { lo: "ເຊັ່ນ: ກົດໝາຍ, ແບບຟອມ ແລະ ຄູ່ມືກ່ຽວກັບພາສີ.", en: "e.g. Tax laws, forms and filing guides." },
+    description:
+      "One or two sentences on what documents this category contains.",
+    descriptionPlaceholder: {
+      lo: "ເຊັ່ນ: ກົດໝາຍ, ແບບຟອມ ແລະ ຄູ່ມືກ່ຽວກັບພາສີ.",
+      en: "e.g. Tax laws, forms and filing guides.",
+    },
     seo: "Browser tab and search result title (about 50–60 characters). Leave blank to use the name.",
     langName: { lo: "Lao", en: "English" },
   },
@@ -92,12 +101,19 @@ export function AdminCategoryForm({
     initial ? fromCategory(initial) : emptyPayload(nextSortOrder),
   );
   // New categories fill code and slugs from the names until the admin edits them; existing ones never change automatically.
-  const [auto, setAuto] = useState({ code: !initial, lo: !initial, en: !initial });
+  const [auto, setAuto] = useState({
+    code: !initial,
+    lo: !initial,
+    en: !initial,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  function updateTranslation(idx: number, patch: Partial<AdminCategoryPayload["translations"][number]>) {
+  function updateTranslation(
+    idx: number,
+    patch: Partial<AdminCategoryPayload["translations"][number]>,
+  ) {
     setForm((f) => {
       const translations = [...f.translations];
       translations[idx] = { ...translations[idx], ...patch };
@@ -108,9 +124,15 @@ export function AdminCategoryForm({
       };
       const slugs = slugsFromNames(names);
       const withSlugs = translations.map((tr) =>
-        auto[tr.locale as "lo" | "en"] ? { ...tr, slug: slugs[tr.locale as "lo" | "en"] } : tr,
+        auto[tr.locale as "lo" | "en"]
+          ? { ...tr, slug: slugs[tr.locale as "lo" | "en"] }
+          : tr,
       );
-      return { ...f, translations: withSlugs, code: auto.code ? slugs.en.slice(0, 64) : f.code };
+      return {
+        ...f,
+        translations: withSlugs,
+        code: auto.code ? slugs.en.slice(0, 64) : f.code,
+      };
     });
   }
 
@@ -139,12 +161,19 @@ export function AdminCategoryForm({
     <form onSubmit={onSubmit} className="max-w-3xl space-y-5">
       {message ? <SuccessBanner>{message}</SuccessBanner> : null}
       {error ? (
-        <p className="text-sm font-semibold text-red-600" role="alert">{error}</p>
+        <p className="text-sm font-semibold text-red-600" role="alert">
+          {error}
+        </p>
       ) : null}
 
-      <section className="space-y-3" aria-labelledby="category-settings-heading">
+      <section
+        className="space-y-3"
+        aria-labelledby="category-settings-heading"
+      >
         <div>
-          <h2 id="category-settings-heading" className="text-lg font-bold">{guide.settings}</h2>
+          <h2 id="category-settings-heading" className="text-lg font-bold">
+            {guide.settings}
+          </h2>
           <p className="text-sm text-bb-text-muted">{guide.settingsIntro}</p>
         </div>
         <div className="admin-form-grid cols-2">
@@ -156,7 +185,10 @@ export function AdminCategoryForm({
               value={form.code}
               onChange={(e) => {
                 setAuto((a) => ({ ...a, code: false }));
-                setForm((f) => ({ ...f, code: e.target.value.toLowerCase().replace(/\s+/g, "-") }));
+                setForm((f) => ({
+                  ...f,
+                  code: e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                }));
               }}
             />
           </FormField>
@@ -196,14 +228,18 @@ export function AdminCategoryForm({
         return (
           <div key={tr.locale} className="admin-locale-block">
             <h3>{guide.langName[lang]}</h3>
-            <p className="-mt-1 mb-2 text-sm text-bb-text-muted">{guide.blockIntro}</p>
+            <p className="-mt-1 mb-2 text-sm text-bb-text-muted">
+              {guide.blockIntro}
+            </p>
             <FormField label={t(locale, "name")} hint={guide.name}>
               <input
                 className="input"
                 required
                 placeholder={guide.namePlaceholder[lang]}
                 value={tr.name}
-                onChange={(e) => updateTranslation(idx, { name: e.target.value })}
+                onChange={(e) =>
+                  updateTranslation(idx, { name: e.target.value })
+                }
               />
             </FormField>
             <FormField label={t(locale, "slug")} hint={guide.slug}>
@@ -218,13 +254,18 @@ export function AdminCategoryForm({
                 }}
               />
             </FormField>
-            <FormField label={t(locale, "description")} hint={guide.description}>
+            <FormField
+              label={t(locale, "description")}
+              hint={guide.description}
+            >
               <textarea
                 className="input"
                 rows={3}
                 placeholder={guide.descriptionPlaceholder[lang]}
                 value={tr.description}
-                onChange={(e) => updateTranslation(idx, { description: e.target.value })}
+                onChange={(e) =>
+                  updateTranslation(idx, { description: e.target.value })
+                }
               />
             </FormField>
             <FormField label={t(locale, "seoTitle")} hint={guide.seo}>
@@ -232,7 +273,9 @@ export function AdminCategoryForm({
                 className="input"
                 placeholder={tr.name || guide.namePlaceholder[lang]}
                 value={tr.seo_title || ""}
-                onChange={(e) => updateTranslation(idx, { seo_title: e.target.value })}
+                onChange={(e) =>
+                  updateTranslation(idx, { seo_title: e.target.value })
+                }
               />
             </FormField>
           </div>

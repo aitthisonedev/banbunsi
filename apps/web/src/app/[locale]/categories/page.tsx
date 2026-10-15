@@ -18,10 +18,19 @@ function parsePerPage(raw: string | undefined) {
   return DEFAULT_PER_PAGE;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  return pageMetadata(locale, "/categories", t(locale, "categories"), t(locale, "homeCatsLead"));
+  return pageMetadata(
+    locale,
+    "/categories",
+    t(locale, "categories"),
+    t(locale, "homeCatsLead"),
+  );
 }
 
 export default async function CategoriesPage({
@@ -68,7 +77,10 @@ export default async function CategoriesPage({
           </Link>
         </div>
         {!catResult.ok && items.length === 0 ? (
-          <ErrorState title={t(raw, "loadError")} description={t(raw, "tryAgain")} />
+          <ErrorState
+            title={t(raw, "loadError")}
+            description={t(raw, "tryAgain")}
+          />
         ) : items.length === 0 ? (
           <EmptyState title={t(raw, "noCategories")} />
         ) : (

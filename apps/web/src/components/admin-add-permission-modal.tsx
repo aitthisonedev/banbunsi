@@ -10,7 +10,6 @@ import {
 import { t } from "@/lib/i18n";
 import { MemberAvatar } from "@/components/member-avatar";
 
-
 export function AdminAddPermissionModal({
   locale,
   currentUser,
