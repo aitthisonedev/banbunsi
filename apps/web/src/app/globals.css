@@ -194,14 +194,31 @@ html.dark .btn-secondary {
   border-color: var(--bb-blue);
 }
 
-/* Native select fallback (prefer .bb-select) */
-select.input {
+/* Native selects: one custom chevron everywhere (the browser arrow is removed). Components below
+   only change colours with background-color, so the chevron is never wiped by a shorthand. */
+:root {
+  --bb-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23475569' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+html.dark {
+  --bb-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%238094ae' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+select:not([multiple]):not([size]) {
+  -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23475569' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: var(--bb-select-chevron);
   background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1rem;
+  padding-right: 2rem;
+  cursor: pointer;
+}
+select:not([multiple]):not([size])::-ms-expand {
+  display: none;
+}
+select.input {
   background-position: right 0.85rem center;
   padding-right: 2.4rem;
-  cursor: pointer;
 }
 
 /* Branded custom select */
@@ -265,46 +282,82 @@ select.input {
   top: calc(100% + 0.35rem);
   left: 0;
   right: auto;
+  display: flex;
+  flex-direction: column;
   width: max-content;
   min-width: 100%;
   max-width: min(90vw, 22rem);
-  margin: 0;
-  padding: 0.35rem;
-  list-style: none;
   border: 1px solid var(--bb-border);
   border-radius: 10px;
   background: var(--bb-surface);
   box-shadow: 0 12px 28px rgb(15 23 42 / 12%);
-  max-height: 16rem;
-  overflow: auto;
+  max-height: 18rem;
+  overflow: hidden;
 }
 html.dark .bb-select-menu {
   box-shadow: 0 12px 28px rgb(0 0 0 / 35%);
+}
+.bb-select-search {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.35rem 0.35rem 0;
+  padding: 0 0.6rem;
+  border: 1px solid var(--bb-border);
+  border-radius: 8px;
+  background: var(--bb-bg-tint);
+  color: var(--bb-text-muted);
+}
+.bb-select-search:focus-within {
+  border-color: var(--bb-blue);
+}
+.bb-select-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--bb-text);
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.5rem 0;
+}
+.bb-select-search input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+.bb-select-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  overflow: auto;
+  outline: none;
+}
+.bb-select-empty {
+  padding: 0.65rem 0.75rem;
+  color: var(--bb-text-muted);
+  font-size: 0.92rem;
 }
 .bb-select-option {
   display: flex;
   width: 100%;
   align-items: center;
   gap: 0.55rem;
-  border: 0;
   border-radius: 8px;
   padding: 0.65rem 0.75rem;
-  background: transparent;
   color: var(--bb-text);
   font-size: 0.98rem;
   white-space: nowrap;
   font-weight: 500;
-  text-align: left;
   cursor: pointer;
 }
-.bb-select-option:hover,
-.bb-select-option:focus-visible {
+.bb-select-option.is-active {
   background: var(--bb-bg-tint);
   color: var(--bb-blue);
-  outline: none;
 }
 .bb-select-option.is-selected {
-  background: var(--bb-bg-tint);
   color: var(--bb-blue);
   font-weight: 700;
 }
@@ -1925,9 +1978,9 @@ html.dark .ui-banner--success {
   min-height: 2rem;
   border: 1px solid var(--bb-border);
   border-radius: 6px;
-  background: var(--bb-surface);
+  background-color: var(--bb-surface);
   color: var(--bb-text);
-  padding: 0.25rem 0.55rem;
+  padding: 0.25rem 1.9rem 0.25rem 0.55rem;
   font: inherit;
   font-size: 0.8rem;
   font-weight: 600;
@@ -3473,8 +3526,18 @@ html.dark .admin-tier-pill {
 .admin-member-role .input {
   font-weight: 600;
   color: var(--dash-text);
+  background-color: var(--dash-bg);
+  border-color: var(--dash-border);
+}
+.admin-member-role .bb-select-trigger {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dash-text);
   background: var(--dash-bg);
   border-color: var(--dash-border);
+}
+.admin-member-role .bb-select-option {
+  font-size: 0.92rem;
 }
 
 .admin-shell .surface-panel {
@@ -3496,7 +3559,7 @@ html.dark .admin-tier-pill {
 .dash-shell .surface-panel,
 .dash-shell .card-soft,
 .dash-shell .input {
-  background: var(--dash-card-bg);
+  background-color: var(--dash-card-bg);
   border-color: var(--dash-border);
   color: var(--dash-text);
 }
@@ -3520,9 +3583,6 @@ html.dark .admin-tier-pill {
 html.dark .dash-shell .admin-danger,
 html.dark .dash-shell .form-field-error {
   color: #fca5a5;
-}
-html.dark .dash-shell select.input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%238094ae' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 html.dark .dash-shell .admin-member-card {
   box-shadow: none;
@@ -3928,7 +3988,7 @@ html.dark .admin-badge-self {
 }
 .admin-table-role-select select {
   min-width: 8rem;
-  padding: 0.35rem 0.6rem;
+  padding: 0.35rem 1.9rem 0.35rem 0.6rem;
   font-size: 0.82rem;
   border-radius: 8px;
 }
@@ -6654,7 +6714,7 @@ html.dark {
 }
 
 .dash-date-pill select {
-  background: transparent;
+  background-color: transparent;
   border: 0;
   outline: none;
   font-size: 0.78rem;
@@ -7204,10 +7264,10 @@ html.dark .dash-legend-dot--secondary {
 }
 
 .dash-table-select {
-  background: var(--dash-card-bg);
+  background-color: var(--dash-card-bg);
   border: 1px solid var(--dash-border);
   border-radius: 5px;
-  padding: 0.28rem 0.5rem;
+  padding: 0.28rem 1.8rem 0.28rem 0.5rem;
   font-size: 0.75rem;
   color: var(--dash-text);
   font-weight: 500;

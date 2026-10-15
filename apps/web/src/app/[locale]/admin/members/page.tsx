@@ -12,12 +12,19 @@ import {
 } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 import { MemberAvatar } from "@/components/member-avatar";
+import { Select } from "@/components/ui/select";
 
 export default function AdminMembersPage() {
   const params = useParams();
   const localeRaw = String(params.locale || "lo");
   const locale = isLocale(localeRaw) ? localeRaw : "lo";
   const router = useRouter();
+  const roleOptions = [
+    { value: "member", label: t(locale, "roleMember") },
+    { value: "editor", label: t(locale, "roleEditor") },
+    { value: "admin", label: t(locale, "roleAdmin") },
+    { value: "owner", label: t(locale, "roleOwner") },
+  ];
   const [items, setItems] = useState<AdminMember[] | null>(null);
   const [error, setError] = useState("");
   const [q, setQ] = useState("");
@@ -196,20 +203,19 @@ export default function AdminMembersPage() {
                   </div>
                 </div>
 
-                <label className="admin-member-role">
+                <div className="admin-member-role">
                   <span>{t(locale, "backendPermission")}</span>
-                  <select
-                    className="input"
+                  <Select
+                    aria-label={`${t(locale, "backendPermission")}: ${row.name}`}
                     disabled={busyId === row.id}
                     value={row.staff_role}
-                    onChange={(e) => patchRole(row.id, e.target.value)}
-                  >
-                    <option value="member">{t(locale, "roleMember")}</option>
-                    <option value="editor">{t(locale, "roleEditor")}</option>
-                    <option value="admin">{t(locale, "roleAdmin")}</option>
-                    <option value="owner">{t(locale, "roleOwner")}</option>
-                  </select>
-                </label>
+                    onChange={(value) => patchRole(row.id, value)}
+                    searchable
+                    searchPlaceholder={t(locale, "selectSearch")}
+                    noResultsText={t(locale, "selectNoResults")}
+                    options={roleOptions}
+                  />
+                </div>
 
                 <div className="admin-actions-row">
                   {row.account_status === "active" ? (

@@ -391,6 +391,8 @@ export function AdminDocumentForm({
               <Field label="Category *">
                 <Select
                   name="category_id"
+                  searchPlaceholder={t(locale, "selectSearch")}
+                  noResultsText={t(locale, "selectNoResults")}
                   required
                   defaultValue={initialCategoryId}
                   onChange={onCategoryChange}

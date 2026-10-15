@@ -107,6 +107,8 @@ export default async function DocumentsPage({
             />
             <Select
               name="category"
+              searchPlaceholder={t(raw, "selectSearch")}
+              noResultsText={t(raw, "selectNoResults")}
               aria-label={t(raw, "categories")}
               defaultValue={sp.category || ""}
               className="doc-toolbar-select"

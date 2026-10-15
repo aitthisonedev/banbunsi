@@ -372,6 +372,8 @@ const lo: Dict = {
   roleEditor: "ບັນນາທິການ",
   roleAdmin: "ຜູ້ດູແລລະບົບ",
   roleOwner: "ເຈົ້າຂອງ",
+  selectSearch: "ຄົ້ນຫາ…",
+  selectNoResults: "ບໍ່ພົບລາຍການທີ່ກົງກັນ",
   roleEditorDesc:
     "\u0eaa\u0ec9\u0eb2\u0e87 \u0ec1\u0ea5\u0eb0 \u0ec1\u0e81\u0ec9\u0ec4\u0e82\u0ec0\u0ead\u0e81\u0eb0\u0eaa\u0eb2\u0e99 \u0ec1\u0ea5\u0eb0 \u0eaa\u0eb0\u0e9a\u0eb1\u0e9a\u0eae\u0ec8\u0eb2\u0e87\u0ec1\u0e9a\u0e9a\u0e97\u0ebb\u0e94\u0eaa\u0ead\u0e9a.",
   roleAdminDesc:
@@ -659,6 +661,8 @@ const en: Dict = {
   roleEditor: "Editor",
   roleAdmin: "Admin",
   roleOwner: "Owner",
+  selectSearch: "Search…",
+  selectNoResults: "No matching options",
   roleEditorDesc: "Create/edit documents and quiz drafts.",
   roleAdminDesc: "All modules, members/VIP, settings, publish/delete.",
   roleOwnerDesc: "Same as admin, and can assign owner.",
