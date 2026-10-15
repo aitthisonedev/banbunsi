@@ -10,7 +10,8 @@ const ME_REUSE_MS = 3000;
 let currentUserRequest: { promise: Promise<User>; at: number } | null = null;
 
 async function clientFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  if (init?.method && init.method.toUpperCase() !== "GET") currentUserRequest = null;
+  if (init?.method && init.method.toUpperCase() !== "GET")
+    currentUserRequest = null;
   const headers = new Headers(init?.headers);
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -297,7 +298,13 @@ export async function clientUploadAdminDocumentCover(id: string, file: File) {
 export function clientUploadAdminDocumentFile(
   documentId: string,
   file: File,
-  meta: { file_id?: string; label?: string; version?: string; download_access?: string; language?: string },
+  meta: {
+    file_id?: string;
+    label?: string;
+    version?: string;
+    download_access?: string;
+    language?: string;
+  },
   onProgress?: (percent: number) => void,
 ) {
   const form = new FormData();
@@ -310,7 +317,8 @@ export function clientUploadAdminDocumentFile(
     xhr.open("POST", `${API_URL}/api/v1/admin/documents/${documentId}/files`);
     xhr.withCredentials = true;
     xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100));
+      if (event.lengthComputable)
+        onProgress?.(Math.round((event.loaded / event.total) * 100));
     };
     xhr.onload = () => {
       let data: { error?: string } = {};
@@ -319,11 +327,20 @@ export function clientUploadAdminDocumentFile(
       } catch {
         // Non-JSON error pages (e.g. a proxy rejecting the size) fall through to the status message.
       }
-      if (xhr.status >= 200 && xhr.status < 300) return resolve(data as DocumentFileMeta);
-      if (xhr.status === 413 && !data.error) return reject(new Error("The file is too large for the server to accept."));
+      if (xhr.status >= 200 && xhr.status < 300)
+        return resolve(data as DocumentFileMeta);
+      if (xhr.status === 413 && !data.error)
+        return reject(
+          new Error("The file is too large for the server to accept."),
+        );
       reject(new Error(data.error || `Upload failed (${xhr.status})`));
     };
-    xhr.onerror = () => reject(new Error("Network error during upload. Check your connection and try again."));
+    xhr.onerror = () =>
+      reject(
+        new Error(
+          "Network error during upload. Check your connection and try again.",
+        ),
+      );
     xhr.onabort = () => reject(new Error("Upload cancelled."));
     xhr.send(form);
   });

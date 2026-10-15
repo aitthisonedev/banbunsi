@@ -20,7 +20,9 @@ export function SiteChrome({
 
   if (isAdmin) {
     return (
-      <PublicSettingsProvider initial={settings}>{children}</PublicSettingsProvider>
+      <PublicSettingsProvider initial={settings}>
+        {children}
+      </PublicSettingsProvider>
     );
   }
 

@@ -309,7 +309,9 @@ export function AdminDocumentForm({
           );
         } catch (err) {
           const reason = err instanceof Error ? err.message : "Upload failed";
-          throw new Error(`Document saved, but the file could not be uploaded: ${reason}`);
+          throw new Error(
+            `Document saved, but the file could not be uploaded: ${reason}`,
+          );
         } finally {
           setUploadProgress(null);
         }
@@ -752,7 +754,9 @@ export function AdminDocumentForm({
         {uploadProgress !== null ? (
           <div className="mb-3" role="status" aria-live="polite">
             <div className="mb-1 flex justify-between text-xs font-medium text-bb-text-muted">
-              <span>{locale === "lo" ? "ກຳລັງອັບໂຫຼດໄຟລ໌…" : "Uploading file…"}</span>
+              <span>
+                {locale === "lo" ? "ກຳລັງອັບໂຫຼດໄຟລ໌…" : "Uploading file…"}
+              </span>
               <span>{uploadProgress}%</span>
             </div>
             <div
@@ -761,9 +765,14 @@ export function AdminDocumentForm({
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={uploadProgress}
-              aria-label={locale === "lo" ? "ຄວາມຄືບໜ້າການອັບໂຫຼດ" : "Upload progress"}
+              aria-label={
+                locale === "lo" ? "ຄວາມຄືບໜ້າການອັບໂຫຼດ" : "Upload progress"
+              }
             >
-              <div className="h-full rounded-full bg-bb-blue transition-[width] duration-200" style={{ width: `${uploadProgress}%` }} />
+              <div
+                className="h-full rounded-full bg-bb-blue transition-[width] duration-200"
+                style={{ width: `${uploadProgress}%` }}
+              />
             </div>
           </div>
         ) : null}
@@ -775,10 +784,10 @@ export function AdminDocumentForm({
             {uploadProgress !== null
               ? `Uploading… ${uploadProgress}%`
               : loading
-              ? "Saving…"
-              : initial?.id
-                ? "Save changes"
-                : "Create document"}
+                ? "Saving…"
+                : initial?.id
+                  ? "Save changes"
+                  : "Create document"}
           </button>
         </div>
       </div>
