@@ -241,6 +241,16 @@ func (h *DocumentHandler) DownloadFile(c *fiber.Ctx) error {
 	c.Set(fiber.HeaderContentType, http.DetectContentType(sniff[:read]))
 	c.Set(fiber.HeaderContentDisposition, mime.FormatMediaType("attachment", map[string]string{"filename": filepath.Base(file.FileName)}))
 	c.Set("X-Content-Type-Options", "nosniff")
+	// Count the download for the admin dashboard; a failed log entry never blocks the download.
+	actorID := user.ID
+	_ = h.DB.Create(&models.AuditLog{
+		ActorUserID: &actorID,
+		Action:      downloadAuditAction,
+		TargetType:  "document_file",
+		TargetID:    file.ID.String(),
+		Result:      "ok",
+		Metadata:    "{}",
+	}).Error
 	return c.SendStream(source, int(info.Size()))
 }
 

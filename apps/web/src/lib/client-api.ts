@@ -196,15 +196,42 @@ export function clientDeleteAdminSettingsAsset(
   );
 }
 
-export function clientGetAdminDashboard() {
-  return clientFetch<{
-    articles: number;
-    documents: number;
-    members: number;
-    active_vip: number;
-    pending_review: number;
-    download_requests: number;
-  }>("/admin/dashboard");
+export type DashboardDayCount = { date: string; count: number };
+
+export type DashboardActivity = {
+  type: "document" | "category" | "quiz" | "member";
+  title: string;
+  user?: string;
+  at: string;
+  link?: string;
+};
+
+export type AdminDashboard = {
+  articles: number;
+  documents: number;
+  members: number;
+  active_vip: number;
+  pending_review: number;
+  download_requests: number;
+  users?: number;
+  quizzes?: number;
+  categories?: number;
+  downloads?: number;
+  downloads_tracked_since?: string | null;
+  timezone?: string;
+  series?: Partial<
+    Record<
+      "documents" | "users" | "vip" | "quizzes" | "downloads",
+      DashboardDayCount[]
+    >
+  >;
+  recent_activity?: DashboardActivity[];
+};
+
+export function clientGetAdminDashboard(locale?: string) {
+  return clientFetch<AdminDashboard>(
+    `/admin/dashboard${locale ? `?locale=${encodeURIComponent(locale)}` : ""}`,
+  );
 }
 
 export type AdminDocumentPayload = {
