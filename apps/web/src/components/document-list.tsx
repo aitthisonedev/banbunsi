@@ -1,6 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getPublicSettings, type DocumentListItem, type Locale } from "@/lib/api";
+import {
+  getPublicSettings,
+  type DocumentListItem,
+  type Locale,
+} from "@/lib/api";
 import { EmptyState } from "@/components/ui";
 import { documentCoverSrc, isUploadedImage } from "@/lib/image-variants";
 import { t } from "@/lib/i18n";
@@ -26,7 +30,8 @@ export async function DocumentList({
     return <EmptyState title={emptyText} />;
   }
   // Same settings request as the page (deduplicated per request).
-  const defaultCover = (await getPublicSettings().catch(() => null))?.default_cover_url;
+  const defaultCover = (await getPublicSettings().catch(() => null))
+    ?.default_cover_url;
 
   if (variant === "list") {
     return (
@@ -40,7 +45,9 @@ export async function DocumentList({
               <span className="doc-card-thumb" aria-hidden>
                 <Image
                   src={documentCoverSrc(doc, index, defaultCover, 160)}
-                  unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
+                  unoptimized={isUploadedImage(
+                    doc.cover_image_url || defaultCover,
+                  )}
                   alt=""
                   fill
                   sizes="72px"
@@ -83,7 +90,9 @@ export async function DocumentList({
             <span className="doc-card-media">
               <Image
                 src={documentCoverSrc(doc, index, defaultCover, 640)}
-                unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
+                unoptimized={isUploadedImage(
+                  doc.cover_image_url || defaultCover,
+                )}
                 alt={doc.title}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

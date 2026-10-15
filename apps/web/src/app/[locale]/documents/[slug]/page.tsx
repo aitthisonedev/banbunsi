@@ -110,7 +110,8 @@ export default async function DocumentDetailPage({
   let defaultCover: string | undefined;
   try {
     doc = await getDocument(raw, slug, { cookie });
-    defaultCover = (await getPublicSettings().catch(() => null))?.default_cover_url;
+    defaultCover = (await getPublicSettings().catch(() => null))
+      ?.default_cover_url;
   } catch {
     notFound();
   }
@@ -146,40 +147,42 @@ export default async function DocumentDetailPage({
 
         <header className="doc-detail-header doc-detail-header--with-cover">
           <div className="doc-detail-header-main">
-          <div className="doc-detail-meta-pills">
-            <span className={`doc-badge doc-badge--${doc.read_access}`}>
-              {accessLabel(raw, doc.read_access)}
-            </span>
-            {doc.document_number ? (
-              <span className="doc-meta-pill">
-                <span>{t(raw, "documentNumber")}:</span>
-                <strong>{doc.document_number}</strong>
+            <div className="doc-detail-meta-pills">
+              <span className={`doc-badge doc-badge--${doc.read_access}`}>
+                {accessLabel(raw, doc.read_access)}
               </span>
-            ) : null}
-            {doc.year ? (
-              <span className="doc-meta-pill">
-                <span>{t(raw, "year")}:</span>
-                <strong>{doc.year}</strong>
-              </span>
-            ) : null}
-          </div>
-
-          <h1 className="doc-detail-title">{doc.title}</h1>
-
-          {doc.summary ? (
-            <div className="doc-detail-summary-card">
-              <span className="doc-summary-label">
-                {raw === "lo" ? "ເນື້ອໃນຫຍໍ້:" : "Summary:"}
-              </span>
-              <p className="doc-summary-text">{doc.summary}</p>
+              {doc.document_number ? (
+                <span className="doc-meta-pill">
+                  <span>{t(raw, "documentNumber")}:</span>
+                  <strong>{doc.document_number}</strong>
+                </span>
+              ) : null}
+              {doc.year ? (
+                <span className="doc-meta-pill">
+                  <span>{t(raw, "year")}:</span>
+                  <strong>{doc.year}</strong>
+                </span>
+              ) : null}
             </div>
-          ) : null}
+
+            <h1 className="doc-detail-title">{doc.title}</h1>
+
+            {doc.summary ? (
+              <div className="doc-detail-summary-card">
+                <span className="doc-summary-label">
+                  {raw === "lo" ? "ເນື້ອໃນຫຍໍ້:" : "Summary:"}
+                </span>
+                <p className="doc-summary-text">{doc.summary}</p>
+              </div>
+            ) : null}
           </div>
           <figure className="doc-detail-cover">
             <Image
               src={documentCoverSrc(doc, doc.id, defaultCover, 480)}
               unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
-              alt={raw === "lo" ? `ໜ້າປົກ: ${doc.title}` : `Cover: ${doc.title}`}
+              alt={
+                raw === "lo" ? `ໜ້າປົກ: ${doc.title}` : `Cover: ${doc.title}`
+              }
               fill
               priority
               sizes="(min-width: 768px) 220px, 60vw"

@@ -12,10 +12,7 @@ import {
   StatePanel,
 } from "@/components/admin-documents-ui";
 import type { CategoryNode } from "@/lib/api";
-import {
-  clientGetAdminDocument,
-  clientMe,
-} from "@/lib/client-api";
+import { clientGetAdminDocument, clientMe } from "@/lib/client-api";
 import { isLocale, t } from "@/lib/i18n";
 import { usePublicSettings } from "@/components/public-settings-context";
 

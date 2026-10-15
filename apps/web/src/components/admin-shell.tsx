@@ -9,10 +9,7 @@ import { BrandLogo } from "@/components/brand-logo";
 import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoadingState, ErrorState } from "@/components/ui";
-import {
-  clientLogout,
-  clientMe,
-} from "@/lib/client-api";
+import { clientLogout, clientMe } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
 import { usePublicSettings } from "@/components/public-settings-context";
 

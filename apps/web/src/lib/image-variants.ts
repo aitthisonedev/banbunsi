@@ -9,7 +9,10 @@ export function isUploadedImage(url: string | undefined | null) {
 }
 
 /** Asks the API for a resized copy of an uploaded image; other URLs are returned unchanged. */
-export function imageVariant(url: string | undefined | null, width: ImageVariantWidth) {
+export function imageVariant(
+  url: string | undefined | null,
+  width: ImageVariantWidth,
+) {
   if (!url) return "";
   if (!isUploadedImage(url) || /[?&]w=\d+/.test(url)) return url;
   return `${url}${url.includes("?") ? "&" : "?"}w=${width}`;
@@ -20,7 +23,11 @@ export function imageVariant(url: string | undefined | null, width: ImageVariant
  * Settings, else its category photo. Uploaded images come back resized to `width`.
  */
 export function documentCoverSrc(
-  doc: { cover_image_url?: string; category_slug?: string; category_name?: string },
+  doc: {
+    cover_image_url?: string;
+    category_slug?: string;
+    category_name?: string;
+  },
   key: number | string,
   defaultCover: string | undefined,
   width: ImageVariantWidth,
