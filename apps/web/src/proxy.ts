@@ -13,7 +13,11 @@ const DEFAULT_LOCALE = "lo";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const segment = pathname.split("/")[1];
-  if (pathname !== "/" && !LOCALES.includes(segment) && !pathname.startsWith("/_")) {
+  if (
+    pathname !== "/" &&
+    !LOCALES.includes(segment) &&
+    !pathname.startsWith("/_")
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = `/${DEFAULT_LOCALE}${pathname}`;
     return NextResponse.redirect(url);
