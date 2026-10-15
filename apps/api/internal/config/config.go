@@ -25,12 +25,15 @@ type Config struct {
 	OwnerPassword       string
 	OwnerName           string
 	UploadDir           string
-	SMTPHost            string
-	SMTPPort            int
-	SMTPFrom            string
-	GoogleClientID      string
-	GoogleClientSecret  string
-	GoogleRedirectURI   string
+	// MaxUploadBytes is the hard limit for one document file upload (MAX_UPLOAD_MB, default 100).
+	// The per-site limit in Settings can be set up to this value.
+	MaxUploadBytes     int64
+	SMTPHost           string
+	SMTPPort           int
+	SMTPFrom           string
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRedirectURI  string
 }
 
 func Load() (*Config, error) {
@@ -52,6 +55,7 @@ func Load() (*Config, error) {
 		OwnerPassword:      env("OWNER_PASSWORD", "admin123"),
 		OwnerName:          env("OWNER_NAME", "BAN BUNSI Admin"),
 		UploadDir:          env("UPLOAD_DIR", "uploads"),
+		MaxUploadBytes:     int64(envInt("MAX_UPLOAD_MB", 100)) << 20,
 		SMTPHost:           env("SMTP_HOST", ""),
 		SMTPPort:           envInt("SMTP_PORT", 1025),
 		SMTPFrom:           env("SMTP_FROM", "noreply@banbunsi.local"),
@@ -61,6 +65,9 @@ func Load() (*Config, error) {
 	}
 	if cfg.GoogleRedirectURI == "" {
 		cfg.GoogleRedirectURI = cfg.APIPublicURL + "/api/v1/auth/google/callback"
+	}
+	if cfg.MaxUploadBytes < 1<<20 {
+		return nil, fmt.Errorf("MAX_UPLOAD_MB must be at least 1")
 	}
 	cfg.SessionCookieSecure = !cfg.IsDev()
 	if value := os.Getenv("SESSION_COOKIE_SECURE"); value != "" {

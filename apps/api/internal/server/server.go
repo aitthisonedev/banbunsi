@@ -27,8 +27,11 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName:      "BAN BUNSI API",
 		ErrorHandler: errorHandler,
-		BodyLimit:    20 * 1024 * 1024,
-		ProxyHeader:  proxyHeader,
+		// Room for one maximum-size document upload plus form fields. Large bodies are streamed
+		// (multipart files over 16 MB go to temporary files instead of memory).
+		BodyLimit:         int(cfg.MaxUploadBytes) + 5<<20,
+		StreamRequestBody: true,
+		ProxyHeader:       proxyHeader,
 	})
 	app.Use(recover.New())
 	app.Use(logger.New())
@@ -109,6 +112,7 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	admin.Delete("/documents/:id", docH.AdminDelete)
 	admin.Post("/documents/:id/cover", docH.AdminUploadCover)
 	admin.Delete("/documents/:id/cover", docH.AdminDeleteCover)
+	admin.Post("/documents/:id/files", docH.AdminUploadFile)
 	admin.Delete("/documents/:id/files/:fileID", docH.AdminDeleteFile)
 	admin.Get("/quizzes", quizH.AdminList)
 	admin.Get("/quizzes/:id", quizH.AdminGet)

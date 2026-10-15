@@ -148,3 +148,27 @@ certbot renew --cert-name banbunsi.aitthisone.com --dry-run --run-deploy-hooks
 
 Email delivery needs a trusted SMTP relay configured with `SMTP_HOST`, `SMTP_PORT`,
 and `SMTP_FROM`. Until configured, verification/reset links are written to API logs.
+
+## Large file uploads
+
+Document files are streamed to `POST /api/v1/admin/documents/:id/files` (multipart, with
+upload progress in the admin form). Three limits apply, smallest wins:
+
+- **Settings → Documents → Maximum file size**: the per-site limit admins choose.
+- **API hard cap**: `MAX_UPLOAD_MB` in `/etc/banbunsi/api.env` (default `100`). Settings cannot
+  exceed it. Restart the API after changing it.
+- **Nginx**: only the upload route allows `105m` (`client_max_body_size`) with request buffering
+  off; every other route keeps `20m`. Keep it a few MB above `MAX_UPLOAD_MB`.
+
+The Nginx templates in this directory contain the upload route. Servers configured before it
+existed need it once, either by re-running `configure-domain.sh` as above, or by adding the
+`location ~ ^/api/v1/admin/documents/[^/]+/files$ { ... }` block from `nginx-domain.conf` to
+the live HTTPS virtual host (`banbunsi-domain.conf` in `/www/server/panel/vhost/nginx` or
+`/etc/nginx/sites-enabled`), above `location /api/`, then:
+
+```bash
+nginx -t && systemctl reload nginx
+```
+
+Without this step, uploads larger than 20 MB are rejected by Nginx with "413 Request Entity
+Too Large"; the admin form shows "The file is too large for the server to accept."

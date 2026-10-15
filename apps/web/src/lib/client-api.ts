@@ -1,6 +1,6 @@
 "use client";
 
-import type { PublicSettings, User } from "./api";
+import type { DocumentFileMeta, PublicSettings, User } from "./api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
@@ -272,6 +272,45 @@ export async function clientUploadAdminDocumentCover(id: string, file: File) {
     );
   }
   return data as { cover_image_url: string };
+}
+
+/**
+ * Streams a document file to the API as multipart form data (no base64), reporting progress
+ * from 0 to 100. Pass `file_id` to replace an existing file instead of adding one.
+ */
+export function clientUploadAdminDocumentFile(
+  documentId: string,
+  file: File,
+  meta: { file_id?: string; label?: string; version?: string; download_access?: string; language?: string },
+  onProgress?: (percent: number) => void,
+) {
+  const form = new FormData();
+  for (const [key, value] of Object.entries(meta)) {
+    if (value) form.append(key, value);
+  }
+  form.append("file", file);
+  return new Promise<DocumentFileMeta>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${API_URL}/api/v1/admin/documents/${documentId}/files`);
+    xhr.withCredentials = true;
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100));
+    };
+    xhr.onload = () => {
+      let data: { error?: string } = {};
+      try {
+        data = JSON.parse(xhr.responseText || "{}");
+      } catch {
+        // Non-JSON error pages (e.g. a proxy rejecting the size) fall through to the status message.
+      }
+      if (xhr.status >= 200 && xhr.status < 300) return resolve(data as DocumentFileMeta);
+      if (xhr.status === 413 && !data.error) return reject(new Error("The file is too large for the server to accept."));
+      reject(new Error(data.error || `Upload failed (${xhr.status})`));
+    };
+    xhr.onerror = () => reject(new Error("Network error during upload. Check your connection and try again."));
+    xhr.onabort = () => reject(new Error("Upload cancelled."));
+    xhr.send(form);
+  });
 }
 
 export function clientDeleteAdminDocumentCover(id: string) {

@@ -10,6 +10,12 @@ import { btn, panelClass } from "@/components/admin-documents-ui";
 import { categoryCover } from "@/lib/category-covers";
 import { suggestDocumentNumber } from "@/lib/form-defaults";
 
+function formatFileSize(bytes: number) {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  const mb = bytes / (1024 * 1024);
+  return `${mb >= 10 ? Math.round(mb) : mb.toFixed(1)} MB`;
+}
+
 /** Guidance at the top of each form section, in the admin's language. */
 const SECTION_GUIDE = {
   lo: {
@@ -52,6 +58,7 @@ import {
   clientCreateAdminDocument,
   clientDeleteAdminDocumentCover,
   clientUploadAdminDocumentCover,
+  clientUploadAdminDocumentFile,
   clientUpdateAdminDocument,
   type AdminDocumentPayload,
 } from "@/lib/client-api";
@@ -148,6 +155,7 @@ export function AdminDocumentForm({
   const [removeCover, setRemoveCover] = useState(false);
   // Set once a new document is created, so a retry after a failed cover upload updates instead of duplicating.
   const [createdId, setCreatedId] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -185,10 +193,11 @@ export function AdminDocumentForm({
     const enSlug = String(fd.get("en_slug") || slugify(enTitle));
     const uploadedFile = fd.get("file_upload");
     const fileNameInput = String(fd.get("file_name") || "").trim();
-    let fileName = fileNameInput;
-    let fileData = "";
-    let fileMime = String(fd.get("file_mime") || "application/pdf");
-    let fileSize = Number(fd.get("file_size") || 0);
+    const fileName = fileNameInput;
+    const fileMime = String(fd.get("file_mime") || "application/pdf");
+    const fileSize = Number(fd.get("file_size") || 0);
+    // A newly chosen file is streamed to the API after the document is saved (see below).
+    let pendingFile: File | null = null;
 
     if (uploadedFile instanceof File && uploadedFile.size > 0) {
       const maximumBytes = defaults?.max_file_size_bytes || 2 * 1024 * 1024;
@@ -205,21 +214,12 @@ export function AdminDocumentForm({
       }
       if (uploadedFile.size > maximumBytes) {
         setError(
-          `File exceeds the configured ${Math.ceil(maximumBytes / (1024 * 1024))} MiB limit.`,
+          `This file is ${formatFileSize(uploadedFile.size)}; the limit set in Settings is ${formatFileSize(maximumBytes)}.`,
         );
         setLoading(false);
         return;
       }
-      fileName = uploadedFile.name.trim() || fileName;
-      fileMime = uploadedFile.type || fileMime;
-      fileSize = uploadedFile.size;
-      const buffer = await uploadedFile.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = "";
-      bytes.forEach((byte) => {
-        binary += String.fromCharCode(byte);
-      });
-      fileData = `data:${fileMime};base64,${btoa(binary)}`;
+      pendingFile = uploadedFile;
     }
 
     const body: AdminDocumentPayload = {
@@ -249,8 +249,11 @@ export function AdminDocumentForm({
         },
       ],
     };
-    // Omit files on update when empty so API does not wipe existing rows.
-    if (fileName) {
+    // Omit files on update when empty so API does not wipe existing rows. A new upload is sent
+    // separately, so the JSON only carries metadata edits for the existing file.
+    if (pendingFile) {
+      if (!initial?.id && !createdId) body.files = [];
+    } else if (fileName) {
       body.files = [
         {
           ...(file0?.id ? { id: file0.id } : {}),
@@ -262,7 +265,6 @@ export function AdminDocumentForm({
           version: String(fd.get("file_version") || "1.0"),
           download_access: String(fd.get("download_access") || "member"),
           sort_order: 0,
-          ...(fileData ? { file_data: fileData } : {}),
         },
       ];
     } else if (!initial?.id) {
@@ -289,6 +291,28 @@ export function AdminDocumentForm({
         }
       } else if (documentId && removeCover && initial?.cover_image_url) {
         await clientDeleteAdminDocumentCover(documentId);
+      }
+      if (documentId && pendingFile) {
+        setUploadProgress(0);
+        try {
+          await clientUploadAdminDocumentFile(
+            documentId,
+            pendingFile,
+            {
+              file_id: file0?.id,
+              label: String(fd.get("file_label") || "") || pendingFile.name,
+              version: String(fd.get("file_version") || "1.0"),
+              download_access: String(fd.get("download_access") || "member"),
+              language: "lo",
+            },
+            setUploadProgress,
+          );
+        } catch (err) {
+          const reason = err instanceof Error ? err.message : "Upload failed";
+          throw new Error(`Document saved, but the file could not be uploaded: ${reason}`);
+        } finally {
+          setUploadProgress(null);
+        }
       }
       router.push(
         documentId
@@ -725,12 +749,32 @@ export function AdminDocumentForm({
             {error}
           </p>
         ) : null}
+        {uploadProgress !== null ? (
+          <div className="mb-3" role="status" aria-live="polite">
+            <div className="mb-1 flex justify-between text-xs font-medium text-bb-text-muted">
+              <span>{locale === "lo" ? "ກຳລັງອັບໂຫຼດໄຟລ໌…" : "Uploading file…"}</span>
+              <span>{uploadProgress}%</span>
+            </div>
+            <div
+              className="h-2 overflow-hidden rounded-full bg-bb-muted"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={uploadProgress}
+              aria-label={locale === "lo" ? "ຄວາມຄືບໜ້າການອັບໂຫຼດ" : "Upload progress"}
+            >
+              <div className="h-full rounded-full bg-bb-blue transition-[width] duration-200" style={{ width: `${uploadProgress}%` }} />
+            </div>
+          </div>
+        ) : null}
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
           <Link href={cancelHref} className={btn.secondary}>
             {t(locale, "cancel")}
           </Link>
           <button className={btn.primary} type="submit" disabled={loading}>
-            {loading
+            {uploadProgress !== null
+              ? `Uploading… ${uploadProgress}%`
+              : loading
               ? "Saving…"
               : initial?.id
                 ? "Save changes"

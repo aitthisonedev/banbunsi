@@ -541,6 +541,8 @@ export default function AdminSettingsPage() {
 
   if (!form) return <LoadingState label={t(locale, "loading")} />;
 
+  // Hard limit from the server (MAX_UPLOAD_MB); the Settings value cannot exceed it.
+  const maxUploadMb = Math.floor(Number(form.max_upload_bytes || 14 * 1024 * 1024) / (1024 * 1024));
   const update = (key: string, value: string) =>
     setForm((current) => (current ? { ...current, [key]: value } : current));
 
@@ -571,6 +573,9 @@ export default function AdminSettingsPage() {
     const parts = [field.hint];
     if (defaults[field.key] && !value)
       parts.push(`Blank uses the default: “${defaults[field.key]}”.`);
+    if (field.key === "max_file_size_mb") {
+      parts.push(`Per file, up to ${maxUploadMb} MB (the server's upload limit).`);
+    }
     if (field.counter) {
       const [min, max] = field.counter;
       const length = [...value].length;
@@ -664,7 +669,7 @@ export default function AdminSettingsPage() {
         placeholder={field.placeholder || defaults[field.key]}
         required={field.required}
         min={isSize ? "0.1" : undefined}
-        max={isSize ? "14" : undefined}
+        max={isSize ? String(maxUploadMb) : undefined}
         step={isSize ? "0.1" : undefined}
         value={value}
         onChange={(event) => update(field.key, event.target.value)}

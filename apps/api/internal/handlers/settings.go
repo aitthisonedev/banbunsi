@@ -66,8 +66,17 @@ func (h *SettingsHandler) assetURL(path string) string {
 	return fileURL(path, apiURL)
 }
 
+// maxUploadBytes is the server's hard upload limit; the Settings value cannot exceed it.
+func (h *SettingsHandler) maxUploadBytes() int64 {
+	if h.Cfg == nil || h.Cfg.MaxUploadBytes <= 0 {
+		return 14 << 20
+	}
+	return h.Cfg.MaxUploadBytes
+}
+
 func (h *SettingsHandler) payload(s *models.SiteSettings) fiber.Map {
 	return fiber.Map{
+		"max_upload_bytes":            h.maxUploadBytes(),
 		"id":                          s.ID,
 		"organization_name":           s.OrganizationName,
 		"system_name":                 s.SystemName,
@@ -248,8 +257,8 @@ func (h *SettingsHandler) AdminPatch(c *fiber.Ctx) error {
 		s.AllowedFileTypes = allowed
 	}
 	if body.MaxFileSizeBytes != nil {
-		if *body.MaxFileSizeBytes < 1 || *body.MaxFileSizeBytes > 14<<20 {
-			return errJSON(c, fiber.StatusBadRequest, "Maximum file size must be between 1 byte and 14 MiB")
+		if *body.MaxFileSizeBytes < 1 || *body.MaxFileSizeBytes > h.maxUploadBytes() {
+			return errJSON(c, fiber.StatusBadRequest, fmt.Sprintf("Maximum file size must be between 1 byte and %d MB", h.maxUploadBytes()>>20))
 		}
 		s.MaxFileSizeBytes = *body.MaxFileSizeBytes
 	}

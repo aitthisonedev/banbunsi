@@ -886,6 +886,204 @@ func (h *DocumentHandler) AdminDeleteCover(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"cover_image_url": ""})
 }
 
+// headCapture keeps the first 512 bytes written to it, for content-type detection.
+type headCapture struct{ buf []byte }
+
+func (h *headCapture) Write(p []byte) (int, error) {
+	if room := 512 - len(h.buf); room > 0 {
+		if len(p) < room {
+			room = len(p)
+		}
+		h.buf = append(h.buf, p[:room]...)
+	}
+	return len(p), nil
+}
+
+// storeDocumentStream copies an uploaded document file to uploads/documents without holding it
+// in memory. The size limit is enforced while copying (not only from the declared size), and the
+// extension must be one of the allowed types. Returns the stored path, size and detected type.
+func storeDocumentStream(cfg *config.Config, fileName string, source io.Reader, maxBytes int64, allowedTypes string) (string, int64, string, error) {
+	if cfg == nil {
+		return "", 0, "", fmt.Errorf("upload config missing")
+	}
+	baseName := filepath.Base(strings.TrimSpace(fileName))
+	if baseName == "." || baseName == ".." || baseName == "/" || baseName == "" {
+		return "", 0, "", fmt.Errorf("the file needs a name")
+	}
+	allowed, err := normalizeAllowedFileTypes(allowedTypes)
+	if err != nil {
+		return "", 0, "", fmt.Errorf("configured file types are invalid")
+	}
+	ext := strings.TrimPrefix(strings.ToLower(filepath.Ext(baseName)), ".")
+	if ext == "" || !strings.Contains(","+allowed+",", ","+ext+",") {
+		return "", 0, "", fmt.Errorf("file type .%s is not allowed (allowed: %s)", ext, strings.ReplaceAll(allowed, ",", ", "))
+	}
+	if err := os.MkdirAll(filepath.Join(cfg.UploadDir, "documents"), 0o755); err != nil {
+		return "", 0, "", fmt.Errorf("could not create upload directory")
+	}
+	rel := filepath.ToSlash(filepath.Join("documents", uuid.NewString()+"_"+baseName))
+	abs := filepath.Join(cfg.UploadDir, filepath.FromSlash(rel))
+	out, err := os.OpenFile(abs, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
+	if err != nil {
+		return "", 0, "", fmt.Errorf("could not store the file")
+	}
+	head := &headCapture{}
+	written, copyErr := io.Copy(out, io.LimitReader(io.TeeReader(source, head), maxBytes+1))
+	closeErr := out.Close()
+	switch {
+	case copyErr != nil || closeErr != nil:
+		_ = os.Remove(abs)
+		return "", 0, "", fmt.Errorf("the upload was interrupted; please try again")
+	case written == 0:
+		_ = os.Remove(abs)
+		return "", 0, "", fmt.Errorf("the file is empty")
+	case written > maxBytes:
+		_ = os.Remove(abs)
+		return "", 0, "", fmt.Errorf("the file is larger than the %s limit", formatMegabytes(maxBytes))
+	}
+	return rel, written, http.DetectContentType(head.buf), nil
+}
+
+func formatMegabytes(n int64) string {
+	mb := float64(n) / (1 << 20)
+	if mb == float64(int64(mb)) {
+		return fmt.Sprintf("%d MB", int64(mb))
+	}
+	return fmt.Sprintf("%.1f MB", mb)
+}
+
+// documentUploadLimits returns the per-file size limit (Settings, capped by MAX_UPLOAD_MB) and allowed types.
+func (h *DocumentHandler) documentUploadLimits() (int64, string) {
+	maxBytes := int64(14 << 20)
+	allowedTypes := "pdf,doc,docx,xls,xlsx,csv,txt,zip,jpg,jpeg,png,webp"
+	var settings models.SiteSettings
+	if err := h.DB.First(&settings, 1).Error; err == nil {
+		if settings.MaxFileSizeBytes > 0 {
+			maxBytes = settings.MaxFileSizeBytes
+		}
+		if strings.TrimSpace(settings.AllowedFileTypes) != "" {
+			allowedTypes = settings.AllowedFileTypes
+		}
+	}
+	if h.Cfg != nil && h.Cfg.MaxUploadBytes > 0 && maxBytes > h.Cfg.MaxUploadBytes {
+		maxBytes = h.Cfg.MaxUploadBytes
+	}
+	return maxBytes, allowedTypes
+}
+
+// AdminUploadFile accepts a multipart upload ("file", plus optional "file_id" to replace an
+// existing file, "label", "version", "language", "download_access") and streams it to disk.
+func (h *DocumentHandler) AdminUploadFile(c *fiber.Ctx) error {
+	docID, err := parseUUID(c.Params("id"))
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Invalid document id")
+	}
+	var doc models.Document
+	if err := h.DB.First(&doc, "id = ?", docID).Error; err != nil {
+		return errJSON(c, fiber.StatusNotFound, "Document not found")
+	}
+	user := c.Locals("user").(*models.User)
+	if !user.IsAdminPlus() && doc.Status == models.DocPublished {
+		return errJSON(c, fiber.StatusForbidden, "Editors cannot change files on published documents")
+	}
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Choose a file to upload")
+	}
+	maxBytes, allowedTypes := h.documentUploadLimits()
+	if fileHeader.Size > maxBytes {
+		return errJSON(c, fiber.StatusRequestEntityTooLarge, fmt.Sprintf("The file is larger than the %s limit set in Settings", formatMegabytes(maxBytes)))
+	}
+
+	var existing *models.DocumentFile
+	if raw := strings.TrimSpace(c.FormValue("file_id")); raw != "" {
+		fileID, err := parseUUID(raw)
+		if err != nil {
+			return errJSON(c, fiber.StatusBadRequest, "Invalid file id")
+		}
+		var row models.DocumentFile
+		if err := h.DB.Where("id = ? AND document_id = ?", fileID, docID).First(&row).Error; err != nil {
+			return errJSON(c, fiber.StatusNotFound, "File not found")
+		}
+		existing = &row
+	}
+
+	source, err := fileHeader.Open()
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, "Could not read the uploaded file")
+	}
+	defer source.Close()
+	storedPath, size, detectedType, err := storeDocumentStream(h.Cfg, fileHeader.Filename, source, maxBytes, allowedTypes)
+	if err != nil {
+		return errJSON(c, fiber.StatusBadRequest, strings.ToUpper(err.Error()[:1])+err.Error()[1:])
+	}
+
+	mimeType := strings.TrimSpace(fileHeader.Header.Get("Content-Type"))
+	if mimeType == "" || mimeType == "application/octet-stream" {
+		mimeType = detectedType
+	}
+	formValue := func(key, fallback string) string {
+		if value := strings.TrimSpace(c.FormValue(key)); value != "" {
+			return value
+		}
+		return fallback
+	}
+
+	row := models.DocumentFile{DocumentID: docID}
+	previousPath := ""
+	if existing != nil {
+		row = *existing
+		previousPath = existing.StoragePath
+	} else {
+		var count int64
+		h.DB.Model(&models.DocumentFile{}).Where("document_id = ?", docID).Count(&count)
+		row.SortOrder = int(count)
+		row.Version = "1.0"
+		row.DownloadAccess = models.DownloadMember
+	}
+	row.FileName = filepath.Base(fileHeader.Filename)
+	row.StoragePath = storedPath
+	row.Mime = mimeType
+	row.SizeBytes = size
+	row.Label = formValue("label", firstNonEmpty(row.Label, row.FileName))
+	row.Version = formValue("version", firstNonEmpty(row.Version, "1.0"))
+	row.Language = localeOrDefault(formValue("language", row.Language))
+	if access := strings.TrimSpace(c.FormValue("download_access")); access != "" {
+		row.DownloadAccess = normalizeDownloadAccess(access)
+	}
+
+	if err := h.DB.Save(&row).Error; err != nil {
+		if path, pathErr := documentUploadPath(h.Cfg, storedPath); pathErr == nil {
+			_ = os.Remove(path)
+		}
+		return errJSON(c, fiber.StatusInternalServerError, "Could not save the file")
+	}
+	// Remove the replaced file only after the new one is recorded.
+	if previousPath != "" && previousPath != storedPath {
+		if path, pathErr := documentUploadPath(h.Cfg, previousPath); pathErr == nil {
+			_ = os.Remove(path)
+		}
+	}
+	apiPublicURL := ""
+	if h.Cfg != nil {
+		apiPublicURL = h.Cfg.APIPublicURL
+	}
+	status := fiber.StatusCreated
+	if existing != nil {
+		status = fiber.StatusOK
+	}
+	return c.Status(status).JSON(filePayload(row, apiPublicURL))
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+	return ""
+}
+
 func (h *DocumentHandler) AdminDeleteFile(c *fiber.Ctx) error {
 	docID, err := parseUUID(c.Params("id"))
 	if err != nil {
