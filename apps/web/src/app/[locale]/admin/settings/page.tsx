@@ -835,7 +835,7 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-7xl">
       <header className="mb-6">
         <h1 className="text-2xl font-bold">{t(locale, "settings")}</h1>
         <p className="mt-1 text-sm text-bb-text-muted">
