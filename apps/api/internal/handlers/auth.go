@@ -21,6 +21,9 @@ type AuthHandler struct {
 }
 
 type registerBody struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	// Name is the older single-field form; used as the first name when first/last are absent.
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -44,16 +47,31 @@ type resetBody struct {
 	Password string `json:"password"`
 }
 
+// registerNames returns the trimmed first and last name, falling back to the single "name" field
+// sent by older clients.
+func registerNames(body registerBody) (string, string) {
+	first := strings.TrimSpace(body.FirstName)
+	last := strings.TrimSpace(body.LastName)
+	if first == "" && last == "" {
+		first = strings.TrimSpace(body.Name)
+	}
+	return first, last
+}
+
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var body registerBody
 	if err := c.BodyParser(&body); err != nil {
 		return errJSON(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-	name := strings.TrimSpace(body.Name)
+	first, last := registerNames(body)
 	email := normalizeEmail(body.Email)
-	if name == "" || email == "" || len(body.Password) < 8 {
+	if first == "" || email == "" || len(body.Password) < 8 {
 		return errJSON(c, fiber.StatusBadRequest, "Name, email, and password (min 8) are required")
 	}
+	if len(first) > 100 || len(last) > 100 {
+		return errJSON(c, fiber.StatusBadRequest, "Name is too long")
+	}
+	name := models.DisplayName(first, last)
 
 	var existing models.User
 	err := h.DB.Where("email = ?", email).First(&existing).Error
@@ -71,8 +89,8 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	}
 	user := models.User{
 		Name:          name,
-		FirstName:     name,
-		LastName:      "",
+		FirstName:     first,
+		LastName:      last,
 		Email:         email,
 		PasswordHash:  hash,
 		StaffRole:     models.RoleMember,

@@ -2474,6 +2474,18 @@ html.dark .auth-nav-tab.is-active {
 .auth-panel-body {
   width: 100%;
 }
+/* Registration: first and last name side by side; stacked on small phones */
+.auth-name-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+@media (max-width: 380px) {
+  .auth-name-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

@@ -37,10 +37,28 @@ export function clientLogin(email: string, password: string) {
   });
 }
 
-export function clientRegister(name: string, email: string, password: string) {
+export function clientRegister({
+  firstName,
+  lastName,
+  email,
+  password,
+}: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}) {
+  const first_name = firstName.trim();
+  const last_name = lastName.trim();
   return clientFetch<{ message: string }>("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({
+      first_name,
+      last_name,
+      name: [first_name, last_name].filter(Boolean).join(" "),
+      email: email.trim(),
+      password,
+    }),
   });
 }
 

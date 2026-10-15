@@ -251,6 +251,14 @@ export default function RegisterPage() {
     setError("");
     setMessage("");
 
+    const fd = new FormData(e.currentTarget);
+    const firstName = String(fd.get("first_name") || "").trim();
+    const lastName = String(fd.get("last_name") || "").trim();
+    if (!firstName || !lastName) {
+      setError(t(locale, "registerNameRequired"));
+      return;
+    }
+
     if (password.length < 8) {
       setError(t(locale, "passwordMinChars"));
       return;
@@ -262,13 +270,13 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
-    const fd = new FormData(e.currentTarget);
     try {
-      const res = await clientRegister(
-        String(fd.get("name") || ""),
-        String(fd.get("email") || ""),
+      const res = await clientRegister({
+        firstName,
+        lastName,
+        email: String(fd.get("email") || ""),
         password,
-      );
+      });
       setMessage(res.message);
     } catch (err) {
       setError(err instanceof Error ? err.message : t(locale, "loadError"));
@@ -354,21 +362,46 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={onSubmit} className="auth-form" noValidate={false}>
-            <FormField label={t(locale, "name")} htmlFor="register-name">
-              <div className="auth-input-wrap">
-                <span className="auth-input-icon">
-                  <UserIcon />
-                </span>
+            <div className="auth-name-row">
+              <FormField
+                label={t(locale, "firstName")}
+                htmlFor="register-first-name"
+              >
+                <div className="auth-input-wrap">
+                  <span className="auth-input-icon">
+                    <UserIcon />
+                  </span>
+                  <input
+                    id="register-first-name"
+                    className="input has-icon-left"
+                    name="first_name"
+                    placeholder={locale === "lo" ? "ສົມສັກ" : "John"}
+                    required
+                    maxLength={100}
+                    autoComplete="given-name"
+                    autoCapitalize="words"
+                    spellCheck={false}
+                  />
+                </div>
+              </FormField>
+
+              <FormField
+                label={t(locale, "lastName")}
+                htmlFor="register-last-name"
+              >
                 <input
-                  id="register-name"
-                  className="input has-icon-left"
-                  name="name"
-                  placeholder={locale === "lo" ? "ສົມສັກ ໄຊຍະວົງ" : "John Doe"}
+                  id="register-last-name"
+                  className="input"
+                  name="last_name"
+                  placeholder={locale === "lo" ? "ໄຊຍະວົງ" : "Doe"}
                   required
-                  autoComplete="name"
+                  maxLength={100}
+                  autoComplete="family-name"
+                  autoCapitalize="words"
+                  spellCheck={false}
                 />
-              </div>
-            </FormField>
+              </FormField>
+            </div>
 
             <FormField label={t(locale, "email")} htmlFor="register-email">
               <div className="auth-input-wrap">
@@ -382,7 +415,10 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="user@example.com"
                   required
+                  maxLength={254}
                   autoComplete="email"
+                  autoCapitalize="off"
+                  spellCheck={false}
                   inputMode="email"
                 />
               </div>
