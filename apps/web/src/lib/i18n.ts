@@ -557,6 +557,8 @@ const lo: Dict = {
   rowNumber: "ລຳດັບ",
   accountSuspended: "ຖືກລະງັບ",
   backToTop: "ກັບຂຶ້ນເທິງສຸດ",
+  newNotifications: "ມີການແຈ້ງເຕືອນໃໝ່",
+  viewDashboard: "ເບິ່ງແຜງຄວບຄຸມ",
   vipDownloadOnly: "ສະເພາະສະມາຊິກ VIP",
   emptyDownloadsHint: "ໄຟລ໌ທີ່ທ່ານດາວໂຫຼດ ຈະສະແດງຢູ່ບ່ອນນີ້.",
   emptyQuizHistoryHint: "ຜົນແບບທົດສອບທີ່ທ່ານສົ່ງ ຈະສະແດງຢູ່ບ່ອນນີ້.",
@@ -991,6 +993,8 @@ const en: Dict = {
   rowNumber: "No.",
   accountSuspended: "Suspended",
   backToTop: "Back to top",
+  newNotifications: "new activity",
+  viewDashboard: "Open dashboard",
   vipDownloadOnly: "VIP members only",
   emptyDownloadsHint: "Files you download will appear here.",
   emptyQuizHistoryHint: "Results of quizzes you submit will appear here.",
@@ -1170,11 +1174,51 @@ const apiErrorsLo: Dict = {
   "The file is too large for the server to accept.":
     "ໄຟລ໌ໃຫຍ່ເກີນກວ່າທີ່ເຊີບເວີຮັບໄດ້.",
   "Upload cancelled.": "ຍົກເລີກການອັບໂຫຼດແລ້ວ.",
+  // Image checks for branding images and document covers (storeImageAsset in documents.go).
+  "image must be between 1 byte and 2 MiB": "ຮູບຕ້ອງມີຂະໜາດບໍ່ເກີນ 2 MiB.",
+  "could not read the image": "ອ່ານຮູບບໍ່ສຳເລັດ.",
+  "the file is not a valid JPEG, PNG, or WebP image":
+    "ໄຟລ໌ນີ້ບໍ່ແມ່ນຮູບ JPEG, PNG ຫຼື WebP ທີ່ຖືກຕ້ອງ.",
+  "image dimensions are too large (max 8000 px per side)":
+    "ຮູບໃຫຍ່ເກີນໄປ (ສູງສຸດ 8000 px ຕໍ່ດ້ານ).",
+  "image must be JPEG, PNG, or WebP": "ຮູບຕ້ອງເປັນ JPEG, PNG ຫຼື WebP.",
+  "could not create image directory": "ບັນທຶກຮູບບໍ່ສຳເລັດ.",
+  "could not store the image": "ບັນທຶກຮູບບໍ່ສຳເລັດ.",
+  "invalid image storage directory": "ບັນທຶກຮູບບໍ່ສຳເລັດ.",
   "Network error during upload. Check your connection and try again.":
     "ເຄືອຂ່າຍຂັດຂ້ອງລະຫວ່າງອັບໂຫຼດ. ກວດສອບການເຊື່ອມຕໍ່ ແລ້ວລອງອີກຄັ້ງ.",
 };
 
+// Settings field names as the API writes them in length errors (settingsLengthError in
+// settings.go), with the Lao label the Settings page shows for the same field.
+const settingsFieldLo: Dict = {
+  "Organization name": "ຊື່ອົງກອນ",
+  "System name": "ຊື່ລະບົບ",
+  Description: "ຄຳອະທິບາຍ",
+  Phone: "ເບີໂທລະສັບ",
+  Address: "ທີ່ຢູ່",
+  Website: "ເວັບໄຊ",
+  "Document numbering format": "ຮູບແບບເລກທີເອກະສານ",
+  "Application title": "ຊື່ແອັບພລິເຄຊັນ",
+  "Sidebar title": "ຫົວຂໍ້ແຖບຂ້າງຂອງຜູ້ດູແລ",
+  "Footer text": "ຂໍ້ຄວາມສ່ວນທ້າຍເວັບ",
+  "Dashboard title": "ຫົວຂໍ້ແຜງຄວບຄຸມ",
+  "Site name (Lao)": "ຊື່ເວັບໄຊ (ພາສາລາວ)",
+  "Site name (English)": "ຊື່ເວັບໄຊ (ພາສາອັງກິດ)",
+  "Contact email": "ອີເມວຕິດຕໍ່",
+  "Facebook URL": "ລິ້ງ Facebook",
+  "TikTok URL": "ລິ້ງ TikTok",
+  "Meta description (Lao)": "ຄຳອະທິບາຍ Meta (ພາສາລາວ)",
+  "Meta description (English)": "ຄຳອະທິບາຍ Meta (ພາສາອັງກິດ)",
+  "SEO title (Lao)": "ຫົວຂໍ້ SEO (ພາສາລາວ)",
+  "SEO title (English)": "ຫົວຂໍ້ SEO (ພາສາອັງກິດ)",
+};
+
 const apiErrorPatternsLo: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
+  [
+    /^(.+) must be (\d+) characters or fewer$/,
+    (m) => `${settingsFieldLo[m[1]] ?? m[1]} ຕ້ອງມີບໍ່ເກີນ ${m[2]} ຕົວອັກສອນ.`,
+  ],
   [/^Request failed \((\d+)\)$/, (m) => `ຄຳຂໍບໍ່ສຳເລັດ (${m[1]})`],
   [/^Upload failed \((\d+)\)$/, (m) => `ອັບໂຫຼດບໍ່ສຳເລັດ (${m[1]})`],
   [

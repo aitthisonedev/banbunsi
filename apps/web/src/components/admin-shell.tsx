@@ -13,6 +13,7 @@ import { clientLogout, clientMe } from "@/lib/client-api";
 import { t } from "@/lib/i18n";
 import { usePublicSettings } from "@/components/public-settings-context";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { AdminNotifications } from "@/components/admin-notifications";
 
 type NavItem = {
   href: string;
@@ -393,6 +394,9 @@ export function AdminShell({
                 <line x1="10" y1="14" x2="21" y2="3" />
               </svg>
             </Link>
+
+            {/* Notifications: latest real activity, with a dot for anything new */}
+            <AdminNotifications locale={locale} />
 
             {/* Theme Toggle */}
             <ThemeToggle

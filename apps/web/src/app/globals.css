@@ -6562,6 +6562,68 @@ html:has(.dash-shell) {
   border-radius: 999px;
 }
 
+/* Notification bell dropdown (src/components/admin-notifications.tsx). */
+.dash-notify {
+  position: relative;
+}
+.dash-notify .dash-icon-btn {
+  position: relative;
+}
+.dash-notify-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 50;
+  width: min(24rem, calc(100vw - 2rem));
+  border: 1px solid var(--dash-border);
+  border-radius: 14px;
+  background: var(--dash-card-bg);
+  box-shadow: 0 16px 40px rgb(15 23 42 / 16%);
+  overflow: hidden;
+}
+/* Phones: span the screen under the top bar instead of hanging off the bell. */
+@media (max-width: 640px) {
+  .dash-notify-panel {
+    position: fixed;
+    top: calc(var(--dash-header-height, 64px) + 0.5rem);
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+}
+.dash-notify-title {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--dash-border);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--dash-text);
+}
+.dash-notify-body {
+  max-height: min(24rem, 60vh);
+  overflow-y: auto;
+  padding: 0.25rem 0.5rem;
+  gap: 0;
+}
+.dash-notify-note {
+  margin: 0;
+  padding: 1rem 0.5rem;
+  font-size: 0.85rem;
+  color: var(--dash-text-muted);
+}
+.dash-notify-footer {
+  display: block;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--dash-border);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--dash-primary);
+  text-decoration: none;
+}
+.dash-notify-footer:hover {
+  background: var(--dash-bg);
+}
 .dash-bell-dot {
   position: absolute;
   top: 8px;
