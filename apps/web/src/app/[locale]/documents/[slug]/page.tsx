@@ -258,8 +258,17 @@ export default async function DocumentDetailPage({
                   </div>
                 </div>
 
-                {file.file_url &&
-                canDownloadFile(viewer, file.download_access) ? (
+                {file.available === false ? (
+                  // No uploaded file behind this entry: say so instead of a download that fails.
+                  <span
+                    className="doc-file-btn is-disabled"
+                    aria-disabled="true"
+                  >
+                    <DownloadIcon />
+                    <span>{t(raw, "fileNotAvailable")}</span>
+                  </span>
+                ) : file.file_url &&
+                  canDownloadFile(viewer, file.download_access) ? (
                   <a
                     href={file.file_url}
                     className="doc-file-btn"

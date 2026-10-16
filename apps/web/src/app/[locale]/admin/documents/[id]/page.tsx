@@ -316,7 +316,11 @@ export default function AdminDocumentDetailsPage() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      {file.file_url ? (
+                      {file.available === false ? (
+                        <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                          {t(locale, "noFileUploaded")}
+                        </span>
+                      ) : file.file_url ? (
                         <a
                           href={file.file_url}
                           className={btn.secondarySm}

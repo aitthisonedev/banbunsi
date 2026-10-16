@@ -161,6 +161,9 @@ func filePayload(f models.DocumentFile, apiPublicURL string) fiber.Map {
 		"version":         f.Version,
 		"download_access": f.DownloadAccess,
 		"sort_order":      f.SortOrder,
+		// False for file entries without an uploaded file (e.g. seeded placeholders); the site
+		// then shows "not available" instead of a download that would fail.
+		"available": strings.TrimSpace(f.StoragePath) != "",
 	}
 }
 
@@ -238,7 +241,7 @@ func (h *DocumentHandler) DownloadFile(c *fiber.Ctx) error {
 		_ = source.Close()
 		return errJSON(c, fiber.StatusInternalServerError, "Could not read file")
 	}
-	c.Set(fiber.HeaderContentType, http.DetectContentType(sniff[:read]))
+	c.Set(fiber.HeaderContentType, downloadContentType(file.FileName, sniff[:read]))
 	c.Set(fiber.HeaderContentDisposition, mime.FormatMediaType("attachment", map[string]string{"filename": filepath.Base(file.FileName)}))
 	c.Set("X-Content-Type-Options", "nosniff")
 	// Count the download for the admin dashboard; a failed log entry never blocks the download.
@@ -252,6 +255,37 @@ func (h *DocumentHandler) DownloadFile(c *fiber.Ctx) error {
 		Metadata:    "{}",
 	}).Error
 	return c.SendStream(source, int(info.Size()))
+}
+
+// downloadContentType names the file's type from its extension (uploads are limited to the allowed
+// extensions), so e.g. .docx is sent as a Word document rather than the sniffed "application/zip".
+// Unknown extensions fall back to sniffing the first bytes.
+func downloadContentType(fileName string, head []byte) string {
+	ext := strings.ToLower(filepath.Ext(fileName))
+	if known, ok := downloadTypes[ext]; ok {
+		return known
+	}
+	if byExt := mime.TypeByExtension(ext); byExt != "" {
+		return byExt
+	}
+	return http.DetectContentType(head)
+}
+
+// downloadTypes covers the extensions Settings can allow, independent of the server's mime tables
+// (Go's built-in table has no Office types).
+var downloadTypes = map[string]string{
+	".pdf":  "application/pdf",
+	".doc":  "application/msword",
+	".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	".xls":  "application/vnd.ms-excel",
+	".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	".csv":  "text/csv; charset=utf-8",
+	".txt":  "text/plain; charset=utf-8",
+	".zip":  "application/zip",
+	".jpg":  "image/jpeg",
+	".jpeg": "image/jpeg",
+	".png":  "image/png",
+	".webp": "image/webp",
 }
 
 func categoryName(cat models.Category, locale string) (slug, name string) {

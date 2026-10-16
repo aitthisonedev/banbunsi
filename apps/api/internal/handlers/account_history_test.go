@@ -35,3 +35,20 @@ func TestParseIDsSkipsInvalidTargets(t *testing.T) {
 		t.Fatalf("expected only %s, got %v", valid, ids)
 	}
 }
+
+func TestDownloadContentTypeUsesExtension(t *testing.T) {
+	zipHead := []byte("PK\x03\x04 rest of a docx")
+	cases := map[string]string{
+		"report.docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		"sheet.XLSX":  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		"form.pdf":    "application/pdf",
+	}
+	for name, want := range cases {
+		if got := downloadContentType(name, zipHead); got != want {
+			t.Fatalf("%s: got %q, want %q", name, got, want)
+		}
+	}
+	if got := downloadContentType("no-extension", []byte("%PDF-1.7")); got != "application/pdf" {
+		t.Fatalf("expected sniffing fallback, got %q", got)
+	}
+}

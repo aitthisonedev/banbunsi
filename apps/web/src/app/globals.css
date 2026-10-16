@@ -1858,6 +1858,12 @@ html.dark .doc-badge--vip {
   transition: background 150ms ease;
   white-space: nowrap;
 }
+/* A file entry without an uploaded file: same shape, clearly not clickable. */
+.doc-file-btn.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 .doc-file-btn:hover {
   background: var(--bb-blue-hover);
 }

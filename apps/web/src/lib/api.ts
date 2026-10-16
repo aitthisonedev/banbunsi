@@ -199,6 +199,8 @@ export type DocumentFileMeta = {
   version: string;
   download_access: "member" | "vip";
   sort_order: number;
+  /** False when the entry has no uploaded file (e.g. seeded placeholders); older APIs omit it. */
+  available?: boolean;
 };
 
 export type DocumentListItem = {
