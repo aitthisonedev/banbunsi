@@ -78,73 +78,85 @@ export async function DocumentList({
     );
   }
 
+  // Same card design as the category cards: cover with navy overlay and the title on it, then a
+  // white area with the summary and a blue "Read →" line.
   return (
-    <ul className="doc-card-grid">
-      {items.map((doc) => (
-        <li key={doc.id}>
-          <Link
-            href={`/${locale}/documents/${doc.slug}`}
-            className="doc-card doc-card--tile"
-            title={doc.title}
-          >
-            <span className="doc-card-media">
-              {/* The same cover as the document page, shown whole (contain) over a soft blurred
-                  copy of itself, so every card keeps the same height without cropping. */}
-              <Image
-                src={documentCoverSrc(doc, doc.id, defaultCover, 640)}
-                unoptimized={isUploadedImage(
-                  doc.cover_image_url || defaultCover,
-                )}
-                alt=""
-                aria-hidden
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="doc-card-media-backdrop"
-              />
-              <Image
-                src={documentCoverSrc(doc, doc.id, defaultCover, 640)}
-                unoptimized={isUploadedImage(
-                  doc.cover_image_url || defaultCover,
-                )}
-                alt={doc.title}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="doc-card-media-img"
-              />
-              <span className="doc-card-media-shade" aria-hidden />
-              <span className="doc-card-media-badge">
-                <span className={`doc-badge doc-badge--${doc.read_access}`}>
-                  {accessLabel(locale, doc.read_access)}
+    <ul className="category-card-grid">
+      {items.map((doc, index) => {
+        const coverSource = doc.cover_image_url || defaultCover;
+        const uploaded = isUploadedImage(coverSource);
+        const src = documentCoverSrc(doc, doc.id, defaultCover, 640);
+        return (
+          <li key={doc.id}>
+            <Link
+              href={`/${locale}/documents/${doc.slug}`}
+              className="category-card category-card--image doc-card--tile"
+              title={doc.title}
+            >
+              <span className="category-card-media">
+                {uploaded ? (
+                  // Uploaded covers are shown whole over a blurred copy of themselves (never cropped);
+                  // the built-in category photos fill the frame exactly like the category cards.
+                  <Image
+                    src={src}
+                    unoptimized
+                    alt=""
+                    aria-hidden
+                    fill
+                    sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 25vw"
+                    className="doc-card-media-backdrop"
+                  />
+                ) : null}
+                <Image
+                  src={src}
+                  unoptimized={uploaded}
+                  alt={doc.title}
+                  fill
+                  sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 25vw"
+                  className={
+                    uploaded
+                      ? "category-card-img category-card-img--whole"
+                      : "category-card-img"
+                  }
+                  priority={index < 4}
+                />
+                <span className="category-card-media-shade" aria-hidden />
+                <span className="doc-card-media-badge">
+                  <span className={`doc-badge doc-badge--${doc.read_access}`}>
+                    {accessLabel(locale, doc.read_access)}
+                  </span>
+                </span>
+                <span className="category-card-title-on-image">
+                  {doc.category_name ? (
+                    <span className="doc-card-eyebrow">
+                      {doc.category_name}
+                    </span>
+                  ) : null}
+                  <span className="doc-card-title-text">{doc.title}</span>
                 </span>
               </span>
-            </span>
-
-            <span className="doc-card-body">
-              <span className="doc-card-meta">
-                {doc.category_name ? (
-                  <span className="doc-card-cat">{doc.category_name}</span>
-                ) : null}
-                {doc.year ? (
-                  <span className="doc-card-year">· {doc.year}</span>
-                ) : null}
-              </span>
-
-              <h3 className="doc-card-title">{doc.title}</h3>
-
-              <span className="doc-card-footer">
-                {doc.document_number ? (
-                  <span className="doc-card-docnum">{doc.document_number}</span>
-                ) : (
-                  <span />
-                )}
-                <span className="doc-card-read-more" aria-hidden>
-                  {locale === "lo" ? "ອ່ານ" : "Read"} →
+              <span className="category-card-body">
+                {/* Always present (empty without a summary) so card heights match. */}
+                <span className="category-card-desc">{doc.summary || ""}</span>
+                <span className="category-card-meta doc-card-action">
+                  <span>
+                    {locale === "lo" ? "ອ່ານ" : "Read"}
+                    <span className="category-card-arrow" aria-hidden>
+                      {" "}
+                      →
+                    </span>
+                  </span>
+                  <span className="doc-card-ref">
+                    {[doc.document_number, doc.year]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </span>
                 </span>
               </span>
-            </span>
-          </Link>
-        </li>
-      ))}
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }

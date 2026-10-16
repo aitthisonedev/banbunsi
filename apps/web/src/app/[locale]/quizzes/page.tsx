@@ -24,12 +24,17 @@ const COVER_FALLBACK = [
   "/brand/categories/cat-law.jpg",
 ] as const;
 
-function coverFor(slug: string, category: string, index: number) {
+/** The quiz's topic photo; others get a stable choice based on the quiz's slug. */
+function coverFor(slug: string, category: string) {
   const key = `${slug} ${category}`;
   for (const row of COVER_BY_TOPIC) {
     if (row.match.test(key)) return row.src;
   }
-  return COVER_FALLBACK[index % COVER_FALLBACK.length];
+  const hash = [...slug].reduce(
+    (sum, ch) => (sum * 31 + ch.charCodeAt(0)) >>> 0,
+    0,
+  );
+  return COVER_FALLBACK[hash % COVER_FALLBACK.length];
 }
 
 export async function generateMetadata({
@@ -88,7 +93,7 @@ export default async function QuizzesPage({
         {quizzes.length === 0 ? (
           <p className="page-listing-meta">{t(raw, "noQuizzes")}</p>
         ) : (
-          <ul className="quiz-card-grid">
+          <ul className="category-card-grid quiz-card-grid">
             {quizzes.map((quiz, index) => (
               <li key={quiz.slug}>
                 <Link
@@ -97,7 +102,7 @@ export default async function QuizzesPage({
                 >
                   <span className="category-card-media">
                     <Image
-                      src={coverFor(quiz.slug, quiz.category, index)}
+                      src={coverFor(quiz.slug, quiz.category)}
                       alt={quiz.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 33vw"
@@ -111,11 +116,10 @@ export default async function QuizzesPage({
                   </span>
                   <span className="category-card-body">
                     <span className="quiz-card-cat">{quiz.category}</span>
-                    {quiz.description ? (
-                      <span className="category-card-desc">
-                        {quiz.description}
-                      </span>
-                    ) : null}
+                    {/* Always present (empty without a description) so card heights match. */}
+                    <span className="category-card-desc">
+                      {quiz.description || ""}
+                    </span>
                     <span className="category-card-meta">
                       <span>
                         {quiz.questionCount} {t(raw, "questions")} ·{" "}
