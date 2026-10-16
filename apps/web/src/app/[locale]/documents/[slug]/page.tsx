@@ -9,6 +9,7 @@ import { sanitizeHtml } from "@/lib/sanitize-html";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import { decodeSlug } from "@/lib/slug";
+import { DownloadButton } from "@/components/download-button";
 
 function accessLabel(locale: "lo" | "en", access: string) {
   if (access === "vip") return t(locale, "badgeVip");
@@ -269,15 +270,11 @@ export default async function DocumentDetailPage({
                   </span>
                 ) : file.file_url &&
                   canDownloadFile(viewer, file.download_access) ? (
-                  <a
-                    href={file.file_url}
-                    className="doc-file-btn"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <DownloadIcon />
-                    <span>{t(raw, "download") || "Download"}</span>
-                  </a>
+                  <DownloadButton
+                    locale={raw}
+                    fileUrl={file.file_url}
+                    fileName={file.file_name}
+                  />
                 ) : viewer && viewer.account_status === "active" ? (
                   // Signed in, but this file is for VIP members only.
                   <Link href={`/${raw}/vip`} className="doc-file-btn">

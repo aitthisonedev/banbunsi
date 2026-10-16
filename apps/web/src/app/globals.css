@@ -1858,6 +1858,36 @@ html.dark .doc-badge--vip {
   transition: background 150ms ease;
   white-space: nowrap;
 }
+/* Download button with its error message underneath (src/components/download-button.tsx). */
+.doc-file-download {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+.doc-file-btn:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+.doc-file-error {
+  margin: 0;
+  max-width: 18rem;
+  font-size: 0.8rem;
+  text-align: right;
+  color: #b91c1c;
+}
+html.dark .doc-file-error {
+  color: #fca5a5;
+}
+@media (max-width: 640px) {
+  .doc-file-download {
+    align-items: stretch;
+  }
+  .doc-file-error {
+    max-width: none;
+    text-align: left;
+  }
+}
 /* A file entry without an uploaded file: same shape, clearly not clickable. */
 .doc-file-btn.is-disabled {
   opacity: 0.55;

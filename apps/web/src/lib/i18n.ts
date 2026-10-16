@@ -561,6 +561,8 @@ const lo: Dict = {
   viewDashboard: "ເບິ່ງແຜງຄວບຄຸມ",
   vipDownloadOnly: "ສະເພາະສະມາຊິກ VIP",
   fileNotAvailable: "ໄຟລ໌ຍັງບໍ່ພ້ອມ",
+  downloading: "ກຳລັງດາວໂຫຼດ…",
+  downloadNetworkError: "ດາວໂຫຼດບໍ່ສຳເລັດ. ກວດສອບການເຊື່ອມຕໍ່ ແລ້ວລອງອີກຄັ້ງ.",
   noFileUploaded: "ຍັງບໍ່ໄດ້ອັບໂຫຼດໄຟລ໌",
   emptyDownloadsHint: "ໄຟລ໌ທີ່ທ່ານດາວໂຫຼດ ຈະສະແດງຢູ່ບ່ອນນີ້.",
   emptyQuizHistoryHint: "ຜົນແບບທົດສອບທີ່ທ່ານສົ່ງ ຈະສະແດງຢູ່ບ່ອນນີ້.",
@@ -999,6 +1001,9 @@ const en: Dict = {
   viewDashboard: "Open dashboard",
   vipDownloadOnly: "VIP members only",
   fileNotAvailable: "File not available yet",
+  downloading: "Downloading…",
+  downloadNetworkError:
+    "The download failed. Check your connection and try again.",
   noFileUploaded: "No file uploaded",
   emptyDownloadsHint: "Files you download will appear here.",
   emptyQuizHistoryHint: "Results of quizzes you submit will appear here.",
