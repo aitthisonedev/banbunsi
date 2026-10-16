@@ -51,7 +51,7 @@ export function CoverViewer({
           width={0}
           height={0}
           priority
-          sizes="(min-width: 768px) 260px, 80vw"
+          sizes="(min-width: 768px) 220px, 80vw"
           className="doc-cover-img"
         />
         <span className="doc-cover-zoom" aria-hidden="true">

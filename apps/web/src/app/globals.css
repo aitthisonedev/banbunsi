@@ -1640,7 +1640,7 @@ html.dark .doc-badge--vip {
 }
 @media (min-width: 768px) {
   .doc-detail-header--with-cover {
-    grid-template-columns: minmax(0, 1fr) 260px;
+    grid-template-columns: minmax(0, 1fr) 220px;
     align-items: start;
   }
 }
@@ -1652,7 +1652,7 @@ html.dark .doc-badge--vip {
   position: relative;
   margin: 0;
   width: 100%;
-  max-width: 260px;
+  max-width: 220px;
   overflow: hidden;
   border-radius: 12px;
   border: 1px solid var(--bb-border);
