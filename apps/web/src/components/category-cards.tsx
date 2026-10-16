@@ -24,8 +24,14 @@ const COVER_BY_CODE: Record<string, string> = {
   sme: COVER_LIST[1],
 };
 
-function coverFor(code: string, index: number) {
-  return COVER_BY_CODE[code] || COVER_LIST[index % COVER_LIST.length];
+/** The category's built-in photo; categories without one get a stable choice based on their id. */
+function coverFor(code: string, id: string) {
+  if (COVER_BY_CODE[code]) return COVER_BY_CODE[code];
+  const hash = [...id].reduce(
+    (sum, ch) => (sum * 31 + ch.charCodeAt(0)) >>> 0,
+    0,
+  );
+  return COVER_LIST[hash % COVER_LIST.length];
 }
 
 function titleFor(locale: Locale, cat: CategoryNode) {
@@ -51,8 +57,11 @@ export function CategoryCards({
     <ul className="category-card-grid">
       {items.map((cat, index) => {
         const title = titleFor(locale, cat);
-        const cover = coverFor(cat.code, index);
-        const count = counts?.[cat.slug] ?? counts?.[cat.code];
+        const cover = coverFor(cat.code, cat.id || cat.code);
+        // Real count of published documents; a category without documents shows 0.
+        const count = counts
+          ? (counts[cat.slug] ?? counts[cat.code] ?? 0)
+          : undefined;
 
         return (
           <li key={cat.id || `${cat.code}-${index}`}>
@@ -73,9 +82,10 @@ export function CategoryCards({
                 <span className="category-card-title-on-image">{title}</span>
               </span>
               <span className="category-card-body">
-                {cat.description ? (
-                  <span className="category-card-desc">{cat.description}</span>
-                ) : null}
+                {/* Always present (empty when there is no description) so card heights match. */}
+                <span className="category-card-desc">
+                  {cat.description || ""}
+                </span>
                 <span className="category-card-meta">
                   {typeof count === "number"
                     ? `${count} ${t(locale, "documents")}`

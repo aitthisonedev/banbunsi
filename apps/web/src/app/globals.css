@@ -4823,13 +4823,19 @@ html.dark .admin-user-option.is-selected {
   align-items: center;
   gap: 0.45rem;
 }
+/* 1 column on phones, 2 on tablets, 4 on desktop; every card in the grid has the same size. */
 .category-card-grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 600px) {
+  .category-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (min-width: 900px) {
   .category-card-grid {
@@ -4915,7 +4921,9 @@ html.dark .admin-user-option.is-selected {
   gap: 0.35rem;
   padding: 0.75rem 0.95rem 0.85rem;
 }
+/* Always two lines tall (clamped or padded), so every card's white area has the same height. */
 .category-card-desc {
+  min-height: 3em;
   font-size: 0.84rem;
   color: var(--bb-text-muted);
   line-height: 1.5;
