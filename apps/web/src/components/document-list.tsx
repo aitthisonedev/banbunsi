@@ -36,7 +36,7 @@ export async function DocumentList({
   if (variant === "list") {
     return (
       <ul className="doc-list">
-        {items.map((doc, index) => (
+        {items.map((doc) => (
           <li key={doc.id}>
             <Link
               href={`/${locale}/documents/${doc.slug}`}
@@ -44,7 +44,7 @@ export async function DocumentList({
             >
               <span className="doc-card-thumb" aria-hidden>
                 <Image
-                  src={documentCoverSrc(doc, index, defaultCover, 160)}
+                  src={documentCoverSrc(doc, doc.id, defaultCover, 160)}
                   unoptimized={isUploadedImage(
                     doc.cover_image_url || defaultCover,
                   )}
@@ -80,7 +80,7 @@ export async function DocumentList({
 
   return (
     <ul className="doc-card-grid">
-      {items.map((doc, index) => (
+      {items.map((doc) => (
         <li key={doc.id}>
           <Link
             href={`/${locale}/documents/${doc.slug}`}
@@ -88,8 +88,21 @@ export async function DocumentList({
             title={doc.title}
           >
             <span className="doc-card-media">
+              {/* The same cover as the document page, shown whole (contain) over a soft blurred
+                  copy of itself, so every card keeps the same height without cropping. */}
               <Image
-                src={documentCoverSrc(doc, index, defaultCover, 640)}
+                src={documentCoverSrc(doc, doc.id, defaultCover, 640)}
+                unoptimized={isUploadedImage(
+                  doc.cover_image_url || defaultCover,
+                )}
+                alt=""
+                aria-hidden
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                className="doc-card-media-backdrop"
+              />
+              <Image
+                src={documentCoverSrc(doc, doc.id, defaultCover, 640)}
                 unoptimized={isUploadedImage(
                   doc.cover_image_url || defaultCover,
                 )}

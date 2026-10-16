@@ -42,14 +42,17 @@ export function CoverViewer({
         aria-label={openLabel}
         title={openLabel}
       >
+        {/* Natural size (width/height 0 + CSS): the frame follows the image's own aspect ratio,
+            so square, landscape and portrait covers are all shown whole, never cropped. */}
         <Image
           src={src}
           unoptimized={unoptimized}
           alt={alt}
-          fill
+          width={0}
+          height={0}
           priority
-          sizes="(min-width: 768px) 220px, 60vw"
-          className="object-cover"
+          sizes="(min-width: 768px) 260px, 80vw"
+          className="doc-cover-img"
         />
         <span className="doc-cover-zoom" aria-hidden="true">
           <svg

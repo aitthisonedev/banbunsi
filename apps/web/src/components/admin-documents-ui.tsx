@@ -67,7 +67,7 @@ export function DocumentCover({
           sizes={size === "lg" ? "280px" : "96px"}
           unoptimized={!src!.startsWith("/")}
           onError={() => setFailed((current) => [...current, src!])}
-          className="object-cover"
+          className="object-contain"
         />
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-bb-text-muted">

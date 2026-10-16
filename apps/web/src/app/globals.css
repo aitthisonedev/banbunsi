@@ -1394,7 +1394,7 @@ html.dark .doc-card--tile:hover {
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 .doc-card--tile:hover .doc-card-media-img {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 .doc-card-thumb {
   position: relative;
@@ -1405,8 +1405,9 @@ html.dark .doc-card--tile:hover {
   border-radius: 8px;
   background: #0b1f6b;
 }
+/* Whole cover in the small list thumbnail (no cropping). */
 .doc-card-thumb-img {
-  object-fit: cover;
+  object-fit: contain;
 }
 .doc-card-media {
   position: relative;
@@ -1421,9 +1422,15 @@ html.dark .doc-card--tile:hover {
     height: 8.25rem;
   }
 }
+/* Card cover: the whole image (contain) over a blurred copy of itself that fills the frame. */
 .doc-card-media-img {
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 320ms ease;
+}
+.doc-card-media-backdrop {
+  object-fit: cover;
+  filter: blur(14px) brightness(0.8);
+  transform: scale(1.15);
 }
 .doc-card-media-shade {
   position: absolute;
@@ -1633,19 +1640,19 @@ html.dark .doc-badge--vip {
 }
 @media (min-width: 768px) {
   .doc-detail-header--with-cover {
-    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-columns: minmax(0, 1fr) 260px;
     align-items: start;
   }
 }
 .doc-detail-header-main {
   min-width: 0;
 }
+/* The frame takes the cover's own aspect ratio (no fixed 3:4), so the whole image is shown. */
 .doc-detail-cover {
   position: relative;
   margin: 0;
   width: 100%;
-  max-width: 220px;
-  aspect-ratio: 3 / 4;
+  max-width: 260px;
   overflow: hidden;
   border-radius: 12px;
   border: 1px solid var(--bb-border);
@@ -1736,13 +1743,21 @@ html.dark .doc-badge--vip {
 }
 /* Clickable cover (src/components/cover-viewer.tsx) and its full-size view. */
 .doc-cover-trigger {
-  position: absolute;
-  inset: 0;
+  position: relative;
   display: block;
+  width: 100%;
   padding: 0;
   border: 0;
   background: none;
   cursor: zoom-in;
+}
+/* Natural aspect ratio; very tall covers are limited in height and still shown whole. */
+.doc-cover-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 26rem;
+  object-fit: contain;
 }
 .doc-cover-trigger:focus-visible {
   outline: 3px solid var(--bb-blue);
@@ -8271,7 +8286,7 @@ a.dov-activity-row:hover {
 .dov-doc-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 300ms ease;
 }
 .dov-doc:hover .dov-doc-img {

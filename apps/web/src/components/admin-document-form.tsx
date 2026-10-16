@@ -506,7 +506,7 @@ export function AdminDocumentForm({
                     sizes="(min-width: 1024px) 176px, 112px"
                     unoptimized
                     onError={() => setCoverFailed(true)}
-                    className="object-cover"
+                    className="object-contain"
                   />
                 ) : showFallback ? (
                   <>
@@ -517,7 +517,7 @@ export function AdminDocumentForm({
                       sizes="(min-width: 1024px) 176px, 112px"
                       unoptimized={!fallbackCover.startsWith("/")}
                       onError={() => setFallbackFailed(fallbackCover)}
-                      className="object-cover"
+                      className="object-contain"
                     />
                     <span className="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1 text-center text-[11px] font-medium text-white">
                       {t(locale, "defaultImage")}
