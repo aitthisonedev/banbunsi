@@ -16,7 +16,7 @@ export function CoverViewer({
   closeLabel,
 }: {
   src: string;
-  /** Larger version shown in the viewer. */
+  /** The original image, shown complete (not cropped) in the viewer. */
   fullSrc: string;
   alt: string;
   unoptimized: boolean;

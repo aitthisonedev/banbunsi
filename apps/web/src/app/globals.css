@@ -1768,8 +1768,8 @@ html.dark .doc-badge--vip {
 .doc-cover-dialog {
   /* The CSS reset zeroes dialog margins; auto restores centring in the viewport. */
   margin: auto;
-  max-width: min(92vw, 900px);
-  max-height: 92vh;
+  max-width: 96vw;
+  max-height: 94vh;
   padding: 0;
   border: 0;
   border-radius: 12px;
@@ -1779,10 +1779,11 @@ html.dark .doc-badge--vip {
 .doc-cover-dialog::backdrop {
   background: rgb(2 6 23 / 82%);
 }
+/* The whole original image, scaled down only to fit the screen (never cropped or enlarged). */
 .doc-cover-full {
   display: block;
-  max-width: min(92vw, 900px);
-  max-height: 88vh;
+  max-width: 96vw;
+  max-height: 90vh;
   width: auto;
   height: auto;
   border-radius: 12px;

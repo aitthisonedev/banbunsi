@@ -2,7 +2,11 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { canDownloadFile, getDocument, getPublicSettings, me } from "@/lib/api";
-import { documentCoverSrc, isUploadedImage } from "@/lib/image-variants";
+import {
+  documentCoverOriginal,
+  documentCoverSrc,
+  isUploadedImage,
+} from "@/lib/image-variants";
 import { isLocale, t } from "@/lib/i18n";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 import type { Metadata } from "next";
@@ -186,7 +190,7 @@ export default async function DocumentDetailPage({
           <figure className="doc-detail-cover">
             <CoverViewer
               src={documentCoverSrc(doc, doc.id, defaultCover, 480)}
-              fullSrc={documentCoverSrc(doc, doc.id, defaultCover, 1280)}
+              fullSrc={documentCoverOriginal(doc, doc.id, defaultCover)}
               unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
               alt={t(raw, "coverOf", { title: doc.title })}
               openLabel={t(raw, "viewCoverFull")}

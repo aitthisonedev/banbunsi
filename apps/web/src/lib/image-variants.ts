@@ -35,3 +35,19 @@ export function documentCoverSrc(
   const uploaded = doc.cover_image_url || defaultCover;
   return uploaded ? imageVariant(uploaded, width) : categoryCover(doc, key);
 }
+
+/**
+ * The same cover as documentCoverSrc, but the original file exactly as uploaded (no "?w=" resize),
+ * for the full-size cover view.
+ */
+export function documentCoverOriginal(
+  doc: {
+    cover_image_url?: string;
+    category_slug?: string;
+    category_name?: string;
+  },
+  key: number | string,
+  defaultCover: string | undefined,
+) {
+  return doc.cover_image_url || defaultCover || categoryCover(doc, key);
+}
