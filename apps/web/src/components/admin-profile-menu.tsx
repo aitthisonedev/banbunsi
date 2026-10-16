@@ -17,6 +17,15 @@ export function AdminProfileMenu({
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  // Staff role in the page language (ເຈົ້າຂອງ / ຜູ້ດູແລລະບົບ / ບັນນາທິການ).
+  const roleLabel = t(
+    locale,
+    user.staff_role === "owner"
+      ? "roleOwner"
+      : user.staff_role === "admin"
+        ? "roleAdmin"
+        : "roleEditor",
+  );
   const displayName =
     user.name ||
     [user.first_name, user.last_name].filter(Boolean).join(" ") ||
@@ -61,13 +70,7 @@ export function AdminProfileMenu({
         </span>
 
         <span className="dash-user-meta">
-          <span className="dash-user-role-label">
-            {user.staff_role === "owner"
-              ? "Owner"
-              : user.staff_role === "admin"
-                ? "Admin"
-                : "Editor"}
-          </span>
+          <span className="dash-user-role-label">{roleLabel}</span>
           <span className="dash-user-name-line">
             <span className="dash-user-name">{displayName}</span>
             <svg
@@ -103,7 +106,7 @@ export function AdminProfileMenu({
               <span className="dash-dropdown-email">{user.email}</span>
               <div className="dash-dropdown-badges">
                 <span className={`dash-badge dash-badge--${user.staff_role}`}>
-                  {user.staff_role}
+                  {roleLabel}
                 </span>
                 {user.membership_tier === "vip" ? (
                   <span className="dash-badge dash-badge--vip">VIP</span>
