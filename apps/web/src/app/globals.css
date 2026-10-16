@@ -1734,6 +1734,81 @@ html.dark .doc-badge--vip {
     padding: 2.25rem 2.5rem;
   }
 }
+/* Clickable cover (src/components/cover-viewer.tsx) and its full-size view. */
+.doc-cover-trigger {
+  position: absolute;
+  inset: 0;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.doc-cover-trigger:focus-visible {
+  outline: 3px solid var(--bb-blue);
+  outline-offset: -3px;
+}
+.doc-cover-zoom {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 65%);
+  color: #fff;
+  transition: transform 150ms ease;
+}
+.doc-cover-trigger:hover .doc-cover-zoom {
+  transform: scale(1.1);
+}
+.doc-cover-dialog {
+  /* The CSS reset zeroes dialog margins; auto restores centring in the viewport. */
+  margin: auto;
+  max-width: min(92vw, 900px);
+  max-height: 92vh;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  overflow: visible;
+}
+.doc-cover-dialog::backdrop {
+  background: rgb(2 6 23 / 82%);
+}
+.doc-cover-full {
+  display: block;
+  max-width: min(92vw, 900px);
+  max-height: 88vh;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  background: #fff;
+}
+.doc-cover-close {
+  position: absolute;
+  top: -0.9rem;
+  right: -0.9rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 30%);
+}
+@media (max-width: 640px) {
+  .doc-cover-close {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
 .doc-gated-card {
   display: flex;
   flex-direction: column;

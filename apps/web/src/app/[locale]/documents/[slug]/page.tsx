@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { canDownloadFile, getDocument, getPublicSettings, me } from "@/lib/api";
 import { documentCoverSrc, isUploadedImage } from "@/lib/image-variants";
 import { isLocale, t } from "@/lib/i18n";
@@ -10,6 +9,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import { decodeSlug } from "@/lib/slug";
 import { DownloadButton } from "@/components/download-button";
+import { CoverViewer } from "@/components/cover-viewer";
 
 function accessLabel(locale: "lo" | "en", access: string) {
   if (access === "vip") return t(locale, "badgeVip");
@@ -184,50 +184,64 @@ export default async function DocumentDetailPage({
             ) : null}
           </div>
           <figure className="doc-detail-cover">
-            <Image
+            <CoverViewer
               src={documentCoverSrc(doc, doc.id, defaultCover, 480)}
+              fullSrc={documentCoverSrc(doc, doc.id, defaultCover, 1280)}
               unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
-              alt={
-                raw === "lo" ? `ໜ້າປົກ: ${doc.title}` : `Cover: ${doc.title}`
-              }
-              fill
-              priority
-              sizes="(min-width: 768px) 220px, 60vw"
-              className="object-cover"
+              alt={t(raw, "coverOf", { title: doc.title })}
+              openLabel={t(raw, "viewCoverFull")}
+              closeLabel={t(raw, "close")}
             />
           </figure>
         </header>
 
-        <main className="doc-detail-content">
-          {safeBody ? (
+        {/* Body text, or why it is hidden: sign in (visitors) or VIP (signed-in members). A readable
+            document without body text simply shows no box. */}
+        {safeBody ? (
+          <main className="doc-detail-content">
             <div
               className="doc-body"
               dangerouslySetInnerHTML={{ __html: safeBody }}
             />
-          ) : (
+          </main>
+        ) : doc.body_available === false ? (
+          <main className="doc-detail-content">
             <div className="doc-gated-card">
               <div className="doc-gated-icon-wrap">
                 <LockIcon />
               </div>
-              <h2 className="doc-gated-title">
-                {raw === "lo"
-                  ? "ເຂົ້າສູ່ລະບົບເພື່ອອ່ານເນື້ອຫາຕົ້ນເຕັມ"
-                  : "Sign in to read full document"}
-              </h2>
-              <p className="doc-gated-desc">{t(raw, "bodyGated")}</p>
-              <div className="doc-gated-actions">
-                <Link href={loginHref} className="btn-primary">
-                  {t(raw, "login")}
-                </Link>
-                {doc.read_access === "vip" ? (
-                  <Link href={`/${raw}/vip`} className="btn-secondary">
-                    {t(raw, "vipBenefits")}
-                  </Link>
-                ) : null}
-              </div>
+              {viewer ? (
+                <>
+                  <h2 className="doc-gated-title">
+                    {t(raw, "vipContentTitle")}
+                  </h2>
+                  <p className="doc-gated-desc">{t(raw, "homePromoLead")}</p>
+                  <div className="doc-gated-actions">
+                    <Link href={`/${raw}/vip`} className="btn-primary">
+                      {t(raw, "vipBenefits")}
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="doc-gated-title">{t(raw, "signInToRead")}</h2>
+                  <p className="doc-gated-desc">{t(raw, "bodyGated")}</p>
+                  <div className="doc-gated-actions">
+                    <Link href={loginHref} className="btn-primary">
+                      {t(raw, "login")}
+                    </Link>
+                    <Link
+                      href={`/${raw}/auth/register`}
+                      className="btn-secondary"
+                    >
+                      {t(raw, "register")}
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
-          )}
-        </main>
+          </main>
+        ) : null}
 
         <section className="doc-files-section">
           <div className="doc-files-head">
