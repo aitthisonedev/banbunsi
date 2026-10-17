@@ -109,29 +109,46 @@ export default async function QuizDetailPage({
   return (
     <div className="page-listing page-quiz-detail">
       <div className="page-listing-inner page-quiz-detail-inner">
-        <div className="page-listing-head">
-          <div>
-            <p className="quiz-detail-cat">{quiz.category}</p>
-            <h1 className="page-listing-title">{quiz.title}</h1>
+        <header className="quiz-detail-head">
+          <div className="quiz-detail-row">
+            <Link href={`/${raw}/quizzes`} className="quiz-detail-eyebrow">
+              <svg
+                className="quiz-detail-back-icon"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.25"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M19 12H5" />
+                <path d="m12 19-7-7 7-7" />
+              </svg>
+              {t(raw, "backToQuizzes")}
+            </Link>
+            <p className="quiz-detail-meta">
+              {quiz.questions.length} {t(raw, "questions")}
+            </p>
           </div>
-          <Link href={`/${raw}/quizzes`} className="section-link">
-            {t(raw, "backToQuizzes")}
-          </Link>
-        </div>
-        {quiz.description ? (
-          <p className="quiz-detail-lead">{quiz.description}</p>
-        ) : null}
-        <p className="quiz-detail-meta">
-          <span>
-            {quiz.questions.length} {t(raw, "questions")}
-          </span>
-          <span>
-            {t(raw, "difficulty")}: {t(raw, quiz.difficulty)}
-          </span>
-          <span>
-            {t(raw, "passScore")} {quiz.passPercent}%
-          </span>
-        </p>
+          <div className="quiz-detail-row quiz-detail-row--main">
+            <h1 className="quiz-detail-title">{quiz.title}</h1>
+            <ul className="quiz-detail-pills">
+              {quiz.category ? <li>{quiz.category}</li> : null}
+              <li>
+                {t(raw, "difficulty")}: {t(raw, quiz.difficulty)}
+              </li>
+              <li>
+                {t(raw, "passScore")} {quiz.passPercent}%
+              </li>
+            </ul>
+          </div>
+          {quiz.description ? (
+            <p className="quiz-detail-lead">{quiz.description}</p>
+          ) : null}
+        </header>
         <QuizPlayer locale={raw} quiz={quiz} />
       </div>
     </div>
