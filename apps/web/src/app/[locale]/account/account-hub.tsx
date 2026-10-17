@@ -22,7 +22,11 @@ import {
   SuccessBanner,
 } from "@/components/ui";
 import { formatDate } from "@/lib/dashboard-stats";
-import { DownloadHistory, QuizHistory } from "@/components/account-history";
+import {
+  DownloadHistory,
+  FavoritesList,
+  QuizHistory,
+} from "@/components/account-history";
 
 type TabId =
   | "profile"
@@ -492,15 +496,29 @@ export function AccountHub() {
             {tab === "profile" ? (
               <div className="account-tab-pane">
                 <div className="account-pane-head">
-                  <h2 className="account-pane-title">
-                    {t(locale, "profileTab")}
-                  </h2>
+                  <div className="account-pane-head--row">
+                    <h2 className="account-pane-title">
+                      {t(locale, "profileTab")}
+                    </h2>
+                    <button
+                      className="btn-primary account-pane-action"
+                      type="submit"
+                      form="account-profile-form"
+                      disabled={busy}
+                    >
+                      {busy ? t(locale, "loading") : t(locale, "save")}
+                    </button>
+                  </div>
                   <p className="account-pane-desc">
                     {t(locale, "accountLead")}
                   </p>
                 </div>
 
-                <form className="account-form" onSubmit={onSaveProfile}>
+                <form
+                  id="account-profile-form"
+                  className="account-form"
+                  onSubmit={onSaveProfile}
+                >
                   {/* Photo section */}
                   <div className="account-photo-card">
                     <div className="account-photo-preview" aria-hidden>
@@ -596,16 +614,6 @@ export function AccountHub() {
                       disabled
                     />
                   </FormField>
-
-                  <div className="account-form-actions">
-                    <button
-                      className="btn-primary account-submit-btn"
-                      type="submit"
-                      disabled={busy}
-                    >
-                      {busy ? t(locale, "loading") : t(locale, "save")}
-                    </button>
-                  </div>
                 </form>
               </div>
             ) : null}
@@ -760,9 +768,15 @@ export function AccountHub() {
                         {user.phone || "—"}
                       </span>
                     </div>
-                    <span className="account-method-badge is-coming">
-                      {t(locale, "comingSoon")}
-                    </span>
+                    {user.phone ? (
+                      <span className="account-method-badge is-connected">
+                        ✓ {t(locale, "connected")}
+                      </span>
+                    ) : (
+                      <span className="account-method-badge">
+                        {t(locale, "notConnected")}
+                      </span>
+                    )}
                   </div>
 
                   <div className="account-method-card">
@@ -875,7 +889,9 @@ export function AccountHub() {
                         {t(locale, "status")}
                       </span>
                       <span className="account-membership-item-val">
-                        {user.account_status}
+                        {user.account_status === "suspended"
+                          ? t(locale, "accountSuspended")
+                          : t(locale, "active")}
                       </span>
                     </div>
                     <div className="account-membership-item">
@@ -912,15 +928,18 @@ export function AccountHub() {
             {/* Tab: Favorites */}
             {tab === "favorites" ? (
               <div className="account-tab-pane">
-                <div className="account-pane-head">
+                <div className="account-pane-head account-pane-head--row">
                   <h2 className="account-pane-title">
                     {t(locale, "favoritesTab")}
                   </h2>
+                  <Link
+                    href={`/${locale}/documents`}
+                    className="btn-primary account-pane-action"
+                  >
+                    {t(locale, "viewAllDocuments")}
+                  </Link>
                 </div>
-                <EmptyState
-                  title={t(locale, "emptyFavorites")}
-                  description={t(locale, "stubHint")}
-                />
+                <FavoritesList locale={locale} />
               </div>
             ) : null}
 

@@ -453,7 +453,17 @@ func (h *DocumentHandler) PublicGet(c *fiber.Ctx) error {
 
 	user := h.optionalUser(c)
 	tier := h.currentMembershipTier(user)
-	return c.JSON(h.listItem(doc, locale, true, user, tier))
+	item := h.listItem(doc, locale, true, user, tier)
+	favorited := false
+	if user != nil {
+		var n int64
+		_ = h.DB.Model(&models.DocumentFavorite{}).
+			Where("user_id = ? AND document_id = ?", user.ID, doc.ID).
+			Count(&n).Error
+		favorited = n > 0
+	}
+	item["favorited"] = favorited
+	return c.JSON(item)
 }
 
 func (h *DocumentHandler) AdminList(c *fiber.Ctx) error {

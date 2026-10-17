@@ -662,3 +662,35 @@ export function clientAccountQuizHistory(locale: string) {
     `/account/quiz-history?locale=${locale}`,
   );
 }
+
+export type FavoriteItem = {
+  at: string;
+  document_id: string;
+  document_title: string;
+  /** Empty when the document is no longer published. */
+  document_slug: string;
+  document_number: string;
+};
+
+/** The signed-in user's saved documents, newest first. */
+export function clientAccountFavorites(locale: string) {
+  return clientFetch<{ items: FavoriteItem[] }>(
+    `/account/favorites?locale=${locale}`,
+  );
+}
+
+/** Save a published document to the signed-in user's favorites. */
+export function clientAddFavorite(documentId: string) {
+  return clientFetch<{ favorited: boolean }>(
+    `/account/favorites/${encodeURIComponent(documentId)}`,
+    { method: "POST" },
+  );
+}
+
+/** Remove a document from the signed-in user's favorites. */
+export function clientRemoveFavorite(documentId: string) {
+  return clientFetch<{ favorited: boolean }>(
+    `/account/favorites/${encodeURIComponent(documentId)}`,
+    { method: "DELETE" },
+  );
+}

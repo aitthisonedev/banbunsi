@@ -222,6 +222,8 @@ export type DocumentListItem = {
   summary: string;
   body_html?: string;
   body_available?: boolean;
+  /** True when the signed-in user has saved this document (detail response only). */
+  favorited?: boolean;
   seo_title?: string;
   seo_description?: string;
   files: DocumentFileMeta[];

@@ -19,6 +19,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import { decodeSlug } from "@/lib/slug";
 import { DownloadButton } from "@/components/download-button";
+import { FavoriteButton } from "@/components/favorite-button";
 import { CoverViewer } from "@/components/cover-viewer";
 
 function accessLabel(locale: "lo" | "en", access: string) {
@@ -236,7 +237,16 @@ export default async function DocumentDetailPage({
               ) : null}
             </div>
 
-            <h1 className="doc-detail-title">{doc.title}</h1>
+            <div className="doc-detail-title-row">
+              <h1 className="doc-detail-title">{doc.title}</h1>
+              <FavoriteButton
+                locale={raw}
+                documentId={doc.id}
+                initialFavorited={Boolean(doc.favorited)}
+                loginHref={loginHref}
+                signedIn={Boolean(viewer && viewer.account_status === "active")}
+              />
+            </div>
 
             {doc.summary ? (
               <div className="doc-detail-summary-card">

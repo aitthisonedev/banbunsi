@@ -91,6 +91,9 @@ func New(cfg *config.Config, db *gorm.DB) *fiber.App {
 	account.Post("/unlink-google", accountH.UnlinkGoogle)
 	account.Get("/downloads", accountH.Downloads)
 	account.Get("/quiz-history", accountH.QuizHistory)
+	account.Get("/favorites", accountH.Favorites)
+	account.Post("/favorites/:documentId", accountH.AddFavorite)
+	account.Delete("/favorites/:documentId", accountH.RemoveFavorite)
 
 	v1.Get("/categories", catH.PublicList)
 	v1.Get("/settings/public", setH.PublicGet)

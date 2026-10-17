@@ -100,3 +100,18 @@ func (f *DocumentFile) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
+
+// DocumentFavorite is a member's saved document (Account → Favorites).
+type DocumentFavorite struct {
+	ID         uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	UserID     uuid.UUID `gorm:"type:uuid;uniqueIndex:idx_user_doc_fav;not null" json:"user_id"`
+	DocumentID uuid.UUID `gorm:"type:uuid;uniqueIndex:idx_user_doc_fav;index;not null" json:"document_id"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+func (f *DocumentFavorite) BeforeCreate(tx *gorm.DB) error {
+	if f.ID == uuid.Nil {
+		f.ID = uuid.New()
+	}
+	return nil
+}

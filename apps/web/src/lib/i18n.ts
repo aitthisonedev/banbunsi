@@ -298,6 +298,14 @@ const lo: Dict = {
     "\u0E8D\u0EB1\u0E87\u0E9A\u0ECD\u0EC8\u0EC0\u0E8A\u0EB7\u0EC8\u0EAD\u0EA1\u0E95\u0ECD\u0EC8",
   emptyFavorites:
     "\u0E8D\u0EB1\u0E87\u0E9A\u0ECD\u0EC8\u0EA1\u0EB5\u0EA5\u0EB2\u0E8D\u0E81\u0EB2\u0E99\u0E97\u0EB5\u0EC8\u0EA1\u0EB1\u0E81",
+  emptyFavoritesHint:
+    "\u0ec0\u0ead\u0e81\u0eb0\u0eaa\u0eb2\u0e99\u0e97\u0eb5\u0ec8\u0e97\u0ec8\u0eb2\u0e99\u0e9a\u0eb1\u0e99\u0e97\u0eb6\u0e81 \u0e88\u0eb0\u0eaa\u0eb0\u0ec1\u0e94\u0e87\u0e9b\u0eb5\u0e99\u0eb5\u0ec9.",
+  addFavorite:
+    "\u0e9a\u0eb1\u0e99\u0e97\u0eb6\u0e81\u0ec0\u0e9b\u0eb1\u0e99\u0ea5\u0eb2\u0e8d\u0e81\u0eb2\u0e99\u0e97\u0eb5\u0ec8\u0ea1\u0eb1\u0e81",
+  removeFavorite:
+    "\u0ea5\u0eb6\u0e9a\u0ead\u0ead\u0e81\u0e88\u0eb2\u0e81\u0ea5\u0eb2\u0e8d\u0e81\u0eb2\u0e99\u0e97\u0eb5\u0ec8\u0ea1\u0eb1\u0e81",
+  favoriteLogin:
+    "\u0ec0\u0e82\u0ebb\u0ec9\u0eb2\u0eaa\u0eb9\u0ec8\u0ea5\u0eb0\u0e9a\u0ebb\u0e9a\u0ec0\u0e9e\u0eb7\u0ec8\u0ead\u0e9a\u0eb1\u0e99\u0e97\u0eb6\u0e81",
   emptyDownloads:
     "\u0e8d\u0eb1\u0e87\u0e9a\u0ecd\u0ec8\u0ea1\u0eb5\u0e9b\u0eb0\u0eab\u0ea7\u0eb1\u0e94\u0e81\u0eb2\u0e99\u0e94\u0eb2\u0ea7\u0ec2\u0eab\u0ebc\u0e94",
   emptyQuizHistory:
@@ -789,6 +797,10 @@ const en: Dict = {
   connected: "Connected",
   notConnected: "Not connected",
   emptyFavorites: "No favorites yet",
+  emptyFavoritesHint: "Documents you save will show up here.",
+  addFavorite: "Save to favorites",
+  removeFavorite: "Remove from favorites",
+  favoriteLogin: "Sign in to save",
   emptyDownloads: "No download history yet",
   emptyQuizHistory: "No quiz history yet",
   stubHint: "This section will be available in a later update.",
@@ -1119,6 +1131,9 @@ const apiErrorsLo: Dict = {
   "Could not create document": "ສ້າງເອກະສານບໍ່ສຳເລັດ.",
   "Could not update document": "ອັບເດດເອກະສານບໍ່ສຳເລັດ.",
   "Could not delete document": "ລຶບເອກະສານບໍ່ສຳເລັດ.",
+  "Could not load favorites": "ໂຫຼດລາຍການທີ່ມັກບໍ່ສຳເລັດ.",
+  "Could not save favorite": "ບັນທຶກລາຍການທີ່ມັກບໍ່ສຳເລັດ.",
+  "Could not remove favorite": "ລຶບລາຍການທີ່ມັກບໍ່ສຳເລັດ.",
   "Document number or slug already exists":
     "ເລກທີເອກະສານ ຫຼື ຊື່ສຳລັບ URL ນີ້ມີຢູ່ແລ້ວ.",
   "Invalid effective_date": "ວັນທີມີຜົນບັງຄັບໃຊ້ບໍ່ຖືກຕ້ອງ.",

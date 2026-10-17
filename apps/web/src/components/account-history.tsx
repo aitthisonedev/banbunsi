@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 import type { Locale } from "@/lib/api";
 import {
   clientAccountDownloads,
+  clientAccountFavorites,
   clientAccountQuizHistory,
   type DownloadHistoryItem,
+  type FavoriteItem,
   type QuizHistoryItem,
 } from "@/lib/client-api";
 import { formatDate } from "@/lib/dashboard-stats";
@@ -74,6 +76,55 @@ export function DownloadHistory({ locale }: { locale: Locale }) {
               <p className="truncate text-sm text-bb-text-muted">
                 {item.file_label || item.file_name}
               </p>
+            </div>
+            <span className="shrink-0 text-sm text-bb-text-muted">
+              {formatDate(locale, item.at)}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** Account → Favorites: documents the user saved from a document page. */
+export function FavoritesList({ locale }: { locale: Locale }) {
+  const { items, error } = useHistory<FavoriteItem>(() =>
+    clientAccountFavorites(locale),
+  );
+  if (error)
+    return <ErrorState title={t(locale, "loadError")} description={error} />;
+  if (!items) return <LoadingState label={t(locale, "loading")} />;
+  if (!items.length)
+    return (
+      <EmptyState
+        title={t(locale, "emptyFavorites")}
+        description={t(locale, "emptyFavoritesHint")}
+      />
+    );
+  return (
+    <ul className="divide-y divide-[var(--bb-border)]">
+      {items.map((item) => {
+        const title =
+          item.document_title || item.document_number || t(locale, "documents");
+        return (
+          <li key={item.document_id} className={ROW}>
+            <div className="min-w-0">
+              {item.document_slug ? (
+                <Link
+                  href={`/${locale}/documents/${encodeURIComponent(item.document_slug)}`}
+                  className="font-semibold hover:text-bb-blue"
+                >
+                  {title}
+                </Link>
+              ) : (
+                <span className="font-semibold">{title}</span>
+              )}
+              {item.document_number ? (
+                <p className="truncate text-sm text-bb-text-muted">
+                  {item.document_number}
+                </p>
+              ) : null}
             </div>
             <span className="shrink-0 text-sm text-bb-text-muted">
               {formatDate(locale, item.at)}
