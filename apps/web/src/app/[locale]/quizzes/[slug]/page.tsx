@@ -29,7 +29,8 @@ export async function generateMetadata({
     : fallbackTranslation
       ? (fallbackTranslation.locale as Locale)
       : locale;
-  const canonicalSlug = localized?.slug || fallbackTranslation?.slug || quiz?.slug || slug;
+  const canonicalSlug =
+    localized?.slug || fallbackTranslation?.slug || quiz?.slug || slug;
   const alternatePaths: Partial<Record<Locale, string>> = {};
   if (apiQuiz?.translations?.length) {
     for (const translation of apiQuiz.translations) {
@@ -42,7 +43,8 @@ export async function generateMetadata({
     alternatePaths.lo = `/quizzes/${encodeURIComponent(canonicalSlug)}`;
     alternatePaths.en = `/quizzes/${encodeURIComponent(canonicalSlug)}`;
   }
-  alternatePaths[canonicalLocale] = `/quizzes/${encodeURIComponent(canonicalSlug)}`;
+  alternatePaths[canonicalLocale] =
+    `/quizzes/${encodeURIComponent(canonicalSlug)}`;
   return pageMetadata(
     canonicalLocale,
     `/quizzes/${encodeURIComponent(canonicalSlug)}`,

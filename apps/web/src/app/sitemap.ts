@@ -71,10 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
   const flattenedCategories = new Map(
-    locales.map((locale) => [
-      locale,
-      flatten(categoryLists.get(locale) || []),
-    ]),
+    locales.map((locale) => [locale, flatten(categoryLists.get(locale) || [])]),
   );
 
   for (const path of STATIC_PATHS) {
@@ -129,17 +126,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (category.is_active === false) continue;
       const languageUrls = Object.fromEntries(
         locales.flatMap((language) => {
-          const translation = flattenedCategories.get(language)?.find(
-            (candidate) => candidate.id === category.id,
-          );
+          const translation = flattenedCategories
+            .get(language)
+            ?.find((candidate) => candidate.id === category.id);
           return translation
-            ? [[
-                language,
-                url(
+            ? [
+                [
                   language,
-                  `/categories/${encodeURIComponent(translation.slug)}`,
-                ),
-              ]]
+                  url(
+                    language,
+                    `/categories/${encodeURIComponent(translation.slug)}`,
+                  ),
+                ],
+              ]
             : [];
         }),
       );
@@ -166,8 +165,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         quiz?.translations?.length
           ? quiz.translations
               .filter(
-                (translation): translation is { locale: Locale; slug: string } =>
-                  (translation.locale === "lo" || translation.locale === "en") &&
+                (
+                  translation,
+                ): translation is { locale: Locale; slug: string } =>
+                  (translation.locale === "lo" ||
+                    translation.locale === "en") &&
                   Boolean(translation.slug),
               )
               .map((translation) => [
