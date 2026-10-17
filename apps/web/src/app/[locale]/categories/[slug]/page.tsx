@@ -2,7 +2,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { DocumentList } from "@/components/document-list";
 import { EmptyState, ErrorState } from "@/components/ui";
-import { getCategories, getDocuments, type CategoryNode } from "@/lib/api";
+import {
+  getCategories,
+  getDocuments,
+  type CategoryNode,
+  type Locale,
+} from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
@@ -40,13 +45,30 @@ export async function generateMetadata({
   const { locale, slug: rawSlug } = await params;
   const slug = decodeSlug(rawSlug);
   if (!isLocale(locale)) return {};
-  const cats = await getCategories(locale).catch(() => null);
+  const otherLocale: Locale = locale === "lo" ? "en" : "lo";
+  const [cats, otherCats] = await Promise.all([
+    getCategories(locale).catch(() => null),
+    getCategories(otherLocale).catch(() => null),
+  ]);
   const category = cats ? findCategory(cats.items, slug) : undefined;
+  const translatedCategory =
+    category && otherCats
+      ? findCategoryById(otherCats.items, category.id)
+      : undefined;
+  const alternatePaths: Partial<Record<Locale, string>> = {
+    [locale]: `/categories/${encodeURIComponent(slug)}`,
+  };
+  if (translatedCategory) {
+    alternatePaths[otherLocale] = `/categories/${encodeURIComponent(
+      translatedCategory.slug,
+    )}`;
+  }
   return pageMetadata(
     locale,
     `/categories/${encodeURIComponent(slug)}`,
     category?.name || t(locale, "categories"),
     category?.description || undefined,
+    { alternatePaths },
   );
 }
 
@@ -74,11 +96,13 @@ export default async function CategoryDetailPage({
   const cats = await getCategories(raw).catch(() => null);
   if (!cats) {
     return (
-      <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-5">
-        <ErrorState
-          title={t(raw, "loadError")}
-          description={t(raw, "tryAgain")}
-        />
+      <div className="page-listing page-category-detail">
+        <div className="page-listing-inner">
+          <ErrorState
+            title={t(raw, "loadError")}
+            description={t(raw, "tryAgain")}
+          />
+        </div>
       </div>
     );
   }
@@ -108,29 +132,45 @@ export default async function CategoryDetailPage({
     per_page: 40,
   }).catch(() => null);
 
+  const lead =
+    cat.description &&
+    cat.description.trim() &&
+    cat.description.trim() !== cat.name.trim()
+      ? cat.description.trim()
+      : null;
+  const docCount = docs?.total ?? docs?.items.length ?? 0;
+
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-5">
-      <p className="text-sm text-bb-text-muted">
-        <Link href={`/${raw}/categories`} className="section-link">
-          {t(raw, "categories")}
-        </Link>
-      </p>
-      <h1 className="mt-2 text-3xl font-bold">{cat.name}</h1>
-      {cat.description ? (
-        <p className="mt-4 text-bb-text-muted">{cat.description}</p>
-      ) : null}
-      <div className="mt-8 surface-panel">
-        {!docs ? (
-          <ErrorState title={t(raw, "loadError")} />
-        ) : docs.items.length === 0 ? (
-          <EmptyState title={t(raw, "noDocuments")} />
-        ) : (
-          <DocumentList
-            locale={raw}
-            items={docs.items}
-            emptyText={t(raw, "noDocuments")}
-          />
-        )}
+    <div className="page-listing page-category-detail">
+      <div className="page-listing-inner">
+        <header className="cat-detail-head">
+          <h1 className="cat-detail-title">{cat.name}</h1>
+          <div className="cat-detail-row">
+            <Link href={`/${raw}/categories`} className="cat-detail-eyebrow">
+              {t(raw, "categories")}
+            </Link>
+            <p className="cat-detail-meta">
+              {raw === "lo"
+                ? `${docCount} ເອກະສານ`
+                : `${docCount} document${docCount === 1 ? "" : "s"}`}
+            </p>
+          </div>
+          {lead ? <p className="cat-detail-lead">{lead}</p> : null}
+        </header>
+
+        <div className="page-listing-body">
+          {!docs ? (
+            <ErrorState title={t(raw, "loadError")} />
+          ) : docs.items.length === 0 ? (
+            <EmptyState title={t(raw, "noDocuments")} />
+          ) : (
+            <DocumentList
+              locale={raw}
+              items={docs.items}
+              emptyText={t(raw, "noDocuments")}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

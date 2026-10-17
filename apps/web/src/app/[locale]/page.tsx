@@ -137,27 +137,29 @@ export default async function HomePage({
               <span className="hero-tags-label">
                 {raw === "lo" ? "ຄົ້ນຫາຍອດນິຍົມ:" : "Popular:"}
               </span>
-              <Link
-                href={`/${raw}/search?q=${encodeURIComponent(raw === "lo" ? "ພາສີ" : "Tax")}`}
-                className="hero-tag"
-              >
-                {raw === "lo" ? "ພາສີ-ອາກອນ" : "Tax & Duty"}
-              </Link>
-              <Link
-                href={`/${raw}/search?q=${encodeURIComponent(raw === "lo" ? "ບັນຊີ" : "Accounting")}`}
-                className="hero-tag"
-              >
-                {raw === "lo" ? "ມາດຕະຖານບັນຊີ" : "Accounting"}
-              </Link>
-              <Link
-                href={`/${raw}/search?q=${encodeURIComponent(raw === "lo" ? "ກົດໝາຍ" : "Law")}`}
-                className="hero-tag"
-              >
-                {raw === "lo" ? "ກົດໝາຍ" : "Law & Regulations"}
-              </Link>
-              <Link href={`/${raw}/documents`} className="hero-tag">
-                {raw === "lo" ? "ແບບຟອມທັງໝົດ" : "All Forms"}
-              </Link>
+              <div className="hero-tags-list">
+                <Link
+                  href={`/${raw}/search?q=${encodeURIComponent(raw === "lo" ? "ພາສີ" : "Tax")}`}
+                  className="hero-tag"
+                >
+                  {raw === "lo" ? "ພາສີ-ອາກອນ" : "Tax & Duty"}
+                </Link>
+                <Link
+                  href={`/${raw}/search?q=${encodeURIComponent(raw === "lo" ? "ບັນຊີ" : "Accounting")}`}
+                  className="hero-tag"
+                >
+                  {raw === "lo" ? "ມາດຕະຖານບັນຊີ" : "Accounting"}
+                </Link>
+                <Link
+                  href={`/${raw}/search?q=${encodeURIComponent(raw === "lo" ? "ກົດໝາຍ" : "Law")}`}
+                  className="hero-tag"
+                >
+                  {raw === "lo" ? "ກົດໝາຍ" : "Law & Regulations"}
+                </Link>
+                <Link href={`/${raw}/documents`} className="hero-tag">
+                  {raw === "lo" ? "ແບບຟອມທັງໝົດ" : "All Forms"}
+                </Link>
+              </div>
             </div>
           </div>
 

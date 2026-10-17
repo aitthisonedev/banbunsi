@@ -23,18 +23,34 @@ export function pageMetadata(
   path: string,
   title?: string,
   description?: string,
-  options: { noindex?: boolean } = {},
+  options: {
+    noindex?: boolean;
+    alternatePaths?: Partial<Record<Locale, string>>;
+  } = {},
 ): Metadata {
+  const languages: Record<string, string> = options.alternatePaths
+    ? Object.fromEntries(
+        Object.entries(options.alternatePaths)
+          .filter((entry): entry is [Locale, string] => Boolean(entry[1]))
+          .map(([language, alternatePath]) => [
+            language,
+            `/${language}${alternatePath}`,
+          ]),
+      )
+    : {
+        lo: `/lo${path}`,
+        en: `/en${path}`,
+        "x-default": `/lo${path}`,
+      };
+  if (options.alternatePaths?.lo) {
+    languages["x-default"] = `/lo${options.alternatePaths.lo}`;
+  }
   return {
     ...(title ? { title } : {}),
     ...(description ? { description } : {}),
     alternates: {
       canonical: `/${locale}${path}`,
-      languages: {
-        lo: `/lo${path}`,
-        en: `/en${path}`,
-        "x-default": `/lo${path}`,
-      },
+      languages,
     },
     openGraph: {
       ...(title ? { title } : {}),

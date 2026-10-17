@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
-import { canDownloadFile, getDocument, getPublicSettings, me } from "@/lib/api";
+import { notFound, redirect } from "next/navigation";
+import {
+  canDownloadFile,
+  getDocument,
+  getPublicSettings,
+  me,
+  type Locale,
+} from "@/lib/api";
 import {
   documentCoverOriginal,
   documentCoverSrc,
@@ -94,11 +100,29 @@ export async function generateMetadata({
   const slug = decodeSlug(rawSlug);
   if (!isLocale(locale)) return {};
   const doc = await getDocument(locale, slug).catch(() => null);
+  const canonicalTranslation =
+    doc?.translations?.find((translation) => translation.locale === locale) ||
+    doc?.translations?.find((translation) => isLocale(translation.locale));
+  const canonicalLocale = canonicalTranslation
+    ? (canonicalTranslation.locale as Locale)
+    : locale;
+  const canonicalSlug = canonicalTranslation?.slug || doc?.slug || slug;
+  const alternatePaths: Partial<Record<Locale, string>> = {};
+  for (const translation of doc?.translations || []) {
+    if (isLocale(translation.locale) && translation.slug) {
+      alternatePaths[translation.locale] =
+        `/documents/${encodeURIComponent(translation.slug)}`;
+    }
+  }
+  alternatePaths[canonicalLocale] = `/documents/${encodeURIComponent(
+    canonicalSlug,
+  )}`;
   return pageMetadata(
-    locale,
-    `/documents/${encodeURIComponent(slug)}`,
-    doc?.title || t(locale, "documents"),
-    doc?.summary || undefined,
+    canonicalLocale,
+    `/documents/${encodeURIComponent(canonicalSlug)}`,
+    doc?.seo_title || doc?.title || t(locale, "documents"),
+    doc?.seo_description || doc?.summary || undefined,
+    { alternatePaths },
   );
 }
 
@@ -122,6 +146,23 @@ export default async function DocumentDetailPage({
       ?.default_cover_url;
   } catch {
     notFound();
+  }
+
+  const localized = doc.translations?.find(
+    (translation) => translation.locale === raw,
+  );
+  if (localized && localized.slug !== slug) {
+    redirect(`/${raw}/documents/${encodeURIComponent(localized.slug)}`);
+  }
+  if (doc.translations && !localized) {
+    const fallback = doc.translations.find((translation) =>
+      isLocale(translation.locale),
+    );
+    if (fallback) {
+      redirect(
+        `/${fallback.locale}/documents/${encodeURIComponent(fallback.slug)}`,
+      );
+    }
   }
 
   // Who is viewing decides which download button each file gets (the API enforces the same rules).
@@ -149,14 +190,33 @@ export default async function DocumentDetailPage({
               <span className="doc-breadcrumb-sep" aria-hidden="true">
                 /
               </span>
-              <span className="doc-breadcrumb-current">
-                {doc.category_name}
-              </span>
+              {doc.category_slug ? (
+                <Link
+                  href={`/${raw}/categories/${doc.category_slug}`}
+                  className="doc-breadcrumb-link"
+                >
+                  {doc.category_name}
+                </Link>
+              ) : (
+                <span className="doc-breadcrumb-current">
+                  {doc.category_name}
+                </span>
+              )}
             </>
           ) : null}
         </nav>
 
         <header className="doc-detail-header doc-detail-header--with-cover">
+          <figure className="doc-detail-cover">
+            <CoverViewer
+              src={documentCoverSrc(doc, doc.id, defaultCover, 640)}
+              fullSrc={documentCoverOriginal(doc, doc.id, defaultCover)}
+              unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
+              alt={t(raw, "coverOf", { title: doc.title })}
+              openLabel={t(raw, "viewCoverFull")}
+              closeLabel={t(raw, "close")}
+            />
+          </figure>
           <div className="doc-detail-header-main">
             <div className="doc-detail-meta-pills">
               <span className={`doc-badge doc-badge--${doc.read_access}`}>
@@ -181,22 +241,12 @@ export default async function DocumentDetailPage({
             {doc.summary ? (
               <div className="doc-detail-summary-card">
                 <span className="doc-summary-label">
-                  {raw === "lo" ? "ເນື້ອໃນຫຍໍ້:" : "Summary:"}
+                  {raw === "lo" ? "ເນື້ອໃນຫຍໍ້" : "Summary"}
                 </span>
                 <p className="doc-summary-text">{doc.summary}</p>
               </div>
             ) : null}
           </div>
-          <figure className="doc-detail-cover">
-            <CoverViewer
-              src={documentCoverSrc(doc, doc.id, defaultCover, 480)}
-              fullSrc={documentCoverOriginal(doc, doc.id, defaultCover)}
-              unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
-              alt={t(raw, "coverOf", { title: doc.title })}
-              openLabel={t(raw, "viewCoverFull")}
-              closeLabel={t(raw, "close")}
-            />
-          </figure>
         </header>
 
         {/* Body text, or why it is hidden: sign in (visitors) or VIP (signed-in members). A readable

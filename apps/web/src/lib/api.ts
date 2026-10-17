@@ -229,8 +229,6 @@ export type DocumentListItem = {
     locale: string;
     title: string;
     slug: string;
-    summary: string;
-    body_html: string;
     seo_title?: string;
     seo_description?: string;
   }>;
@@ -282,6 +280,7 @@ export type QuizListItem = {
   difficulty: "easy" | "medium" | "hard" | string;
   pass_percent: number;
   question_count: number;
+  translations?: Array<{ locale: string; slug: string }>;
 };
 
 export type QuizDetail = {
@@ -292,6 +291,7 @@ export type QuizDetail = {
   category: string;
   difficulty: string;
   pass_percent: number;
+  translations?: Array<{ locale: string; slug: string }>;
   questions: Array<{
     id: string;
     prompt: string;

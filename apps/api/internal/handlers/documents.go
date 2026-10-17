@@ -335,6 +335,19 @@ func (h *DocumentHandler) listItem(doc models.Document, locale string, includeBo
 			}
 		}
 	}
+	// Expose only public translation metadata so the web app can emit accurate hreflang links.
+	// In particular, do not include BodyHTML here: it may be gated by read access.
+	translations := make([]fiber.Map, 0, len(doc.Translations))
+	for _, translation := range doc.Translations {
+		translations = append(translations, fiber.Map{
+			"locale":          translation.Locale,
+			"title":           translation.Title,
+			"slug":            translation.Slug,
+			"seo_title":       translation.SEOTitle,
+			"seo_description": translation.SEODescription,
+		})
+	}
+	item["translations"] = translations
 	files := make([]fiber.Map, 0, len(doc.Files))
 	for _, f := range doc.Files {
 		files = append(files, filePayload(f, apiPublicURL))

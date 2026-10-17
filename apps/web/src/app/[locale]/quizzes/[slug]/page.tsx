@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { QuizPlayer } from "@/components/quiz-player";
-import { getQuiz as getQuizApi } from "@/lib/api";
+import { getQuiz as getQuizApi, type Locale } from "@/lib/api";
 import { isLocale, t } from "@/lib/i18n";
 import { getQuiz as getQuizDemo, type QuizDifficulty } from "@/lib/quizzes";
 import type { Metadata } from "next";
@@ -16,14 +16,39 @@ export async function generateMetadata({
   const { locale, slug: rawSlug } = await params;
   const slug = decodeSlug(rawSlug);
   if (!isLocale(locale)) return {};
-  const quiz =
-    (await getQuizApi(locale, slug).catch(() => null)) ||
-    getQuizDemo(locale, slug);
+  const apiQuiz = await getQuizApi(locale, slug).catch(() => null);
+  const quiz = apiQuiz || getQuizDemo(locale, slug);
+  const localized = apiQuiz?.translations?.find(
+    (translation) => translation.locale === locale,
+  );
+  const fallbackTranslation = apiQuiz?.translations?.find((translation) =>
+    isLocale(translation.locale),
+  );
+  const canonicalLocale = localized
+    ? locale
+    : fallbackTranslation
+      ? (fallbackTranslation.locale as Locale)
+      : locale;
+  const canonicalSlug = localized?.slug || fallbackTranslation?.slug || quiz?.slug || slug;
+  const alternatePaths: Partial<Record<Locale, string>> = {};
+  if (apiQuiz?.translations?.length) {
+    for (const translation of apiQuiz.translations) {
+      if (isLocale(translation.locale) && translation.slug) {
+        alternatePaths[translation.locale] =
+          `/quizzes/${encodeURIComponent(translation.slug)}`;
+      }
+    }
+  } else if (quiz) {
+    alternatePaths.lo = `/quizzes/${encodeURIComponent(canonicalSlug)}`;
+    alternatePaths.en = `/quizzes/${encodeURIComponent(canonicalSlug)}`;
+  }
+  alternatePaths[canonicalLocale] = `/quizzes/${encodeURIComponent(canonicalSlug)}`;
   return pageMetadata(
-    locale,
-    `/quizzes/${encodeURIComponent(slug)}`,
+    canonicalLocale,
+    `/quizzes/${encodeURIComponent(canonicalSlug)}`,
     quiz?.title || t(locale, "quizzes"),
     quiz?.description || undefined,
+    { alternatePaths },
   );
 }
 
@@ -37,6 +62,22 @@ export default async function QuizDetailPage({
   if (!isLocale(raw)) notFound();
 
   const apiQuiz = await getQuizApi(raw, slug).catch(() => null);
+  const localized = apiQuiz?.translations?.find(
+    (translation) => translation.locale === raw,
+  );
+  if (localized && localized.slug !== slug) {
+    redirect(`/${raw}/quizzes/${encodeURIComponent(localized.slug)}`);
+  }
+  if (apiQuiz?.translations?.length && !localized) {
+    const fallback = apiQuiz.translations.find((translation) =>
+      isLocale(translation.locale),
+    );
+    if (fallback) {
+      redirect(
+        `/${fallback.locale}/quizzes/${encodeURIComponent(fallback.slug)}`,
+      );
+    }
+  }
   const demoQuiz = getQuizDemo(raw, slug);
 
   if (!apiQuiz && !demoQuiz) notFound();

@@ -55,14 +55,20 @@ type quizQuestionJSON struct {
 type quizQuestionsByLocale map[string][]quizQuestionJSON
 
 type quizListItem struct {
-	ID            string `json:"id"`
-	Slug          string `json:"slug"`
-	Title         string `json:"title"`
-	Description   string `json:"description"`
-	Category      string `json:"category"`
-	Difficulty    string `json:"difficulty"`
-	PassPercent   int    `json:"pass_percent"`
-	QuestionCount int    `json:"question_count"`
+	ID            string                `json:"id"`
+	Slug          string                `json:"slug"`
+	Title         string                `json:"title"`
+	Description   string                `json:"description"`
+	Category      string                `json:"category"`
+	Difficulty    string                `json:"difficulty"`
+	PassPercent   int                   `json:"pass_percent"`
+	QuestionCount int                   `json:"question_count"`
+	Translations  []quizTranslationLink `json:"translations"`
+}
+
+type quizTranslationLink struct {
+	Locale string `json:"locale"`
+	Slug   string `json:"slug"`
 }
 
 type quizPublicQuestion struct {
@@ -75,14 +81,26 @@ type quizPublicQuestion struct {
 }
 
 type quizDetail struct {
-	ID          string               `json:"id"`
-	Slug        string               `json:"slug"`
-	Title       string               `json:"title"`
-	Description string               `json:"description"`
-	Category    string               `json:"category"`
-	Difficulty  string               `json:"difficulty"`
-	PassPercent int                  `json:"pass_percent"`
-	Questions   []quizPublicQuestion `json:"questions"`
+	ID           string                `json:"id"`
+	Slug         string                `json:"slug"`
+	Title        string                `json:"title"`
+	Description  string                `json:"description"`
+	Category     string                `json:"category"`
+	Difficulty   string                `json:"difficulty"`
+	PassPercent  int                   `json:"pass_percent"`
+	Questions    []quizPublicQuestion  `json:"questions"`
+	Translations []quizTranslationLink `json:"translations"`
+}
+
+func quizTranslationLinks(items []models.QuizTranslation) []quizTranslationLink {
+	translations := make([]quizTranslationLink, 0, len(items))
+	for _, item := range items {
+		translations = append(translations, quizTranslationLink{
+			Locale: item.Locale,
+			Slug:   item.Slug,
+		})
+	}
+	return translations
 }
 
 func (h *QuizHandler) PublicList(c *fiber.Ctx) error {
@@ -111,6 +129,7 @@ func (h *QuizHandler) PublicList(c *fiber.Ctx) error {
 			Difficulty:    q.Difficulty,
 			PassPercent:   q.PassPercent,
 			QuestionCount: len(qs),
+			Translations:  quizTranslationLinks(q.Translations),
 		})
 	}
 	return c.JSON(fiber.Map{"items": items})
@@ -146,14 +165,15 @@ func (h *QuizHandler) PublicGet(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(quizDetail{
-		ID:          quiz.ID.String(),
-		Slug:        tr.Slug,
-		Title:       tr.Title,
-		Description: tr.Description,
-		Category:    tr.Category,
-		Difficulty:  quiz.Difficulty,
-		PassPercent: quiz.PassPercent,
-		Questions:   publicQs,
+		ID:           quiz.ID.String(),
+		Slug:         tr.Slug,
+		Title:        tr.Title,
+		Description:  tr.Description,
+		Category:     tr.Category,
+		Difficulty:   quiz.Difficulty,
+		PassPercent:  quiz.PassPercent,
+		Questions:    publicQs,
+		Translations: quizTranslationLinks(quiz.Translations),
 	})
 }
 
