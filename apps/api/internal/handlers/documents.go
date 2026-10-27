@@ -241,20 +241,35 @@ func (h *DocumentHandler) DownloadFile(c *fiber.Ctx) error {
 		_ = source.Close()
 		return errJSON(c, fiber.StatusInternalServerError, "Could not read file")
 	}
-	c.Set(fiber.HeaderContentType, downloadContentType(file.FileName, sniff[:read]))
-	c.Set(fiber.HeaderContentDisposition, mime.FormatMediaType("attachment", map[string]string{"filename": filepath.Base(file.FileName)}))
+	contentType := downloadContentType(file.FileName, sniff[:read])
+	preview := c.Query("preview") == "1"
+	c.Set(fiber.HeaderContentType, contentType)
+	c.Set(fiber.HeaderContentDisposition, fileDisposition(file.FileName, contentType, preview))
+	c.Set(fiber.HeaderCacheControl, "private, no-store")
 	c.Set("X-Content-Type-Options", "nosniff")
-	// Count the download for the admin dashboard; a failed log entry never blocks the download.
-	actorID := user.ID
-	_ = h.DB.Create(&models.AuditLog{
-		ActorUserID: &actorID,
-		Action:      downloadAuditAction,
-		TargetType:  "document_file",
-		TargetID:    file.ID.String(),
-		Result:      "ok",
-		Metadata:    "{}",
-	}).Error
+	if !preview {
+		// Count the download for the admin dashboard; a failed log entry never blocks the download.
+		actorID := user.ID
+		_ = h.DB.Create(&models.AuditLog{
+			ActorUserID: &actorID,
+			Action:      downloadAuditAction,
+			TargetType:  "document_file",
+			TargetID:    file.ID.String(),
+			Result:      "ok",
+			Metadata:    "{}",
+		}).Error
+	}
 	return c.SendStream(source, int(info.Size()))
+}
+
+// fileDisposition shows PDFs inline when a preview is asked for; every other type, and every
+// non-preview request, is sent as an attachment.
+func fileDisposition(fileName, contentType string, preview bool) string {
+	disposition := "attachment"
+	if preview && contentType == "application/pdf" {
+		disposition = "inline"
+	}
+	return mime.FormatMediaType(disposition, map[string]string{"filename": filepath.Base(fileName)})
 }
 
 // downloadContentType names the file's type from its extension (uploads are limited to the allowed

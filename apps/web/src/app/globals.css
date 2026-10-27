@@ -1681,11 +1681,11 @@ html.dark .doc-badge--vip {
 .doc-detail-page {
   flex: 1;
   background: var(--bb-bg-muted);
-  padding: 1.5rem 0 3rem;
+  padding: 1.25rem 0 3rem;
 }
 @media (min-width: 768px) {
   .doc-detail-page {
-    padding: 2rem 0 3.5rem;
+    padding: 1.75rem 0 4rem;
   }
 }
 .doc-detail-shell {
@@ -1699,8 +1699,16 @@ html.dark .doc-badge--vip {
   gap: 0.4rem;
   font-size: 0.88rem;
   color: var(--bb-text-muted);
-  margin-bottom: 1rem;
   line-height: 1.45;
+}
+/* Breadcrumb left, category and access badges right; the badges wrap below on narrow screens. */
+.doc-detail-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin-bottom: 1.25rem;
 }
 .doc-breadcrumb-link {
   color: var(--bb-blue);
@@ -1717,76 +1725,64 @@ html.dark .doc-badge--vip {
   color: var(--bb-text-muted);
   overflow-wrap: anywhere;
 }
-/* Document page: cover is full-bleed on top until desktop. */
-.doc-detail-header--with-cover {
+/* Header, side panel, body, files: stacked in that order on small screens. From 1024px the side
+   panel (cover, actions, facts) takes the right column and stays in view while reading. */
+.doc-detail-layout {
   display: grid;
-  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
 }
-@media (min-width: 900px) {
-  .doc-detail-header--with-cover {
-    grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
-    gap: 2rem;
+.doc-detail-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  min-width: 0;
+}
+@media (min-width: 1024px) {
+  .doc-detail-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto 1fr;
+    column-gap: 2rem;
+    row-gap: 1.5rem;
     align-items: start;
   }
-  .doc-detail-header-main {
-    order: 1;
+  .doc-detail-header,
+  .doc-detail-main {
+    grid-column: 1;
   }
-  .doc-detail-cover {
-    order: 2;
+  .doc-detail-main {
+    gap: 1.5rem;
   }
-}
-.doc-detail-header-main {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-/* The frame takes the cover's own aspect ratio (no fixed 3:4), so the whole image is shown. */
-.doc-detail-cover {
-  position: relative;
-  margin: 0;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: 0;
-  border: 0;
-  border-bottom: 1px solid var(--bb-border);
-  background: var(--bb-bg-muted);
-}
-@media (min-width: 900px) {
-  .doc-detail-cover {
-    border-radius: 14px;
-    border: 1px solid var(--bb-border);
-    box-shadow: 0 8px 24px rgba(6, 22, 68, 0.08);
+  /* Stays in view while the left column scrolls; a panel taller than the window scrolls inside
+     itself so its bottom is never out of reach. */
+  .doc-detail-layout > .doc-detail-aside {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    position: sticky;
+    top: 6rem;
+    max-height: calc(100vh - 7rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .doc-detail-layout > .doc-detail-aside .doc-cover-frame {
+    aspect-ratio: 16 / 10;
   }
 }
-
 .doc-detail-header {
+  min-width: 0;
+}
+.doc-detail-intro {
   border: 1px solid var(--bb-border);
   border-radius: 16px;
   background: var(--bb-surface);
-  padding: 1.25rem 1.2rem 1.5rem;
+  padding: 1.25rem 1.2rem 1.4rem;
   box-shadow: 0 4px 18px rgba(6, 22, 68, 0.04);
-  overflow: hidden;
 }
-/* Small/tablet: cover is edge-to-edge; padding stays on the text block only. */
-@media (max-width: 899px) {
-  .doc-detail-header.doc-detail-header--with-cover {
-    padding: 0 0 1.35rem;
-    gap: 1.1rem;
-  }
-  .doc-detail-header--with-cover .doc-detail-header-main {
-    padding-inline: 1.15rem;
-  }
-  .doc-detail-header--with-cover .doc-detail-cover,
-  .doc-detail-header--with-cover .doc-cover-trigger,
-  .doc-detail-header--with-cover .doc-cover-frame {
-    width: 100%;
-    max-width: none;
-  }
-}
-@media (min-width: 900px) {
-  .doc-detail-header {
-    padding: 2rem 2.25rem 2.25rem;
+@media (min-width: 768px) {
+  .doc-detail-intro {
+    padding: 1.75rem 2rem 1.9rem;
   }
 }
 .doc-detail-meta-pills {
@@ -1794,39 +1790,196 @@ html.dark .doc-badge--vip {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.85rem;
 }
-.doc-meta-pill {
+.doc-detail-meta-pills .doc-badge {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+}
+.doc-category-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  padding: 0.28rem 0.7rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--bb-blue) 22%, transparent);
   background: var(--bb-bg-tint);
-  color: var(--bb-text-muted);
-  border: 1px solid var(--bb-border);
+  color: var(--bb-blue);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 150ms ease;
 }
-.doc-meta-pill strong {
-  color: var(--bb-text);
-}
-.doc-detail-title-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem 1rem;
+a.doc-category-chip:hover {
+  background: color-mix(in srgb, var(--bb-blue) 14%, var(--bb-surface));
 }
 .doc-detail-title {
   margin: 0;
-  flex: 1 1 12rem;
-  font-size: clamp(1.4rem, 3.4vw, 2.15rem);
+  font-size: clamp(1.6rem, 3.6vw, 2.5rem);
   font-weight: 800;
-  line-height: 1.35;
+  line-height: 1.4;
   letter-spacing: -0.01em;
   color: var(--bb-text);
   overflow-wrap: anywhere;
 }
+.doc-detail-lead {
+  margin: 0.85rem 0 0;
+  max-width: 46rem;
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: var(--bb-text-muted);
+}
+
+.doc-detail-aside {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--bb-border);
+  border-radius: 16px;
+  background: var(--bb-surface);
+  box-shadow: 0 8px 28px rgba(6, 22, 68, 0.06);
+}
+/* The frame takes the cover's own aspect ratio (no fixed 3:4), so the whole image is shown. */
+.doc-detail-cover {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+  border-bottom: 1px solid var(--bb-border);
+  background: var(--bb-bg-muted);
+}
+/* Tablet: cover beside the actions and facts instead of a tall image above them. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .doc-detail-aside {
+    display: grid;
+    grid-template-columns: minmax(220px, 38%) minmax(0, 1fr);
+  }
+  .doc-detail-cover {
+    border-bottom: 0;
+    border-right: 1px solid var(--bb-border);
+  }
+  .doc-detail-aside .doc-cover-trigger {
+    height: 100%;
+  }
+  .doc-detail-aside .doc-cover-frame {
+    height: 100%;
+    min-height: 16rem;
+    aspect-ratio: auto;
+  }
+}
+.doc-aside-body {
+  padding: 1.1rem 1.15rem 1.25rem;
+}
+@media (min-width: 1024px) {
+  .doc-aside-body {
+    padding: 1.25rem 1.35rem 1.4rem;
+  }
+}
+/* Download and save side by side; a lone save button takes the full width. */
+.doc-aside-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.doc-aside-actions > :only-child {
+  grid-column: 1 / -1;
+}
+.doc-aside-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 10px;
+  background: var(--bb-blue);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 150ms ease;
+}
+.doc-aside-cta:hover {
+  background: var(--bb-blue-hover);
+}
+html.dark .doc-aside-cta {
+  background: #0036ad;
+}
+html.dark .doc-aside-cta:hover {
+  background: #002c8e;
+}
+.doc-aside-actions .doc-favorite {
+  align-items: stretch;
+}
+.doc-aside-actions .doc-favorite-btn {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.88rem;
+}
+.doc-facts {
+  margin: 0.75rem 0 0;
+}
+.doc-fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--bb-border);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.doc-fact:last-child {
+  border-bottom: 0;
+}
+.doc-fact dt {
+  flex-shrink: 0;
+  color: var(--bb-text-muted);
+}
+.doc-fact dd {
+  margin: 0;
+  min-width: 0;
+  text-align: right;
+  font-weight: 700;
+  color: var(--bb-text);
+  overflow-wrap: anywhere;
+}
+.doc-fact dd a {
+  color: var(--bb-blue);
+  text-decoration: none;
+}
+.doc-fact dd a:hover {
+  text-decoration: underline;
+}
+.doc-fact-mono {
+  font-variant-numeric: tabular-nums;
+}
+.doc-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0 0;
+  padding: 0.9rem 0 0;
+  border-top: 1px solid var(--bb-border);
+}
+.doc-tag {
+  display: inline-flex;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--bb-border);
+  background: var(--bb-bg-muted);
+  color: var(--bb-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+.doc-tag:hover {
+  border-color: var(--bb-blue);
+  color: var(--bb-blue);
+}
+
 .doc-favorite {
   display: flex;
   flex-direction: column;
@@ -1867,39 +2020,9 @@ html.dark .doc-badge--vip {
   opacity: 0.7;
   cursor: progress;
 }
-@media (max-width: 640px) {
-  .doc-favorite,
-  .doc-favorite-btn {
-    width: 100%;
-  }
-  .doc-favorite {
-    align-items: stretch;
-  }
-}
-.doc-detail-summary-card {
-  margin-top: 1.1rem;
-  padding: 0.95rem 1.1rem;
-  border-radius: 12px;
-  background: var(--bb-bg-tint);
-  border-left: 4px solid var(--bb-blue);
-}
-.doc-summary-label {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--bb-blue);
-  letter-spacing: 0.04em;
-  margin-bottom: 0.3rem;
-}
-.doc-summary-text {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.75;
-  color: var(--bb-text);
-}
+
 .doc-detail-content {
-  margin-top: 1.15rem;
+  min-width: 0;
   border: 1px solid var(--bb-border);
   border-radius: 16px;
   background: var(--bb-surface);
@@ -1908,10 +2031,135 @@ html.dark .doc-badge--vip {
 }
 @media (min-width: 768px) {
   .doc-detail-content {
-    margin-top: 1.5rem;
-    padding: 2rem 2.25rem;
+    padding: 1.75rem 2rem 2rem;
   }
 }
+.doc-detail-body {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--bb-border);
+}
+.doc-detail-body .doc-body {
+  max-width: 46rem;
+}
+.doc-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--bb-text);
+}
+.doc-preview-section {
+  min-width: 0;
+  border: 1px solid var(--bb-border);
+  border-radius: 16px;
+  background: var(--bb-surface);
+  padding: 1.25rem 1.2rem 1.4rem;
+  box-shadow: 0 4px 18px rgba(6, 22, 68, 0.04);
+}
+@media (min-width: 768px) {
+  .doc-preview-section {
+    padding: 1.75rem 2rem 2rem;
+  }
+}
+.doc-preview {
+  overflow: hidden;
+  border: 1px solid var(--bb-border);
+  border-radius: 12px;
+  background: var(--bb-bg-muted);
+}
+.doc-preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--bb-border);
+  background: var(--bb-surface);
+}
+.doc-preview-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.doc-preview-tab {
+  min-height: 2.5rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--bb-border);
+  border-radius: 999px;
+  background: var(--bb-surface);
+  color: var(--bb-text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+.doc-preview-tab:hover {
+  border-color: var(--bb-blue);
+  color: var(--bb-blue);
+}
+.doc-preview-tab.is-active {
+  border-color: var(--bb-blue);
+  background: var(--bb-bg-tint);
+  color: var(--bb-blue);
+}
+.doc-preview-name {
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--bb-text);
+  overflow-wrap: anywhere;
+}
+.doc-preview-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.5rem;
+  padding: 0 0.25rem;
+  color: var(--bb-blue);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.doc-preview-open:hover {
+  text-decoration: underline;
+}
+.doc-preview-frame {
+  display: block;
+  width: 100%;
+  height: min(80vh, 900px);
+  min-height: 28rem;
+  border: 0;
+  background: #fff;
+}
+.doc-preview-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 2.25rem 1.25rem;
+  border: 1px dashed var(--bb-border);
+  border-radius: 12px;
+  background: var(--bb-bg-muted);
+  text-align: center;
+}
+.doc-preview-gate .doc-gated-title {
+  font-size: 1.15rem;
+}
+.doc-section-title::before {
+  content: "";
+  width: 4px;
+  height: 1.15em;
+  border-radius: 4px;
+  background: var(--bb-blue);
+}
+
 /* Clickable cover (src/components/cover-viewer.tsx) and its full-size view. */
 .doc-cover-trigger {
   position: relative;
@@ -2043,32 +2291,39 @@ html.dark .doc-badge--vip {
   margin-top: 0.5rem;
 }
 .doc-files-section {
-  margin-top: 1.15rem;
+  min-width: 0;
   border: 1px solid var(--bb-border);
   border-radius: 16px;
   background: var(--bb-surface);
-  padding: 1.2rem 1.2rem 1.35rem;
+  padding: 1.25rem 1.2rem 1.4rem;
   box-shadow: 0 4px 18px rgba(6, 22, 68, 0.04);
+  scroll-margin-top: 6rem;
 }
 @media (min-width: 768px) {
   .doc-files-section {
-    margin-top: 1.5rem;
-    padding: 1.5rem 2rem 1.75rem;
+    padding: 1.75rem 2rem 2rem;
   }
 }
 .doc-files-head {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.6rem;
   margin-bottom: 1rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid var(--bb-border);
 }
-.doc-files-head .section-title {
+.doc-files-head .doc-section-title {
   margin: 0;
-  font-size: 1.1rem;
+}
+.doc-files-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--bb-bg-tint);
+  color: var(--bb-blue);
+  font-size: 0.8rem;
   font-weight: 800;
-  color: var(--bb-text);
 }
 .doc-files-list {
   list-style: none;
@@ -2078,48 +2333,55 @@ html.dark .doc-badge--vip {
   flex-direction: column;
   gap: 0.75rem;
 }
+.doc-files-empty {
+  padding: 0.75rem 0;
+  color: var(--bb-text-muted);
+}
 .doc-file-card {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.85rem 1rem;
-  padding: 0.95rem 1rem;
+  padding: 1rem 1.1rem;
   border-radius: 12px;
   border: 1px solid var(--bb-border);
-  background: var(--bb-bg-muted);
+  background: var(--bb-surface);
   transition:
     border-color 160ms ease,
-    transform 160ms ease;
+    box-shadow 160ms ease;
 }
 .doc-file-card:hover {
   border-color: color-mix(in srgb, var(--bb-blue) 45%, var(--bb-border));
-  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(6, 22, 68, 0.06);
 }
 .doc-file-card-info {
   display: flex;
-  align-items: flex-start;
-  gap: 0.8rem;
+  align-items: center;
+  gap: 0.9rem;
   min-width: 0;
   flex: 1 1 14rem;
 }
-.doc-file-icon-wrap {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 10px;
+.doc-file-type {
   display: grid;
   place-items: center;
-  background: var(--bb-surface);
-  color: var(--bb-blue);
-  border: 1px solid var(--bb-border);
   flex-shrink: 0;
+  width: 2.75rem;
+  height: 3.1rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--bb-blue) 22%, transparent);
+  background: var(--bb-bg-tint);
+  color: var(--bb-blue);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 .doc-file-name {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: var(--bb-text);
-  line-height: 1.4;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 .doc-file-meta {
@@ -2127,11 +2389,19 @@ html.dark .doc-badge--vip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem 0.45rem;
-  font-size: 0.78rem;
+  gap: 0.35rem 0.5rem;
+  font-size: 0.8rem;
   color: var(--bb-text-muted);
 }
-.doc-file-meta > span:first-child {
+.doc-file-meta > span:not(.doc-badge) + span:not(.doc-badge)::before {
+  content: "·";
+  margin-right: 0.5rem;
+  opacity: 0.6;
+}
+.doc-file-filename {
+  margin: 0.25rem 0 0;
+  font-size: 0.76rem;
+  color: var(--bb-text-muted);
   overflow-wrap: anywhere;
 }
 .doc-file-btn {
@@ -2139,16 +2409,39 @@ html.dark .doc-badge--vip {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.6rem 1rem;
+  min-height: 2.75rem;
+  padding: 0.6rem 1.1rem;
   border-radius: 10px;
+  border: 1px solid transparent;
   background: var(--bb-blue);
   color: #fff;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 700;
   text-decoration: none;
-  transition: background 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
   white-space: nowrap;
   flex: 0 0 auto;
+}
+.doc-file-btn:hover {
+  background: var(--bb-blue-hover);
+}
+.doc-file-btn--outline {
+  border-color: var(--bb-blue);
+  background: transparent;
+  color: var(--bb-blue);
+}
+.doc-file-btn--outline:hover {
+  background: var(--bb-bg-tint);
+}
+/* A file entry without an uploaded file: same shape, clearly not clickable. */
+.doc-file-btn.is-disabled {
+  border: 1px dashed var(--bb-border);
+  background: var(--bb-bg-muted);
+  color: var(--bb-text-muted);
+  cursor: not-allowed;
+  pointer-events: none;
 }
 /* Download button with its error message underneath (src/components/download-button.tsx). */
 .doc-file-download {
@@ -2192,15 +2485,7 @@ html.dark .doc-file-error {
     text-align: left;
   }
 }
-/* A file entry without an uploaded file: same shape, clearly not clickable. */
-.doc-file-btn.is-disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-.doc-file-btn:hover {
-  background: var(--bb-blue-hover);
-}
+
 .doc-file-row {
   display: flex;
   flex-wrap: wrap;
