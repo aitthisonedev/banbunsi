@@ -6,8 +6,11 @@ import {
   getDocument,
   getPublicSettings,
   me,
+  type DocumentFileMeta,
   type Locale,
 } from "@/lib/api";
+import { formatDate, formatShortDate } from "@/lib/dashboard-stats";
+import { formatBytes } from "@/lib/format";
 import {
   documentCoverOriginal,
   documentCoverSrc,
@@ -18,6 +21,7 @@ import { sanitizeHtml } from "@/lib/sanitize-html";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import { decodeSlug } from "@/lib/slug";
+import { DocumentPreview } from "@/components/document-preview";
 import { DownloadButton } from "@/components/download-button";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CoverViewer } from "@/components/cover-viewer";
@@ -26,6 +30,37 @@ function accessLabel(locale: "lo" | "en", access: string) {
   if (access === "vip") return t(locale, "badgeVip");
   if (access === "member") return t(locale, "badgeMember");
   return t(locale, "badgePublic");
+}
+
+/** "PDF", "DOCX"… from the file name; the tile in the file list shows it instead of a generic icon. */
+function fileExtension(file: DocumentFileMeta) {
+  const dot = file.file_name.lastIndexOf(".");
+  return dot > 0 ? file.file_name.slice(dot + 1, dot + 5).toUpperCase() : "";
+}
+
+function fileLanguage(locale: Locale, language: string) {
+  if (language === "lo") return t(locale, "fileLangLo");
+  if (language === "en") return t(locale, "fileLangEn");
+  return "";
+}
+
+function SignInActions({
+  locale,
+  loginHref,
+}: {
+  locale: Locale;
+  loginHref: string;
+}) {
+  return (
+    <div className="doc-gated-actions">
+      <Link href={loginHref} className="btn-primary">
+        {t(locale, "login")}
+      </Link>
+      <Link href={`/${locale}/auth/register`} className="btn-secondary">
+        {t(locale, "register")}
+      </Link>
+    </div>
+  );
 }
 
 function LockIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -172,206 +207,425 @@ export default async function DocumentDetailPage({
   const next = encodeURIComponent(`/${raw}/documents/${doc.slug}`);
   const loginHref = `/${raw}/auth/login?next=${next}`;
   const safeBody = doc.body_html ? sanitizeHtml(doc.body_html) : "";
+  const files = doc.files || [];
+  const hasDownloadableFile = files.some((file) => file.available !== false);
+  const signedIn = Boolean(viewer && viewer.account_status === "active");
+  const tags = (doc.tags || "")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+  // Public documents get an in-page PDF preview; the page's own language comes first.
+  const previewable =
+    doc.read_access === "public"
+      ? files
+          .filter(
+            (file) =>
+              file.available !== false &&
+              file.file_url &&
+              fileExtension(file) === "PDF",
+          )
+          .sort(
+            (a, b) =>
+              Number(b.language === raw) - Number(a.language === raw) ||
+              a.sort_order - b.sort_order,
+          )
+      : [];
+  const previewFiles = previewable.flatMap((file) =>
+    file.file_url && canDownloadFile(viewer, file.download_access)
+      ? [
+          {
+            id: file.id,
+            label: file.label || file.file_name,
+            url: file.file_url,
+          },
+        ]
+      : [],
+  );
 
   return (
     <div className="doc-detail-page">
       <div className="doc-detail-shell">
-        <nav className="doc-breadcrumbs" aria-label={t(raw, "breadcrumb")}>
-          <Link href={`/${raw}`} className="doc-breadcrumb-link">
-            {t(raw, "home")}
-          </Link>
-          <span className="doc-breadcrumb-sep" aria-hidden="true">
-            /
-          </span>
-          <Link href={`/${raw}/documents`} className="doc-breadcrumb-link">
-            {t(raw, "documents")}
-          </Link>
-          {doc.category_name ? (
-            <>
-              <span className="doc-breadcrumb-sep" aria-hidden="true">
-                /
-              </span>
-              {doc.category_slug ? (
+        <div className="doc-detail-layout">
+          <header className="doc-detail-header">
+            <div className="doc-detail-topbar">
+              <nav
+                className="doc-breadcrumbs"
+                aria-label={t(raw, "breadcrumb")}
+              >
+                <Link href={`/${raw}`} className="doc-breadcrumb-link">
+                  {t(raw, "home")}
+                </Link>
+                <span className="doc-breadcrumb-sep" aria-hidden="true">
+                  /
+                </span>
                 <Link
-                  href={`/${raw}/categories/${doc.category_slug}`}
+                  href={`/${raw}/documents`}
                   className="doc-breadcrumb-link"
                 >
-                  {doc.category_name}
+                  {t(raw, "documents")}
                 </Link>
-              ) : (
-                <span className="doc-breadcrumb-current">
-                  {doc.category_name}
-                </span>
-              )}
-            </>
-          ) : null}
-        </nav>
-
-        <header className="doc-detail-header doc-detail-header--with-cover">
-          <figure className="doc-detail-cover">
-            <CoverViewer
-              src={documentCoverSrc(doc, doc.id, defaultCover, 640)}
-              fullSrc={documentCoverOriginal(doc, doc.id, defaultCover)}
-              unoptimized={isUploadedImage(doc.cover_image_url || defaultCover)}
-              alt={t(raw, "coverOf", { title: doc.title })}
-              openLabel={t(raw, "viewCoverFull")}
-              closeLabel={t(raw, "close")}
-            />
-          </figure>
-          <div className="doc-detail-header-main">
-            <div className="doc-detail-meta-pills">
-              <span className={`doc-badge doc-badge--${doc.read_access}`}>
-                {accessLabel(raw, doc.read_access)}
-              </span>
-              {doc.document_number ? (
-                <span className="doc-meta-pill">
-                  <span>{t(raw, "documentNumber")}:</span>
-                  <strong>{doc.document_number}</strong>
-                </span>
-              ) : null}
-              {doc.year ? (
-                <span className="doc-meta-pill">
-                  <span>{t(raw, "year")}:</span>
-                  <strong>{doc.year}</strong>
-                </span>
-              ) : null}
-            </div>
-
-            <div className="doc-detail-title-row">
-              <h1 className="doc-detail-title">{doc.title}</h1>
-              <FavoriteButton
-                locale={raw}
-                documentId={doc.id}
-                initialFavorited={Boolean(doc.favorited)}
-                loginHref={loginHref}
-                signedIn={Boolean(viewer && viewer.account_status === "active")}
-              />
-            </div>
-
-            {doc.summary ? (
-              <div className="doc-detail-summary-card">
-                <span className="doc-summary-label">
-                  {raw === "lo" ? "ເນື້ອໃນຫຍໍ້" : "Summary"}
-                </span>
-                <p className="doc-summary-text">{doc.summary}</p>
-              </div>
-            ) : null}
-          </div>
-        </header>
-
-        {/* Body text, or why it is hidden: sign in (visitors) or VIP (signed-in members). A readable
-            document without body text simply shows no box. */}
-        {safeBody ? (
-          <main className="doc-detail-content">
-            <div
-              className="doc-body"
-              dangerouslySetInnerHTML={{ __html: safeBody }}
-            />
-          </main>
-        ) : doc.body_available === false ? (
-          <main className="doc-detail-content">
-            <div className="doc-gated-card">
-              <div className="doc-gated-icon-wrap">
-                <LockIcon />
-              </div>
-              {viewer ? (
-                <>
-                  <h2 className="doc-gated-title">
-                    {t(raw, "vipContentTitle")}
-                  </h2>
-                  <p className="doc-gated-desc">{t(raw, "homePromoLead")}</p>
-                  <div className="doc-gated-actions">
-                    <Link href={`/${raw}/vip`} className="btn-primary">
-                      {t(raw, "vipBenefits")}
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h2 className="doc-gated-title">{t(raw, "signInToRead")}</h2>
-                  <p className="doc-gated-desc">{t(raw, "bodyGated")}</p>
-                  <div className="doc-gated-actions">
-                    <Link href={loginHref} className="btn-primary">
-                      {t(raw, "login")}
-                    </Link>
-                    <Link
-                      href={`/${raw}/auth/register`}
-                      className="btn-secondary"
-                    >
-                      {t(raw, "register")}
-                    </Link>
-                  </div>
-                </>
-              )}
-            </div>
-          </main>
-        ) : null}
-
-        <section className="doc-files-section">
-          <div className="doc-files-head">
-            <FileTextIcon className="text-bb-blue" />
-            <h2 className="section-title">{t(raw, "files")}</h2>
-          </div>
-
-          <ul className="doc-files-list">
-            {(doc.files || []).map((file) => (
-              <li key={file.id} className="doc-file-card">
-                <div className="doc-file-card-info">
-                  <div className="doc-file-icon-wrap">
-                    <FileTextIcon />
-                  </div>
-                  <div>
-                    <h3 className="doc-file-name">
-                      {file.label || file.file_name}
-                    </h3>
-                    <p className="doc-file-meta">
-                      <span>{file.file_name}</span>
-                      {file.version ? <span>· v{file.version}</span> : null}
-                      <span>·</span>
-                      <span
-                        className={`doc-badge doc-badge--${file.download_access}`}
+                {doc.category_name ? (
+                  <>
+                    <span className="doc-breadcrumb-sep" aria-hidden="true">
+                      /
+                    </span>
+                    {doc.category_slug ? (
+                      <Link
+                        href={`/${raw}/categories/${doc.category_slug}`}
+                        className="doc-breadcrumb-link"
                       >
-                        {accessLabel(raw, file.download_access)}
+                        {doc.category_name}
+                      </Link>
+                    ) : (
+                      <span className="doc-breadcrumb-current">
+                        {doc.category_name}
                       </span>
-                    </p>
-                  </div>
-                </div>
-
-                {file.available === false ? (
-                  // No uploaded file behind this entry: say so instead of a download that fails.
-                  <span
-                    className="doc-file-btn is-disabled"
-                    aria-disabled="true"
-                  >
-                    <DownloadIcon />
-                    <span>{t(raw, "fileNotAvailable")}</span>
-                  </span>
-                ) : file.file_url &&
-                  canDownloadFile(viewer, file.download_access) ? (
-                  <DownloadButton
-                    locale={raw}
-                    fileUrl={file.file_url}
-                    fileName={file.file_name}
+                    )}
+                  </>
+                ) : null}
+              </nav>
+              <div className="doc-detail-meta-pills">
+                {doc.category_name ? (
+                  doc.category_slug ? (
+                    <Link
+                      href={`/${raw}/categories/${doc.category_slug}`}
+                      className="doc-category-chip"
+                    >
+                      {doc.category_name}
+                    </Link>
+                  ) : (
+                    <span className="doc-category-chip">
+                      {doc.category_name}
+                    </span>
+                  )
+                ) : null}
+                <span className={`doc-badge doc-badge--${doc.read_access}`}>
+                  {accessLabel(raw, doc.read_access)}
+                </span>
+              </div>
+            </div>
+            <div className="doc-detail-intro">
+              <h1 className="doc-detail-title">{doc.title}</h1>
+              {doc.summary ? (
+                <p className="doc-detail-lead">{doc.summary}</p>
+              ) : null}
+              {safeBody ? (
+                <section
+                  className="doc-detail-body"
+                  aria-labelledby="doc-content-title"
+                >
+                  <h2 id="doc-content-title" className="doc-section-title">
+                    {t(raw, "documentContent")}
+                  </h2>
+                  <div
+                    className="doc-body"
+                    dangerouslySetInnerHTML={{ __html: safeBody }}
                   />
-                ) : viewer && viewer.account_status === "active" ? (
-                  // Signed in, but this file is for VIP members only.
-                  <Link href={`/${raw}/vip`} className="doc-file-btn">
-                    <LockIcon width={16} height={16} />
-                    <span>{t(raw, "vipDownloadOnly")}</span>
-                  </Link>
-                ) : (
-                  <Link href={loginHref} className="doc-file-btn">
-                    <DownloadIcon />
-                    <span>{t(raw, "downloadLogin")}</span>
-                  </Link>
+                </section>
+              ) : null}
+            </div>
+          </header>
+
+          <aside
+            className="doc-detail-aside"
+            aria-label={t(raw, "documentInfo")}
+          >
+            <figure className="doc-detail-cover">
+              <CoverViewer
+                src={documentCoverSrc(doc, doc.id, defaultCover, 640)}
+                fullSrc={documentCoverOriginal(doc, doc.id, defaultCover)}
+                unoptimized={isUploadedImage(
+                  doc.cover_image_url || defaultCover,
                 )}
-              </li>
-            ))}
-            {!doc.files?.length ? (
-              <li className="text-muted py-3">{t(raw, "noFiles")}</li>
+                alt={t(raw, "coverOf", { title: doc.title })}
+                openLabel={t(raw, "viewCoverFull")}
+                closeLabel={t(raw, "close")}
+              />
+            </figure>
+
+            <div className="doc-aside-body">
+              <div className="doc-aside-actions">
+                {hasDownloadableFile ? (
+                  signedIn ? (
+                    <a
+                      href="#doc-files"
+                      className="doc-aside-cta"
+                      aria-label={t(raw, "viewFiles")}
+                      title={t(raw, "viewFiles")}
+                    >
+                      <DownloadIcon />
+                      <span>{t(raw, "download")}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href={loginHref}
+                      className="doc-aside-cta"
+                      aria-label={t(raw, "downloadLogin")}
+                      title={t(raw, "downloadLogin")}
+                    >
+                      <LockIcon width={16} height={16} />
+                      <span>{t(raw, "download")}</span>
+                    </Link>
+                  )
+                ) : null}
+                <FavoriteButton
+                  locale={raw}
+                  documentId={doc.id}
+                  initialFavorited={Boolean(doc.favorited)}
+                  loginHref={loginHref}
+                  signedIn={signedIn}
+                />
+              </div>
+
+              <dl className="doc-facts">
+                {doc.document_number ? (
+                  <div className="doc-fact">
+                    <dt>{t(raw, "documentNumber")}</dt>
+                    <dd className="doc-fact-mono">{doc.document_number}</dd>
+                  </div>
+                ) : null}
+                {doc.category_name ? (
+                  <div className="doc-fact">
+                    <dt>{t(raw, "category")}</dt>
+                    <dd>
+                      {doc.category_slug ? (
+                        <Link href={`/${raw}/categories/${doc.category_slug}`}>
+                          {doc.category_name}
+                        </Link>
+                      ) : (
+                        doc.category_name
+                      )}
+                    </dd>
+                  </div>
+                ) : null}
+                {doc.year ? (
+                  <div className="doc-fact">
+                    <dt>{t(raw, "year")}</dt>
+                    <dd>{doc.year}</dd>
+                  </div>
+                ) : null}
+                {doc.effective_date ? (
+                  <div className="doc-fact">
+                    <dt>{t(raw, "effectiveDate")}</dt>
+                    <dd>
+                      {formatShortDate(
+                        raw,
+                        doc.effective_date.slice(0, 10),
+                        true,
+                      )}
+                    </dd>
+                  </div>
+                ) : null}
+                <div className="doc-fact">
+                  <dt>{t(raw, "readAccess")}</dt>
+                  <dd>
+                    <span className={`doc-badge doc-badge--${doc.read_access}`}>
+                      {accessLabel(raw, doc.read_access)}
+                    </span>
+                  </dd>
+                </div>
+                {doc.updated_at ? (
+                  <div className="doc-fact">
+                    <dt>{t(raw, "lastUpdated")}</dt>
+                    <dd>{formatDate(raw, doc.updated_at)}</dd>
+                  </div>
+                ) : null}
+                <div className="doc-fact">
+                  <dt>{t(raw, "files")}</dt>
+                  <dd>
+                    {t(raw, files.length === 1 ? "fileCountOne" : "fileCount", {
+                      count: files.length,
+                    })}
+                  </dd>
+                </div>
+              </dl>
+
+              {tags.length ? (
+                <ul className="doc-tags" aria-label={t(raw, "tags")}>
+                  {tags.map((tag) => (
+                    <li key={tag}>
+                      <Link
+                        href={`/${raw}/search?q=${encodeURIComponent(tag)}`}
+                        className="doc-tag"
+                      >
+                        #{tag}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </aside>
+
+          <div className="doc-detail-main">
+            {/* Readable body text sits in the title card; otherwise say why it is hidden: sign in
+              (visitors) or VIP (signed-in members). */}
+            {!safeBody && doc.body_available === false ? (
+              <section className="doc-detail-content">
+                <div className="doc-gated-card">
+                  <div className="doc-gated-icon-wrap">
+                    <LockIcon />
+                  </div>
+                  {viewer ? (
+                    <>
+                      <h2 className="doc-gated-title">
+                        {t(raw, "vipContentTitle")}
+                      </h2>
+                      <p className="doc-gated-desc">
+                        {t(raw, "homePromoLead")}
+                      </p>
+                      <div className="doc-gated-actions">
+                        <Link href={`/${raw}/vip`} className="btn-primary">
+                          {t(raw, "vipBenefits")}
+                        </Link>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h2 className="doc-gated-title">
+                        {t(raw, "signInToRead")}
+                      </h2>
+                      <p className="doc-gated-desc">{t(raw, "bodyGated")}</p>
+                      <SignInActions locale={raw} loginHref={loginHref} />
+                    </>
+                  )}
+                </div>
+              </section>
             ) : null}
-          </ul>
-        </section>
+
+            {previewable.length ? (
+              <section
+                className="doc-preview-section"
+                aria-labelledby="doc-preview-title"
+              >
+                <h2 id="doc-preview-title" className="doc-section-title">
+                  {t(raw, "filePreview")}
+                </h2>
+                {previewFiles.length ? (
+                  <DocumentPreview locale={raw} files={previewFiles} />
+                ) : (
+                  <div className="doc-preview-gate">
+                    <div className="doc-gated-icon-wrap">
+                      <LockIcon />
+                    </div>
+                    {signedIn ? (
+                      <>
+                        <p className="doc-gated-title">
+                          {t(raw, "vipDownloadOnly")}
+                        </p>
+                        <p className="doc-gated-desc">
+                          {t(raw, "previewVipHint")}
+                        </p>
+                        <Link href={`/${raw}/vip`} className="btn-primary">
+                          {t(raw, "vipBenefits")}
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <p className="doc-gated-title">
+                          {t(raw, "previewSignIn")}
+                        </p>
+                        <p className="doc-gated-desc">
+                          {t(raw, "previewSignInHint")}
+                        </p>
+                        <SignInActions locale={raw} loginHref={loginHref} />
+                      </>
+                    )}
+                  </div>
+                )}
+              </section>
+            ) : null}
+
+            <section
+              id="doc-files"
+              className="doc-files-section"
+              aria-labelledby="doc-files-title"
+            >
+              <div className="doc-files-head">
+                <h2 id="doc-files-title" className="doc-section-title">
+                  {t(raw, "files")}
+                </h2>
+                {files.length ? (
+                  <span className="doc-files-count">{files.length}</span>
+                ) : null}
+              </div>
+
+              <ul className="doc-files-list">
+                {files.map((file) => {
+                  const extension = fileExtension(file);
+                  const language = fileLanguage(raw, file.language);
+                  const size = formatBytes(file.size_bytes);
+                  return (
+                    <li key={file.id} className="doc-file-card">
+                      <div className="doc-file-card-info">
+                        <div className="doc-file-type" aria-hidden="true">
+                          {extension || <FileTextIcon />}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="doc-file-name">
+                            {file.label || file.file_name}
+                          </h3>
+                          <p className="doc-file-meta">
+                            {language ? <span>{language}</span> : null}
+                            {size ? <span>{size}</span> : null}
+                            {file.version ? <span>v{file.version}</span> : null}
+                            <span
+                              className={`doc-badge doc-badge--${file.download_access}`}
+                            >
+                              {accessLabel(raw, file.download_access)}
+                            </span>
+                          </p>
+                          {file.label && file.label !== file.file_name ? (
+                            <p className="doc-file-filename">
+                              {file.file_name}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      {file.available === false ? (
+                        // No uploaded file behind this entry: say so instead of a download that fails.
+                        <span
+                          className="doc-file-btn is-disabled"
+                          aria-disabled="true"
+                        >
+                          <span>{t(raw, "fileNotAvailable")}</span>
+                        </span>
+                      ) : file.file_url &&
+                        canDownloadFile(viewer, file.download_access) ? (
+                        <DownloadButton
+                          locale={raw}
+                          fileUrl={file.file_url}
+                          fileName={file.file_name}
+                        />
+                      ) : signedIn ? (
+                        // Signed in, but this file is for VIP members only.
+                        <Link
+                          href={`/${raw}/vip`}
+                          className="doc-file-btn doc-file-btn--outline"
+                        >
+                          <LockIcon width={16} height={16} />
+                          <span>{t(raw, "vipDownloadOnly")}</span>
+                        </Link>
+                      ) : (
+                        <Link
+                          href={loginHref}
+                          className="doc-file-btn doc-file-btn--outline"
+                        >
+                          <LockIcon width={16} height={16} />
+                          <span>{t(raw, "downloadLogin")}</span>
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+                {!files.length ? (
+                  <li className="doc-files-empty">{t(raw, "noFiles")}</li>
+                ) : null}
+              </ul>
+            </section>
+          </div>
+        </div>
       </div>
     </div>
   );

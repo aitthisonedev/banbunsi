@@ -47,9 +47,14 @@ export function FavoriteButton({
 
   if (!signedIn) {
     return (
-      <Link href={loginHref} className="doc-favorite-btn">
+      <Link
+        href={loginHref}
+        className="doc-favorite-btn"
+        aria-label={t(locale, "favoriteLogin")}
+        title={t(locale, "favoriteLogin")}
+      >
         <StarIcon filled={false} />
-        <span>{t(locale, "favoriteLogin")}</span>
+        <span>{t(locale, "save")}</span>
       </Link>
     );
   }
@@ -88,11 +93,12 @@ export function FavoriteButton({
         disabled={busy}
         aria-busy={busy}
         aria-pressed={favorited}
+        title={
+          favorited ? t(locale, "removeFavorite") : t(locale, "addFavorite")
+        }
       >
         <StarIcon filled={favorited} />
-        <span>
-          {favorited ? t(locale, "removeFavorite") : t(locale, "addFavorite")}
-        </span>
+        <span>{favorited ? t(locale, "saved") : t(locale, "save")}</span>
       </button>
       {error ? (
         <p className="doc-file-error" role="alert">
