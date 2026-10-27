@@ -7,7 +7,6 @@ import {
   AccessBadge,
   btn,
   DocumentCover,
-  formatBytes,
   PageHeader,
   PageSkeleton,
   panelClass,
@@ -22,6 +21,7 @@ import {
 } from "@/lib/client-api";
 import { categoryCover } from "@/lib/category-covers";
 import { formatDate } from "@/lib/dashboard-stats";
+import { formatBytes } from "@/lib/format";
 import { isLocale, t } from "@/lib/i18n";
 import { usePublicSettings } from "@/components/public-settings-context";
 
