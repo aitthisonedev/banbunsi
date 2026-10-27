@@ -74,6 +74,25 @@ func TestFilePayloadDoesNotExposeStoragePath(t *testing.T) {
 	}
 }
 
+func TestFileDispositionOnlyShowsPDFPreviewsInline(t *testing.T) {
+	cases := []struct {
+		name, fileName, contentType string
+		preview                     bool
+		want                        string
+	}{
+		{"pdf preview", "form.pdf", "application/pdf", true, "inline"},
+		{"pdf download", "form.pdf", "application/pdf", false, "attachment"},
+		{"docx preview", "form.docx", downloadTypes[".docx"], true, "attachment"},
+		{"html renamed pdf", "page.html", "text/html; charset=utf-8", true, "attachment"},
+	}
+	for _, tc := range cases {
+		got := fileDisposition(tc.fileName, tc.contentType, tc.preview)
+		if !strings.HasPrefix(got, tc.want+";") {
+			t.Errorf("%s: got %q, want %s", tc.name, got, tc.want)
+		}
+	}
+}
+
 func TestStoreDocumentCoverValidatesAndStoresImage(t *testing.T) {
 	tmpDir := t.TempDir()
 	var encoded bytes.Buffer

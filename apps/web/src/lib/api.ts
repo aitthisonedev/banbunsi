@@ -1,8 +1,21 @@
 import { cache } from "react";
-const API_URL =
-  process.env.API_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:8080";
+
+/**
+ * In the browser an empty NEXT_PUBLIC_API_URL means same-origin requests
+ * (production: Nginx proxies /api), so only an unset value falls back to localhost.
+ */
+function apiBase() {
+  if (typeof window !== "undefined") {
+    const configured = process.env.NEXT_PUBLIC_API_URL;
+    if (configured !== undefined) return configured;
+    return "http://localhost:8080";
+  }
+  return (
+    process.env.API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:8080"
+  );
+}
 
 export type Locale = "lo" | "en";
 
@@ -89,7 +102,7 @@ async function apiFetch<T>(
   if (init?.cookie) {
     headers.set("Cookie", init.cookie);
   }
-  const res = await fetch(`${API_URL}/api/v1${path}`, {
+  const res = await fetch(`${apiBase()}/api/v1${path}`, {
     ...init,
     headers,
     cache: "no-store",

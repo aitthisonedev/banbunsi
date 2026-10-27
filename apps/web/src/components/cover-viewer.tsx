@@ -49,7 +49,7 @@ export function CoverViewer({
             alt={alt}
             fill
             priority
-            sizes="(min-width: 900px) 280px, 100vw"
+            sizes="(min-width: 1024px) 340px, (min-width: 640px) 40vw, 100vw"
             className="doc-cover-img"
           />
         </span>
