@@ -86,14 +86,16 @@ export function CategoryCards({
                 <span className="category-card-desc">
                   {cat.description || ""}
                 </span>
-                <span className="category-card-meta">
-                  {typeof count === "number"
-                    ? `${count} ${t(locale, "documents")}`
-                    : t(locale, "browseCategory")}
-                  <span className="category-card-arrow" aria-hidden>
-                    →
+                {count !== 0 ? (
+                  <span className="category-card-meta">
+                    {typeof count === "number"
+                      ? `${count} ${t(locale, "documents")}`
+                      : t(locale, "browseCategory")}
+                    <span className="category-card-arrow" aria-hidden>
+                      →
+                    </span>
                   </span>
-                </span>
+                ) : null}
               </span>
             </Link>
           </li>
