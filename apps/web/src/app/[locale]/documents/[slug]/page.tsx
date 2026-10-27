@@ -246,64 +246,57 @@ export default async function DocumentDetailPage({
     <div className="doc-detail-page">
       <div className="doc-detail-shell">
         <div className="doc-detail-layout">
-          <header className="doc-detail-header">
-            <div className="doc-detail-topbar">
-              <nav
-                className="doc-breadcrumbs"
-                aria-label={t(raw, "breadcrumb")}
-              >
-                <Link href={`/${raw}`} className="doc-breadcrumb-link">
-                  {t(raw, "home")}
-                </Link>
-                <span className="doc-breadcrumb-sep" aria-hidden="true">
-                  /
-                </span>
-                <Link
-                  href={`/${raw}/documents`}
-                  className="doc-breadcrumb-link"
-                >
-                  {t(raw, "documents")}
-                </Link>
-                {doc.category_name ? (
-                  <>
-                    <span className="doc-breadcrumb-sep" aria-hidden="true">
-                      /
-                    </span>
-                    {doc.category_slug ? (
-                      <Link
-                        href={`/${raw}/categories/${doc.category_slug}`}
-                        className="doc-breadcrumb-link"
-                      >
-                        {doc.category_name}
-                      </Link>
-                    ) : (
-                      <span className="doc-breadcrumb-current">
-                        {doc.category_name}
-                      </span>
-                    )}
-                  </>
-                ) : null}
-              </nav>
-              <div className="doc-detail-meta-pills">
-                {doc.category_name ? (
-                  doc.category_slug ? (
+          <div className="doc-detail-topbar">
+            <nav className="doc-breadcrumbs" aria-label={t(raw, "breadcrumb")}>
+              <Link href={`/${raw}`} className="doc-breadcrumb-link">
+                {t(raw, "home")}
+              </Link>
+              <span className="doc-breadcrumb-sep" aria-hidden="true">
+                /
+              </span>
+              <Link href={`/${raw}/documents`} className="doc-breadcrumb-link">
+                {t(raw, "documents")}
+              </Link>
+              {doc.category_name ? (
+                <>
+                  <span className="doc-breadcrumb-sep" aria-hidden="true">
+                    /
+                  </span>
+                  {doc.category_slug ? (
                     <Link
                       href={`/${raw}/categories/${doc.category_slug}`}
-                      className="doc-category-chip"
+                      className="doc-breadcrumb-link"
                     >
                       {doc.category_name}
                     </Link>
                   ) : (
-                    <span className="doc-category-chip">
+                    <span className="doc-breadcrumb-current">
                       {doc.category_name}
                     </span>
-                  )
-                ) : null}
-                <span className={`doc-badge doc-badge--${doc.read_access}`}>
-                  {accessLabel(raw, doc.read_access)}
-                </span>
-              </div>
+                  )}
+                </>
+              ) : null}
+            </nav>
+            <div className="doc-detail-meta-pills">
+              {doc.category_name ? (
+                doc.category_slug ? (
+                  <Link
+                    href={`/${raw}/categories/${doc.category_slug}`}
+                    className="doc-category-chip"
+                  >
+                    {doc.category_name}
+                  </Link>
+                ) : (
+                  <span className="doc-category-chip">{doc.category_name}</span>
+                )
+              ) : null}
+              <span className={`doc-badge doc-badge--${doc.read_access}`}>
+                {accessLabel(raw, doc.read_access)}
+              </span>
             </div>
+          </div>
+
+          <header className="doc-detail-header">
             <div className="doc-detail-intro">
               <h1 className="doc-detail-title">{doc.title}</h1>
               {doc.summary ? (

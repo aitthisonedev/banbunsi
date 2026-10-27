@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Select } from "./select";
 
 const DEFAULT_SIZES = [8, 12, 16, 24, 50, 100];
 
@@ -78,45 +79,50 @@ export function Pagination({
 
   return (
     <div className="pagination-bar">
-      <label className="pagination-size">
-        <span>{perPageLabel}</span>
-        <select
-          className="pagination-size-select"
-          value={perPage}
-          onChange={(e) => onPerPageChange(Number(e.target.value))}
-          aria-label={perPageLabel}
-        >
-          {sizes.map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="pagination-cluster">
+        <div className="pagination-size">
+          <span className="pagination-size-label">{perPageLabel}</span>
+          <Select
+            className="pagination-size-select"
+            value={String(perPage)}
+            options={sizes.map((n) => ({
+              value: String(n),
+              label: String(n),
+            }))}
+            onChange={(value) => onPerPageChange(Number(value))}
+            aria-label={perPageLabel}
+            searchable={false}
+          />
+        </div>
 
-      <nav className="pagination" aria-label={navLabel}>
-        {page > 1 ? (
-          <Link className="btn-secondary" href={pageHref(page - 1)}>
-            {prevLabel}
-          </Link>
-        ) : (
-          <span className="btn-secondary opacity-40" aria-disabled>
-            {prevLabel}
+        <nav className="pagination" aria-label={navLabel}>
+          {totalPages > 1 && page > 1 ? (
+            <Link className="pagination-btn" href={pageHref(page - 1)}>
+              {prevLabel}
+            </Link>
+          ) : (
+            <span className="pagination-btn is-disabled" aria-disabled="true">
+              {prevLabel}
+            </span>
+          )}
+          <span className="pagination-meta" aria-current="page">
+            {page}
+            <span className="pagination-meta-sep" aria-hidden>
+              /
+            </span>
+            {totalPages}
           </span>
-        )}
-        <span className="pagination-meta">
-          {page} / {totalPages}
-        </span>
-        {page < totalPages ? (
-          <Link className="btn-secondary" href={pageHref(page + 1)}>
-            {nextLabel}
-          </Link>
-        ) : (
-          <span className="btn-secondary opacity-40" aria-disabled>
-            {nextLabel}
-          </span>
-        )}
-      </nav>
+          {totalPages > 1 && page < totalPages ? (
+            <Link className="pagination-btn" href={pageHref(page + 1)}>
+              {nextLabel}
+            </Link>
+          ) : (
+            <span className="pagination-btn is-disabled" aria-disabled="true">
+              {nextLabel}
+            </span>
+          )}
+        </nav>
+      </div>
     </div>
   );
 }

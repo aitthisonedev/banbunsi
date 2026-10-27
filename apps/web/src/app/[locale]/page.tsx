@@ -2,13 +2,23 @@ import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { CategoryCards } from "@/components/category-cards";
 import { DocumentList } from "@/components/document-list";
+import { Pagination } from "@/components/ui";
 import { getCategories, getDocuments, me } from "@/lib/api";
 import { categoriesOrDemo } from "@/lib/demo-categories";
 import { isLocale, t } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+
+const HOME_PER_PAGE_OPTIONS = [10, 20, 30, 50];
+const HOME_DEFAULT_PER_PAGE = 10;
+
+function parseHomePerPage(raw: string | undefined) {
+  const n = Number(raw || HOME_DEFAULT_PER_PAGE);
+  if (HOME_PER_PAGE_OPTIONS.includes(n)) return n;
+  if (Number.isFinite(n) && n >= 10 && n <= 100) return Math.floor(n);
+  return HOME_DEFAULT_PER_PAGE;
+}
 
 function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -61,32 +71,31 @@ export async function generateMetadata({
 
 export default async function HomePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string; per_page?: string }>;
 }) {
   const { locale: raw } = await params;
+  const sp = await searchParams;
   if (!isLocale(raw)) notFound();
+  const page = Math.max(1, Number(sp.page || "1") || 1);
+  const perPage = parseHomePerPage(sp.per_page);
   const cookie = (await headers()).get("cookie") || undefined;
   const [{ items }, latest, viewer] = await Promise.all([
     getCategories(raw).catch(() => ({ items: [] })),
-    getDocuments(raw, { per_page: 40 }).catch(() => ({
+    getDocuments(raw, { page, per_page: perPage }).catch(() => ({
       items: [],
       total: 0,
-      page: 1,
-      per_page: 40,
+      page,
+      per_page: perPage,
     })),
     // Signed-in visitors are not asked to register or sign in again.
     cookie ? me({ cookie }).catch(() => null) : Promise.resolve(null),
   ]);
   const { items: categoryItems } = categoriesOrDemo(raw, items);
-  const preview = categoryItems.slice(0, 8);
-  const latestDocs = latest.items.slice(0, 8);
+  const latestDocs = latest.items;
   const tax = categoryItems.find((c) => c.code === "tax");
-  const counts: Record<string, number> = {};
-  for (const doc of latest.items) {
-    if (!doc.category_slug) continue;
-    counts[doc.category_slug] = (counts[doc.category_slug] || 0) + 1;
-  }
 
   return (
     <div className="page-home">
@@ -264,22 +273,18 @@ export default async function HomePage({
             emptyText={t(raw, "noDocuments")}
             variant="cards"
           />
-        </div>
-      </section>
-
-      <section className="band-plain home-section home-section--categories">
-        <div className="home-section-inner">
-          <div className="home-section-head">
-            <div className="home-section-head-title">
-              <span className="home-section-dot" aria-hidden="true" />
-              <h2 className="section-title">{t(raw, "categories")}</h2>
-            </div>
-            <Link href={`/${raw}/categories`} className="section-link">
-              <span>{t(raw, "viewAllCategories")}</span>
-              <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-          <CategoryCards locale={raw} items={preview} counts={counts} />
+          <Pagination
+            page={latest.page}
+            perPage={perPage}
+            total={latest.total}
+            pathname={`/${raw}`}
+            prevLabel={t(raw, "previous")}
+            nextLabel={t(raw, "next")}
+            perPageLabel={t(raw, "perPage")}
+            navLabel={t(raw, "pagination")}
+            perPageSizes={HOME_PER_PAGE_OPTIONS}
+            defaultPerPage={HOME_DEFAULT_PER_PAGE}
+          />
         </div>
       </section>
 
