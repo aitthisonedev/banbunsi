@@ -1,6 +1,6 @@
 # VPS deployment
 
-Production URL: **https://banbunsi.aitthisone.com/lo** (English: `/en`).
+Production URL: **https://banbunsi.com/lo** (English: `/en`).
 
 `.github/workflows/deploy.yml` runs on pushes and pull requests to `main` and
 `prod`, plus manual dispatch.
@@ -39,6 +39,61 @@ permission or use a formatting pull request process instead.
 Production seeds only create the configured owner once. They do not create demo
 member/VIP accounts or reset an existing owner's password on restart. The standard
 category, document, and quiz seeds still run.
+Category seeds respect soft-deleted categories, so removing a default category
+does not prevent the API from starting on the next restart.
+
+## Private Cloudflare R2 uploads
+
+R2 stores documents, covers, branding images, and avatars; PostgreSQL continues to
+store accounts and document metadata. R2 is optional and disabled by default.
+Private documents still pass the API's session and membership checks and stream
+through the same URL. Keep the bucket private: do not enable a public `r2.dev` URL
+or a public custom domain for this bucket.
+
+1. Create a dedicated `banbunsi` bucket in account
+   `44c8a5e1988d62b0ca0c55095924c385`. Create an R2 **Object Read & Write** token
+   scoped to that bucket. Do not reuse another project's bucket or expand its token.
+2. Copy `deploy/r2.env.example` to `/etc/banbunsi/r2.env`, fill the Access Key ID
+   and Secret Access Key, and set ownership `root:root` and permissions `600`.
+   Keep `R2_ENABLED=false` during preparation. Never commit the real file.
+3. Deploy this version of the API, including `api/migrate-r2`. Back up the database
+   and uploads first. Pause admin file changes during copying, while leaving public
+   reads available.
+4. Inspect the dry run, then copy and verify every original file:
+
+   ```bash
+   /opt/banbunsi/current/api/migrate-r2
+   sudo systemd-run --wait --pipe --collect --unit=banbunsi-r2-migrate \
+     --property=EnvironmentFile=/etc/banbunsi/r2.env \
+     /opt/banbunsi/current/api/migrate-r2 --apply
+   ```
+
+   The migration compares every object's SHA-256 and size after reading it back.
+   It skips generated `.variants` caches, never deletes local files, never updates
+   database paths, and refuses to overwrite a differing existing object. A failed
+   run can be repeated after resolving the cause.
+5. Add `/etc/systemd/system/banbunsi-api.service.d/r2.conf`:
+
+   ```ini
+   [Service]
+   EnvironmentFile=/etc/banbunsi/r2.env
+   ```
+
+   Set `R2_ENABLED=true`, run `systemctl daemon-reload`, and restart only
+   `banbunsi-api`. Verify API health, cover images, an authorized download and a
+   small upload before resuming admin changes.
+
+New document uploads use disk only for validation/staging and are removed locally
+after successful R2 upload. Public images retain a local resizing cache and can be
+restored from R2 when absent. Legacy local files remain readable if their R2 key is
+not yet present; authentication errors and storage outages are reported as errors.
+Preserve the original uploads until migration and rollback requirements are met.
+Do not simply disable R2 after new files have been uploaded: copy any R2-only files
+back first if a full local-storage rollback is needed.
+
+Tests: `go test ./...` and `go vet ./...` from `apps/api`. Set `TEST_DATABASE_URL`
+to run PostgreSQL regression tests for category deletion/restart and protected R2
+downloads. These tests create isolated schemas inside rolled-back transactions.
 
 ## First-time setup
 

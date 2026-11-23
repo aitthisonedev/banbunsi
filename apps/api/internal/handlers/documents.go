@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"image"
 	_ "image/jpeg"
@@ -216,32 +218,25 @@ func (h *DocumentHandler) DownloadFile(c *fiber.Ctx) error {
 			return errJSON(c, fiber.StatusForbidden, "VIP membership required")
 		}
 	}
-	absPath, err := documentUploadPath(h.Cfg, file.StoragePath)
-	if err != nil {
+	if strings.TrimSpace(file.StoragePath) == "" {
 		return errJSON(c, fiber.StatusNotFound, "File not found")
 	}
-	source, err := os.Open(absPath)
+	obj, err := openStoredObject(h.Cfg, file.StoragePath)
 	if err != nil {
-		return errJSON(c, fiber.StatusNotFound, "File not found")
+		if errors.Is(err, os.ErrNotExist) {
+			return errJSON(c, fiber.StatusNotFound, "File not found")
+		}
+		return errJSON(c, fiber.StatusBadGateway, "File storage is temporarily unavailable")
 	}
 	// The body is streamed after this handler returns and fasthttp closes the file when done,
 	// so it is only closed here on the early-return error paths.
-	info, err := source.Stat()
-	if err != nil || info.IsDir() {
-		_ = source.Close()
-		return errJSON(c, fiber.StatusNotFound, "File not found")
-	}
-	var sniff [512]byte
-	read, readErr := source.Read(sniff[:])
+	reader := bufio.NewReader(obj.Body)
+	sniff, readErr := reader.Peek(512)
 	if readErr != nil && readErr != io.EOF {
-		_ = source.Close()
+		_ = obj.Body.Close()
 		return errJSON(c, fiber.StatusInternalServerError, "Could not read file")
 	}
-	if _, err := source.Seek(0, io.SeekStart); err != nil {
-		_ = source.Close()
-		return errJSON(c, fiber.StatusInternalServerError, "Could not read file")
-	}
-	contentType := downloadContentType(file.FileName, sniff[:read])
+	contentType := downloadContentType(file.FileName, sniff)
 	preview := c.Query("preview") == "1"
 	c.Set(fiber.HeaderContentType, contentType)
 	c.Set(fiber.HeaderContentDisposition, fileDisposition(file.FileName, contentType, preview))
@@ -259,7 +254,7 @@ func (h *DocumentHandler) DownloadFile(c *fiber.Ctx) error {
 			Metadata:    "{}",
 		}).Error
 	}
-	return c.SendStream(source, int(info.Size()))
+	return c.SendStream(&bufferedReadCloser{Reader: reader, Closer: obj.Body}, int(obj.Size))
 }
 
 // fileDisposition shows PDFs inline when a preview is asked for; every other type, and every
@@ -853,6 +848,10 @@ func storeDocumentUploadWithPolicy(cfg *config.Config, fileName, mimeType, data 
 	if err := os.WriteFile(abs, decoded, 0o644); err != nil {
 		return "", fmt.Errorf("could not store upload: %w", err)
 	}
+	if err := persistObject(cfg, rel, false); err != nil {
+		_ = os.Remove(abs)
+		return "", err
+	}
 	return rel, nil
 }
 
@@ -890,6 +889,10 @@ func storeImageAsset(cfg *config.Config, directory string, source io.Reader, siz
 	if err := os.WriteFile(absolutePath, data, 0o644); err != nil {
 		return "", fmt.Errorf("could not store the image")
 	}
+	if err := persistObject(cfg, relativePath, true); err != nil {
+		_ = os.Remove(absolutePath)
+		return "", err
+	}
 	return relativePath, nil
 }
 
@@ -917,7 +920,7 @@ func removeStoredImage(cfg *config.Config, relativePath, directory string) {
 	if err != nil || relativeToRoot == ".." || strings.HasPrefix(relativeToRoot, ".."+string(os.PathSeparator)) {
 		return
 	}
-	_ = os.Remove(absolutePath)
+	removeStoredObject(cfg, filepath.ToSlash(cleanPath))
 	// Remove the resized copies made by ImageVariant as well.
 	base := strings.TrimSuffix(filepath.Base(absolutePath), filepath.Ext(absolutePath))
 	if variants, err := filepath.Glob(filepath.Join(filepath.Dir(absolutePath), ".variants", base+"-*")); err == nil {
@@ -1029,6 +1032,10 @@ func storeDocumentStream(cfg *config.Config, fileName string, source io.Reader, 
 	case written > maxBytes:
 		_ = os.Remove(abs)
 		return "", 0, "", fmt.Errorf("the file is larger than the %s limit", formatMegabytes(maxBytes))
+	}
+	if err := persistObject(cfg, rel, false); err != nil {
+		_ = os.Remove(abs)
+		return "", 0, "", err
 	}
 	return rel, written, http.DetectContentType(head.buf), nil
 }
@@ -1142,16 +1149,12 @@ func (h *DocumentHandler) AdminUploadFile(c *fiber.Ctx) error {
 	}
 
 	if err := h.DB.Save(&row).Error; err != nil {
-		if path, pathErr := documentUploadPath(h.Cfg, storedPath); pathErr == nil {
-			_ = os.Remove(path)
-		}
+		removeStoredObject(h.Cfg, storedPath)
 		return errJSON(c, fiber.StatusInternalServerError, "Could not save the file")
 	}
 	// Remove the replaced file only after the new one is recorded.
 	if previousPath != "" && previousPath != storedPath {
-		if path, pathErr := documentUploadPath(h.Cfg, previousPath); pathErr == nil {
-			_ = os.Remove(path)
-		}
+		removeStoredObject(h.Cfg, previousPath)
 	}
 	apiPublicURL := ""
 	if h.Cfg != nil {
@@ -1197,9 +1200,7 @@ func (h *DocumentHandler) AdminDeleteFile(c *fiber.Ctx) error {
 	if err := h.DB.Delete(&file).Error; err != nil {
 		return errJSON(c, fiber.StatusInternalServerError, "Could not delete file")
 	}
-	if path, err := documentUploadPath(h.Cfg, file.StoragePath); err == nil {
-		_ = os.Remove(path)
-	}
+	removeStoredObject(h.Cfg, file.StoragePath)
 	return msg(c, "File deleted")
 }
 
