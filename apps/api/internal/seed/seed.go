@@ -93,7 +93,9 @@ func seedSettings(db *gorm.DB) error {
 func seedCategories(db *gorm.DB) error {
 	for _, c := range categories {
 		var existing models.Category
-		err := db.Where("code = ?", c.Code).First(&existing).Error
+		// Deleted categories still reserve their unique code. Respect the admin's
+		// deletion instead of recreating it and preventing the API from starting.
+		err := db.Unscoped().Where("code = ?", c.Code).First(&existing).Error
 		if err == nil {
 			continue
 		}

@@ -88,7 +88,7 @@ func (h *AccountHandler) UploadAvatar(c *fiber.Ctx) error {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return errJSON(c, fiber.StatusInternalServerError, "Could not store avatar")
 	}
-	rel := filepath.ToSlash(filepath.Join("avatars", user.ID.String()+ext))
+	rel := filepath.ToSlash(filepath.Join("avatars", uuid.NewString()+ext))
 	abs := filepath.Join(h.Cfg.UploadDir, filepath.FromSlash(rel))
 
 	src, err := file.Open()
@@ -104,7 +104,7 @@ func (h *AccountHandler) UploadAvatar(c *fiber.Ctx) error {
 	}
 	written, copyErr := io.Copy(out, io.LimitReader(src, maxAvatarBytes+1))
 	closeErr := out.Close()
-	if copyErr != nil || closeErr != nil || written > maxAvatarBytes {
+	if copyErr != nil || closeErr != nil || written == 0 || written > maxAvatarBytes {
 		_ = os.Remove(tmp)
 		return errJSON(c, fiber.StatusBadRequest, "Avatar must be 1 byte–2MB")
 	}
@@ -113,11 +113,17 @@ func (h *AccountHandler) UploadAvatar(c *fiber.Ctx) error {
 		return errJSON(c, fiber.StatusInternalServerError, "Could not store avatar")
 	}
 
-	if user.AvatarPath != "" && user.AvatarPath != rel {
-		_ = os.Remove(filepath.Join(h.Cfg.UploadDir, filepath.FromSlash(user.AvatarPath)))
+	if err := persistObject(h.Cfg, rel, true); err != nil {
+		_ = os.Remove(abs)
+		return errJSON(c, fiber.StatusBadGateway, "Could not store avatar")
 	}
+	previousPath := user.AvatarPath
 	if err := h.DB.Model(user).Update("avatar_path", rel).Error; err != nil {
+		removeStoredObject(h.Cfg, rel)
 		return errJSON(c, fiber.StatusInternalServerError, "Could not update avatar")
+	}
+	if previousPath != "" && previousPath != rel {
+		removeStoredObject(h.Cfg, previousPath)
 	}
 	user.AvatarPath = rel
 	tier, endsAt := h.membershipInfo(user.ID)
@@ -126,12 +132,11 @@ func (h *AccountHandler) UploadAvatar(c *fiber.Ctx) error {
 
 func (h *AccountHandler) DeleteAvatar(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
-	if user.AvatarPath != "" {
-		_ = os.Remove(filepath.Join(h.Cfg.UploadDir, filepath.FromSlash(user.AvatarPath)))
-	}
+	previousPath := user.AvatarPath
 	if err := h.DB.Model(user).Update("avatar_path", "").Error; err != nil {
 		return errJSON(c, fiber.StatusInternalServerError, "Could not remove avatar")
 	}
+	removeStoredObject(h.Cfg, previousPath)
 	user.AvatarPath = ""
 	tier, endsAt := h.membershipInfo(user.ID)
 	return c.JSON(userPayload(user, tier, endsAt))

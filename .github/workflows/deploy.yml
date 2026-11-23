@@ -99,6 +99,7 @@ jobs:
           go vet ./...
           mkdir -p ../../dist/api
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../../dist/api/server ./cmd/server
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../../dist/api/migrate-r2 ./cmd/migrate-r2
 
       - name: Install frontend dependencies
         working-directory: apps/web

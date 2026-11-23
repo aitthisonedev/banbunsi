@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/banbunsi/banbunsi/apps/api/internal/storage"
 	"github.com/joho/godotenv"
 )
 
@@ -25,6 +26,7 @@ type Config struct {
 	OwnerPassword       string
 	OwnerName           string
 	UploadDir           string
+	ObjectStore         storage.Store
 	// MaxUploadBytes is the hard limit for one document file upload (MAX_UPLOAD_MB, default 100).
 	// The per-site limit in Settings can be set up to this value.
 	MaxUploadBytes     int64
@@ -80,6 +82,18 @@ func Load() (*Config, error) {
 	if !cfg.IsDev() {
 		if strings.TrimSpace(os.Getenv("OWNER_EMAIL")) == "" || len(os.Getenv("OWNER_PASSWORD")) < 12 {
 			return nil, fmt.Errorf("production requires OWNER_EMAIL and an OWNER_PASSWORD of at least 12 characters")
+		}
+	}
+	if value := os.Getenv("R2_ENABLED"); value != "" {
+		enabled, err := strconv.ParseBool(value)
+		if err != nil {
+			return nil, fmt.Errorf("R2_ENABLED must be true or false")
+		}
+		if enabled {
+			cfg.ObjectStore, err = storage.NewR2(strings.TrimSpace(os.Getenv("R2_ACCOUNT_ID")), strings.TrimSpace(os.Getenv("R2_BUCKET")), strings.TrimSpace(os.Getenv("R2_ACCESS_KEY_ID")), strings.TrimSpace(os.Getenv("R2_SECRET_ACCESS_KEY")))
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return cfg, nil
